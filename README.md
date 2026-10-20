@@ -12,6 +12,8 @@ Repository phục vụ seminar **Redis In-Memory Data Store** trên một máy �
 
 Bắt đầu với [hướng dẫn môi trường](linux/commands.md), [nghiên cứu overview](theory/01-redis-overview.md), [checklist chất lượng](docs/demo-quality-checklist.md) và [kịch bản nói/quay](docs/presentation-notes/01-overview-environment.md). [Kết quả kiểm tra](docs/environment-verification.md) phân biệt rehearsal WSL và VM cuối.
 
+Đã đối chiếu [minh chứng VMware ngày 20/10/2026](docs/screenshots/00-environment/vmware-2026-10-20/README.md): VM 512 MB/2 CPUs, Ubuntu 26.04.1, Redis 8.0.5, Python 3.14.4; checker, cách ly, TTL và normal restart đạt với swap bật. Log còn cảnh báo overcommit/PID file; workload cuối và crash-loss chưa được xác minh.
+
 Slides phần tổng quan và môi trường sẽ được chuẩn bị ở giai đoạn sau; hiện chưa đưa file slides lên repo.
 
 ## Mục tiêu
@@ -95,7 +97,7 @@ Client -> Application -> Redis
 
 5. **Demo 04 - Persistence và sự cố**
    - Chạy cùng một kịch bản ghi dữ liệu lần lượt với cấu hình RDB và AOF.
-   - Dùng `kill -9` để mô phỏng sập nguồn ngay sau khi ghi.
+   - Dùng `kill -9` để mô phỏng process Redis bị dừng đột ngột sau khi ghi; đây không phải thử nghiệm mất điện VM/host.
    - Khởi động lại Redis, đếm số key còn lại và so sánh mức mất dữ liệu.
    - Với AOF, sử dụng `appendfsync everysec`; mức mất dữ liệu kỳ vọng thường nhỏ hơn RDB thuần túy.
 

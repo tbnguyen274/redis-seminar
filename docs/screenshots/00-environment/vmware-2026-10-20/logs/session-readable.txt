@@ -1,0 +1,646 @@
+Script started on 2026-10-20 07:55:53+00:00 [COMMAND="bash" TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="120" LINES="30"]
+kyrie@vmware:~/redis-seminar$ set -o pipefaiset -o pipefail
+
+kyrie@vmware:~/redis-seminar$ clear
+
+kyrie@vmware:~/redis-seminar$ fastfetch
+
+                             ....
+              .',:clooo:  .:looooo:.
+           .;looooooooc  .oooooooooo'
+        .;looooool:,''.  :ooooooooooc
+       ;looool;.         'oooooooooo,
+      ;clool'             .cooooooc.  ,,
+         ...                ......  .:oo,
+  .;clol:,.                        .loooo'
+ :ooooooooo,                        'ooool
+'ooooooooooo.                        loooo.
+'ooooooooool                         coooo.
+ ,loooooooc.                        .loooo.
+   .,;;;'.                          ;ooooc
+       ...                         ,ooool.
+    .cooooc.              ..',,'.  .cooo.
+      ;ooooo:.           ;oooooooc.  :l.
+       .coooooc,..      coooooooooo.
+         .:ooooooolc:. .ooooooooooo'
+           .':loooooo;  ,oooooooooc
+               ..';::c'  .;loooo:'kyrie@vmware
+------------
+OS: Ubuntu 26.04.1 LTS (Resolute Raccoon) x86_64
+Host: VMware Virtual Platform
+Kernel: Linux 7.0.0-38-generic
+Uptime: 8 mins
+Packages: 717 (dpkg), 3 (snap)
+Shell: bash 5.3.9
+Display (Virtual-1): 1280x800, 60 Hz
+Terminal: /dev/pts/2
+CPU: 2 x 12th Gen Intel(R) Core(TM) i5-12500H (2) @ 3.11 GHz
+GPU: VMware SVGA II Adapter
+Memory: 247.84 MiB / 404.61 MiB (61%)
+Swap: 59.95 MiB / 1.63 GiB (4%)
+Disk (/): 4.64 GiB / 9.75 GiB (48%) - ext4
+Local IP (ens33): 192.168.112.131/24
+Locale: en_US.UTF-8
+
+
+
+kyrie@vmware:~/redis-seminar$ date -Is
+
+2026-10-20T07:56:17+00:00
+kyrie@vmware:~/redis-seminar$ git branch --show-current
+
+feat/environment-prep
+kyrie@vmware:~/redis-seminar$ git rev-parse HEAD
+
+2cd27a98b251231f1bc5e524451ce3ead546fcb4
+kyrie@vmware:~/redis-seminar$ clear
+
+kyrie@vmware:~/redis-seminar$ sudo bash linux/setup.sh 2>&1 | tee "$EVIDENCE/setup.txt"
+sudo bash linux/setup.sh 2>&1 | tee "$EVIDENCE/setup.txt"
+
+[sudo: authenticate] Password:
+Hit:1 http://sg.archive.ubuntu.com/ubuntu resolute InRelease
+Hit:2 http://sg.archive.ubuntu.com/ubuntu resolute-updates InRelease
+Hit:3 http://sg.archive.ubuntu.com/ubuntu resolute-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu resolute-security InRelease
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+python3 is already the newest version (3.14.3-0ubuntu2).
+python3 set to manually installed.
+iproute2 is already the newest version (6.19.0-1ubuntu1.1).
+iproute2 set to manually installed.
+procps is already the newest version (2:4.0.4-9ubuntu1).
+procps set to manually installed.
+Solving dependencies...
+The following additional packages will be installed:
+  liblzf1 python3-pip-whl python3-setuptools-whl python3.14-venv
+Suggested packages:
+  ruby-redis
+The following NEW packages will be installed:
+  liblzf1 python3-pip-whl python3-setuptools-whl python3-venv python3.14-venv
+  redis-server redis-tools
+0 upgraded, 7 newly installed, 0 to remove and 10 not upgraded.
+Need to get 4,030 kB of archives.
+After this operation, 10.4 MB of additional disk space will be used.
+Get:1 http://sg.archive.ubuntu.com/ubuntu resolute/universe amd64 liblzf1 amd64 3.6-4build1 [7,490 B]
+Get:2 http://sg.archive.ubuntu.com/ubuntu resolute/universe amd64 python3-pip-whl all 25.1.1+dfsg-1ubuntu2 [1,430 kB]
+Get:3 http://sg.archive.ubuntu.com/ubuntu resolute/universe amd64 python3-setuptools-whl all 78.1.1-0.1build1 [1,174 kB]
+Get:4 http://sg.archive.ubuntu.com/ubuntu resolute-updates/universe amd64 python3.14-venv amd64 3.14.4-1ubuntu0.2 [5,356 B]
+Get:5 http://sg.archive.ubuntu.com/ubuntu resolute/universe amd64 python3-venv amd64 3.14.3-0ubuntu2 [1,032 B]
+Get:6 http://sg.archive.ubuntu.com/ubuntu resolute-updates/universe amd64 redis-tools amd64 5:8.0.5-1ubuntu0.1 [1,359 kB]
+Get:7 http://sg.archive.ubuntu.com/ubuntu resolute-updates/universe amd64 redis-server amd64 5:8.0.5-1ubuntu0.1 [53.2 kB]
+Fetched 4,030 kB in 4s (1,054 kB/s)
+Selecting previously unselected package liblzf1:amd64.
+
+(Reading database…
+(Reading database… 5%
+(Reading database… 10%
+(Reading database… 15%
+(Reading database… 20%
+(Reading database… 25%
+(Reading database… 30%
+(Reading database… 35%
+(Reading database… 40%
+(Reading database… 45%
+(Reading database… 50%
+(Reading database… 55%
+(Reading database… 60%
+(Reading database… 65%
+(Reading database… 70%
+(Reading database… 75%
+(Reading database… 80%
+(Reading database… 85%
+(Reading database… 90%
+(Reading database… 95%
+(Reading database… 100%
+(Reading database… 99016 files and directories currently installed.)
+
+Preparing to unpack …/0-liblzf1_3.6-4build1_amd64.deb…
+
+Unpacking liblzf1:amd64 (3.6-4build1)…
+
+Selecting previously unselected package python3-pip-whl.
+
+Preparing to unpack …/1-python3-pip-whl_25.1.1+dfsg-1ubuntu2_all.deb…
+
+Unpacking python3-pip-whl (25.1.1+dfsg-1ubuntu2)…
+
+Selecting previously unselected package python3-setuptools-whl.
+
+Preparing to unpack …/2-python3-setuptools-whl_78.1.1-0.1build1_all.deb…
+
+Unpacking python3-setuptools-whl (78.1.1-0.1build1)…
+
+Selecting previously unselected package python3.14-venv.
+
+Preparing to unpack …/3-python3.14-venv_3.14.4-1ubuntu0.2_amd64.deb…
+
+Unpacking python3.14-venv (3.14.4-1ubuntu0.2)…
+
+Selecting previously unselected package python3-venv.
+
+Preparing to unpack …/4-python3-venv_3.14.3-0ubuntu2_amd64.deb…
+
+Unpacking python3-venv (3.14.3-0ubuntu2)…
+
+Selecting previously unselected package redis-tools.
+
+Preparing to unpack …/5-redis-tools_5%3a8.0.5-1ubuntu0.1_amd64.deb…
+
+Unpacking redis-tools (5:8.0.5-1ubuntu0.1)…
+
+Selecting previously unselected package redis-server.
+
+Preparing to unpack …/6-redis-server_5%3a8.0.5-1ubuntu0.1_amd64.deb…
+
+Unpacking redis-server (5:8.0.5-1ubuntu0.1)…
+
+Setting up python3-setuptools-whl (78.1.1-0.1build1)…
+
+Setting up python3-pip-whl (25.1.1+dfsg-1ubuntu2)…
+
+Setting up python3.14-venv (3.14.4-1ubuntu0.2)…
+
+Setting up python3-venv (3.14.3-0ubuntu2)…
+
+Setting up liblzf1:amd64 (3.6-4build1)…
+
+Setting up redis-tools (5:8.0.5-1ubuntu0.1)…
+
+Setting up redis-server (5:8.0.5-1ubuntu0.1)…
+
+Created symlink '/etc/systemd/system/redis.service' → '/usr/lib/systemd/system/redis-server.service'.
+
+
+Created symlink '/etc/systemd/system/multi-user.target.wants/redis-server.service' → '/usr/lib/systemd/system/redis-server.service'.
+
+
+Processing triggers for man-db (2.13.1-1build1)…
+
+Processing triggers for libc-bin (2.43-2ubuntu2.4)…
+
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+Synchronizing state of redis-server.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable redis-server
+PONG
+Redis server v=8.0.5 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d47fc40702b1fad8
+Python 3.14.4
+kyrie@vmware:~/redis-seminar$ echo "SETUP_EXIT=$echo "SETUP_EXIT=$?"
+
+SETUP_EXIT=0
+kyrie@vmware:~/redis-seminar$ dpkg-query -W redis-server redis-tools python3
+dpkg-query -W redis-server redis-tools python3
+
+python3	3.14.3-0ubuntu2
+redis-server	5:8.0.5-1ubuntu0.1
+redis-tools	5:8.0.5-1ubuntu0.1
+kyrie@vmware:~/redis-seminar$ systemctl is-enabled redis-server
+systemctl is-enabled redis-server
+
+enabled
+kyrie@vmware:~/redis-seminar$ systemctl is-active redis-server
+systemctl is-active redis-server
+
+active
+kyrie@vmware:~/redis-seminar$ systemctl status redis-server --no-pager -l
+systemctl status redis-server --no-pager -l
+
+● redis-server.service - Advanced key-value store
+     Loaded: loaded (kyrie@vmware:~/redis-seminar$ redis-cli -e -p 6379 PINredis-cli -e -p 6379 PING
+
+PONG
+kyrie@vmware:~/redis-seminar$ bash -n linux/setup.sh linux/check.sh
+bash -n linux/setup.sh linux/check.sh
+
+kyrie@vmware:~/redis-seminar$ echo "SHELL_SYNTAX_EXIT=$?echo "SHELL_SYNTAX_EXIT=$?"
+
+SHELL_SYNTAX_EXIT=0
+kyrie@vmware:~/redis-seminar$ sudo ss -lntp | grep -E ':638[0-4]\b'
+sudo ss -lntp | grep -E ':638[0-4]\b'
+
+kyrie@vmware:~/redis-seminar$ for demo in rdb aof eviction data-structures cache-aside; do
+
+  redis-server "redis/redis-$demo.conf" \
+
+    --daemonize yes \
+
+    --logfile "/tmp/redis-seminar/$demo/server.log"
+
+done
+kyrie@vmware:~/redis-seminar$ for demo in rdb aof eviction data-structures cache-aside; do
+
+  redis-server "redis/redis-$demo.conf" \
+
+    --daemonize yes \
+
+    --logfile "/tmp/redis-seminar/$demo/server.log"
+
+done
+
+kyrie@vmware:~/redis-seminar$ for port in 6380 6381 6382 6383 6384; do
+
+  echo "Waiting for port $port"
+
+  for attempt in {1..20}; do
+
+    redis-cli -e -p "$port" PING && break
+
+    sleep 0.5
+
+  done
+
+done
+kyrie@vmware:~/redis-seminar$ for port in 6380 6381 6382 6383 6384; do
+
+  echo "Waiting for port $port"
+
+  for attempt in {1..20}; do
+
+    redis-cli -e -p "$port" PING && break
+
+    sleep 0.5
+
+  done
+
+done
+
+Waiting for port 6380
+PONG
+Waiting for port 6381
+PONG
+Waiting for port 6382
+PONG
+Waiting for port 6383
+PONG
+Waiting for port 6384
+PONG
+kyrie@vmware:~/redis-seminar$ bash linux/check.sh 2>&1 | tee "$EVIDENCE/check.txt"
+bash linux/check.sh 2>&1 | tee "$EVIDENCE/check.txt"
+
+Checked at: 2026-10-20 07:59:44 UTC
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
+VERSION_ID="26.04"
+7.0.0-38-generic
+Logical CPUs: 2
+               total        used        free      shared  buff/cache   available
+Mem:           404Mi       261Mi       5.7Mi       372Ki       155Mi       143Mi
+Swap:          1.6Gi        98Mi       1.5Gi
+Redis server v=8.0.5 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d47fc40702b1fad8
+Python 3.14.4
+active
+Port 6379: PONG
+process_id:3264
+
+Port 6380: PONG
+process_id:3792
+
+Port 6381: PONG
+process_id:3799
+
+Port 6382: PONG
+process_id:3806
+
+Port 6383: PONG
+process_id:3813
+
+Port 6384: PONG
+process_id:3820
+
+Port 6380: dir=/tmp/redis-seminar/rdb
+Port 6380: appendonly=no
+Port 6381: dir=/tmp/redis-seminar/aof
+Port 6381: appendonly=yes
+Port 6381: appendfsync=everysec
+Port 6381: save=
+Port 6382: maxmemory=10485760
+Port 6382: maxmemory-policy=allkeys-lru
+Port 6382: dir=/tmp/redis-seminar/eviction
+Port 6382: save=
+Port 6382: appendonly=no
+Port 6383: dir=/tmp/redis-seminar/data-structures
+Port 6383: save=
+Port 6383: appendonly=no
+Port 6384: dir=/tmp/redis-seminar/cache-aside
+Port 6384: save=
+Port 6384: appendonly=no
+LISTEN 0      511        127.0.0.1:6379      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6381      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6380      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6383      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6382      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6384      0.0.0.0:*
+LISTEN 0      511            [::1]:6379         [::]:*
+PASS: service, ports and demo configuration checks.
+kyrie@vmware:~/redis-seminar$ echo "CHECK_EXIT=$echo "CHECK_EXIT=$?"
+
+CHECK_EXIT=0
+kyrie@vmware:~/redis-seminar$ probe="env:vmcheck:$(date +%s):$$"
+
+echo "Probe key: $probe"
+
+
+redis-cli -e -p 6383 SET "$probe" vm-test EX 5
+
+
+redis-cli -p 6383 GET "$probe"
+
+redis-cli -p 6384 EXISTS "$probe"
+
+redis-cli -p 6383 TTL "$probe"
+
+
+sleep 6
+
+
+redis-cli -p 6383 EXISTS "$probe"
+
+redis-cli -p 6383 TTL "$probe"probe="env:vmcheck:$(date +%s):$$"
+
+echo "Probe key: $probe"
+
+
+redis-cli -e -p 6383 SET "$probe" vm-test EX 5
+
+
+redis-cli -p 6383 GET "$probe"
+
+redis-cli -p 6384 EXISTS "$probe"
+
+redis-cli -p 6383 TTL "$probe"
+
+
+sleep 6
+
+
+redis-cli -p 6383 EXISTS "$probe"
+
+redis-cli -p 6383 TTL "$probe"
+
+Probe key: env:vmcheck:1792483223:2409
+OK
+"vm-test"
+(integer) 0
+(integer) 5
+(integer) 0
+(integer) -2
+kyrie@vmware:~/redis-seminar$ persist_probe="env:restart:$(date +%s):$$"
+
+echo "Restart probe: $persist_probpersist_probe="env:restart:$(date +%s):$$"
+
+echo "Restart probe: $persist_probe"
+
+Restart probe: env:restart:1792483263:2409
+kyrie@vmware:~/redis-seminar$ redis-cli -e -p 6380 SET "$persist_probe" rdb-ok
+redis-cli -e -p 6380 SET "$persist_probe" rdb-ok
+
+OK
+kyrie@vmware:~/redis-seminar$ redis-cli -e -p 6380 SAVredis-cli -e -p 6380 SAVE
+
+OK
+kyrie@vmware:~/redis-seminar$ redis-cli -e -p 6381 SET "$persist_probe" aof-ok
+redis-cli -e -p 6381 SET "$persist_probe" aof-ok
+
+OK
+kyrie@vmware:~/redis-seminar$ redis-cli -e -p 6383 SET "$persist_probe" temporary
+redis-cli -e -p 6383 SET "$persist_probe" temporary
+
+OK
+kyrie@vmware:~/redis-seminar$ redis-cli -e -p 6380 SHUTDOWN
+
+redis-cli -e -p 6381 SHUTDOWN
+
+redis-cli -e -p 6383 SHUTDOWN
+kyrie@vmware:~/redis-seminar$ redis-cli -e -p 6380 SHUTDOWN
+
+redis-cli -e -p 6381 SHUTDOWN
+
+redis-cli -e -p 6383 SHUTDOWN
+
+kyrie@vmware:~/redis-seminar$ for demo in rdb aof data-structures; do
+
+  redis-server "redis/redis-$demo.conf" \
+
+    --daemonize yes \
+
+    --logfile "/tmp/redis-seminar/$demo/server.log"
+
+done
+
+
+for port in 6380 6381 6383; do
+
+  for attempt in {1..20}; do
+
+    redis-cli -e -p "$port" PING && break
+
+    sleep 0.5
+
+  done
+
+done
+kyrie@vmware:~/redis-seminar$ for demo in rdb aof data-structures; do
+
+  redis-server "redis/redis-$demo.conf" \
+
+    --daemonize yes \
+
+    --logfile "/tmp/redis-seminar/$demo/server.log"
+
+done
+
+
+for port in 6380 6381 6383; do
+
+  for attempt in {1..20}; do
+
+    redis-cli -e -p "$port" PING && break
+
+    sleep 0.5
+
+  done
+
+done
+
+PONG
+PONG
+PONG
+kyrie@vmware:~/redis-seminar$ redis-cli -p 6380 GET "$persist_probe"
+
+redis-cli -p 6381 GET "$persist_probe"
+
+redis-cli -p 6383 EXISTS "$persist_proberedis-cli -p 6380 GET "$persist_probe"
+
+redis-cli -p 6381 GET "$persist_probe"
+
+redis-cli -p 6383 EXISTS "$persist_probe"
+
+"rdb-ok"
+"aof-ok"
+(integer) 0
+kyrie@vmware:~/redis-seminar$ redis-cli -e -p 6380 DEL "$persist_probe"
+
+redis-cli -e -p 6380 SAVE
+
+
+redis-cli -e -p 6381 DEL "$persist_proberedis-cli -e -p 6380 DEL "$persist_probe"
+
+redis-cli -e -p 6380 SAVE
+
+
+redis-cli -e -p 6381 DEL "$persist_probe"
+
+(integer) 1
+OK
+(integer) 1
+kyrie@vmware:~/redis-seminar$ python3 -m venv .venv
+
+echo "VENV_EXIT=$?"
+
+
+.venv/bin/python --version
+
+.venv/bin/python -m pip --versiopython3 -m venv .venv
+
+echo "VENV_EXIT=$?"
+
+
+.venv/bin/python --version
+
+.venv/bin/python -m pip --version
+
+VENV_EXIT=0
+Python 3.14.4
+pip 25.1.1 from /home/kyrie/redis-seminar/.venv/lib/python3.14/site-packages/pip (python 3.14)
+kyrie@vmware:~/redis-seminar$ bash linux/check.sh 2>&1 | tee "$EVIDENCE/check-final.txt"
+bash linux/check.sh 2>&1 | tee "$EVIDENCE/check-final.txt"
+
+Checked at: 2026-10-20 08:03:30 UTC
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
+VERSION_ID="26.04"
+7.0.0-38-generic
+Logical CPUs: 2
+               total        used        free      shared  buff/cache   available
+Mem:           404Mi       246Mi        10Mi       340Ki       165Mi       157Mi
+Swap:          1.6Gi       107Mi       1.5Gi
+Redis server v=8.0.5 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d47fc40702b1fad8
+Python 3.14.4
+active
+Port 6379: PONG
+process_id:3264
+
+Port 6380: PONG
+process_id:3934
+
+Port 6381: PONG
+process_id:3941
+
+Port 6382: PONG
+process_id:3806
+
+Port 6383: PONG
+process_id:3948
+
+Port 6384: PONG
+process_id:3820
+
+Port 6380: dir=/tmp/redis-seminar/rdb
+Port 6380: appendonly=no
+Port 6381: dir=/tmp/redis-seminar/aof
+Port 6381: appendonly=yes
+Port 6381: appendfsync=everysec
+Port 6381: save=
+Port 6382: maxmemory=10485760
+Port 6382: maxmemory-policy=allkeys-lru
+Port 6382: dir=/tmp/redis-seminar/eviction
+Port 6382: save=
+Port 6382: appendonly=no
+Port 6383: dir=/tmp/redis-seminar/data-structures
+Port 6383: save=
+Port 6383: appendonly=no
+Port 6384: dir=/tmp/redis-seminar/cache-aside
+Port 6384: save=
+Port 6384: appendonly=no
+LISTEN 0      511        127.0.0.1:6379      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6381      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6380      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6383      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6382      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6384      0.0.0.0:*
+LISTEN 0      511            [::1]:6379         [::]:*
+PASS: service, ports and demo configuration checks.
+kyrie@vmware:~/redis-seminar$ echo "FINAL_CHECK_EXIT=$echo "FINAL_CHECK_EXIT=$?"
+
+FINAL_CHECK_EXIT=0
+kyrie@vmware:~/redis-seminar$ free -h
+
+               total        used        free      shared  buff/cache   available
+Mem:           404Mi       245Mi       9.1Mi       340Ki       168Mi       159Mi
+Swap:          1.6Gi       105Mi       1.5Gi
+kyrie@vmware:~/redis-seminar$ sudo journalctl -u redis-server -b --no-pager \
+
+  > "$EVIDENCE/redis-service.txt"
+
+
+sudo journalctl -k -b --no-pager \
+
+  > "$EVIDENCE/kernel.txt"
+
+
+mkdir -p "$EVIDENCE/instance-logs"
+
+
+for demo in rdb aof eviction data-structures cache-aside; do
+
+  cp "/tmp/redis-seminar/$demo/server.log" \
+
+    "$EVIDENCE/instance-logs/$demo.log"
+
+done
+kyrie@vmware:~/redis-seminar$ sudo journalctl -u redis-server -b --no-pager \
+
+  > "$EVIDENCE/redis-service.txt"
+
+
+sudo journalctl -k -b --no-pager \
+
+  > "$EVIDENCE/kernel.txt"
+
+
+mkdir -p "$EVIDENCE/instance-logs"
+
+
+for demo in rdb aof eviction data-structures cache-aside; do
+
+  cp "/tmp/redis-seminar/$demo/server.log" \
+
+    "$EVIDENCE/instance-logs/$demo.log"
+
+done
+
+kyrie@vmware:~/redis-seminar$ for port in 6380 6381 6382 6383 6384; do
+
+  redis-cli -e -p "$port" SHUTDOWN
+
+done
+kyrie@vmware:~/redis-seminar$ for port in 6380 6381 6382 6383 6384; do
+
+  redis-cli -e -p "$port" SHUTDOWN
+
+done
+
+kyrie@vmware:~/redis-seminar$ exexit
+
+exit
+
+Script done on 2026-10-20 08:04:24+00:00 [COMMAND_EXIT_CODE="0"]

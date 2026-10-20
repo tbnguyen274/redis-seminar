@@ -4,6 +4,8 @@ Phạm vi: phần người phụ trách môi trường, dự kiến khoảng **5
 
 Slides sẽ được chuẩn bị ở giai đoạn sau; hiện chưa đưa file slides lên repo. Kịch bản dưới đây dùng để chuẩn bị phần trình bày và quay demo.
 
+Đã có [minh chứng VMware ngày 20/10/2026](../screenshots/00-environment/vmware-2026-10-20/README.md): Workstation Pro 26H1u1 (người dùng xác nhận), 512 MB/2 CPUs, Ubuntu 26.04.1, Redis 8.0.5 và Python 3.14.4. Recording gốc dài **8 phút 26.8 giây**, nền sáng, không có lời dẫn nghe được; chưa biên tập về khoảng 90 giây. Chưa làm hoặc cập nhật slides trong lần đối chiếu này.
+
 ## Lời dẫn theo slides
 
 | Mốc thời gian | Nội dung trên slide | Lời giải thích gợi ý |
@@ -13,10 +15,16 @@ Slides sẽ được chuẩn bị ở giai đoạn sau; hiện chưa đưa file 
 | 1:20–2:00 | Use case và giới hạn | “Redis thường dùng cho cache, session, quota, bảng xếp hạng và queue. Mức ảnh hưởng khi mất dữ liệu khác nhau: cache có thể dựng lại, nhưng session/job có thể ảnh hưởng người dùng. Cần chọn persistence phù hợp.” |
 | 2:00–2:35 | Bốn demo | “Bốn phần tiếp theo kiểm tra cấu trúc dữ liệu và TTL, thời gian hit/miss, eviction khi chạm bộ nhớ, rồi dữ liệu phục hồi từ RDB và AOF.” |
 | 2:35–3:05 | Môi trường cách ly | “Service mặc định ở 6379. Mỗi bài có process, port và thư mục riêng. Crash hoặc reset một bài không làm dừng server của bài khác.” |
-| 3:05–4:35 | Video môi trường | Phát video khoảng 90 giây bên dưới. Nói rõ đây là môi trường ghi hình thực tế, phiên bản cụ thể nằm trong minh chứng. |
+| 3:05–4:35 | Video môi trường | Dành khoảng 90 giây cho bản biên tập về sau; không phát nguyên recording 8 phút 26.8 giây trong slot này. Nêu phiên bản VMware/guest thực tế và swap bật. |
 | 4:35–5:00 | Chuyển phần | “Môi trường đã kiểm tra kết nối và cách ly. Phần đầu tiên sẽ cho thấy Redis lưu và thao tác các cấu trúc dữ liệu như thế nào.” |
 
-Tập nói bằng ý chính, không đọc nguyên văn. Slide kết quả WSL chỉ dùng đúng nhãn rehearsal; cần thay bằng kết quả VM nếu dùng làm bằng chứng yêu cầu VM 512 MB.
+Tập nói bằng ý chính, không đọc nguyên văn. Khi làm slides sau này, dùng kết quả VMware cho môi trường cuối; chỉ dùng số WSL nếu ghi rõ là rehearsal riêng. Hai checker PASS và normal restart không chứng minh workload cuối hoặc crash-loss đã hoàn thành. Log vẫn có overcommit/PID-file warning cần kiểm tra lại.
+
+## Nguồn recording đã có và việc biên tập sau
+
+File gốc: `F:\Git\Uni\Linux\Seminar evidence\2026-10-20 14-56-09.mp4`, 1080p/60 fps. [Chỉ mục minh chứng](../screenshots/00-environment/vmware-2026-10-20/README.md) có mốc thời gian gần đúng cho OS/service, checker, isolation/TTL và normal restart. Giữ bản gốc; chưa cắt video trong lần chỉnh tài liệu này. Ảnh settings CPU/RAM được cung cấp riêng, không giả định nằm trong recording.
+
+Khi nhóm làm phần trình chiếu, chọn đoạn thật có command và output, bỏ thời gian chờ cài package, giữ đủ thời gian đọc kết quả. Nếu thuyết minh trực tiếp thì video không cần voiceover; thử đồng bộ lời nói và playback trước buổi trình bày. Nếu dùng ảnh settings trong bản biên tập, ghi rõ đó là ảnh cấu hình VM.
 
 ## Chuẩn bị trước khi record
 

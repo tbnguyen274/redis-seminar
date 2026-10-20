@@ -4,10 +4,12 @@
 
 Chạy các lệnh Linux từ thư mục gốc repo. Môi trường cuối theo đề: VM Linux **512 MB RAM**. Ưu tiên bản server tối giản nếu desktop không chạy ổn ở mức RAM này. Chụp cấu hình CPU/RAM trong VMware; `free -h` chỉ là thông tin bổ sung từ guest.
 
+Lần chạy VMware đã đối chiếu dùng Ubuntu 26.04.1 LTS, Redis 8.0.5, Python 3.14.4, 512 MB/2 CPUs và khoảng 1.6 GiB swap. WSL trước đó dùng phiên bản khác. Xem [kết quả và cảnh báo thực tế](../docs/environment-verification.md); lệnh start nền dưới đây bổ sung PID file riêng từ phát hiện trong log, chưa được chạy lại trên VM sau thay đổi này.
+
 ```bash
 sudo apt-get update
 sudo apt-get install -y git ca-certificates
-git clone https://github.com/tbnguyen274/redis-seminar.git
+git clone --branch feat/environment-prep https://github.com/tbnguyen274/redis-seminar.git
 cd redis-seminar
 sudo bash linux/setup.sh
 ```
@@ -24,6 +26,15 @@ python3 --version
 ```
 
 Giữ phiên bản gói thực tế trong log. Script dùng gói apt của distro, không khóa phiên bản tuyệt đối; tái lập cùng phiên bản cần dùng cùng image/snapshot và ghi lại `dpkg-query -W redis-server redis-tools python3`.
+
+Branch trên là branch chuẩn bị đang có draft PR; sau khi nhóm merge, dùng branch đã thống nhất. Lưu `git rev-parse HEAD` trước lần đo. Kiểm tra syntax từng script bằng lệnh riêng:
+
+```bash
+bash -n linux/setup.sh
+bash -n linux/check.sh
+```
+
+`bash -n file1 file2` chỉ parse file1; file2 là argument, không phải lượt kiểm tra thứ hai.
 
 ## 2. Rehearsal bằng WSL2
 
@@ -114,14 +125,16 @@ Khi viết script Cache-Aside, cấu hình client kết nối tới `127.0.0.1:6
 Các config dùng `daemonize no`: mỗi dòng start ở trên chạy trong **một terminal riêng** và giữ terminal để hiện log. Khi rehearsal tự động, có thể chạy nền bằng tùy chọn dòng lệnh, không cần sửa config:
 
 ```bash
-redis-server redis/redis-rdb.conf --daemonize yes --logfile /tmp/redis-seminar/rdb/server.log
-redis-server redis/redis-aof.conf --daemonize yes --logfile /tmp/redis-seminar/aof/server.log
-redis-server redis/redis-eviction.conf --daemonize yes --logfile /tmp/redis-seminar/eviction/server.log
-redis-server redis/redis-data-structures.conf --daemonize yes --logfile /tmp/redis-seminar/data-structures/server.log
-redis-server redis/redis-cache-aside.conf --daemonize yes --logfile /tmp/redis-seminar/cache-aside/server.log
+redis-server redis/redis-rdb.conf --daemonize yes --pidfile /tmp/redis-seminar/rdb/server.pid --logfile /tmp/redis-seminar/rdb/server.log
+redis-server redis/redis-aof.conf --daemonize yes --pidfile /tmp/redis-seminar/aof/server.pid --logfile /tmp/redis-seminar/aof/server.log
+redis-server redis/redis-eviction.conf --daemonize yes --pidfile /tmp/redis-seminar/eviction/server.pid --logfile /tmp/redis-seminar/eviction/server.log
+redis-server redis/redis-data-structures.conf --daemonize yes --pidfile /tmp/redis-seminar/data-structures/server.pid --logfile /tmp/redis-seminar/data-structures/server.log
+redis-server redis/redis-cache-aside.conf --daemonize yes --pidfile /tmp/redis-seminar/cache-aside/server.pid --logfile /tmp/redis-seminar/cache-aside/server.log
 ```
 
 Chọn một cách start. Nếu port đã có process thì kiểm tra process/config trước, không start chồng. Log trên dùng thư mục riêng; foreground log nằm ngay terminal. Vì `daemonize yes` trả terminal trước khi server sẵn sàng, xác nhận `PING` sau mỗi lần start.
+
+PID file riêng tránh đường dẫn mặc định mà user thường không ghi được. Không dùng PID file cũ để kill process; đối chiếu `INFO server` và port hiện tại. Nếu log cảnh báo overcommit, đọc mục tương ứng trong [troubleshooting.md](troubleshooting.md) trước thử nghiệm BGSAVE/rewrite.
 
 ## Kiểm tra tổng hợp và lưu minh chứng
 

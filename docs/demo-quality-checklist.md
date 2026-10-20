@@ -11,14 +11,17 @@ Theo cập nhật nhóm: nộp slides qua Moodle, seminar 30–45 phút, nên qu
 - [x] Chuẩn bị lệnh start/stop/reset/restart, script kiểm tra chỉ đọc và hướng dẫn phục hồi.
 - [x] Soạn lời nói, shot list quay môi trường và tiêu chí xem lại video.
 - [ ] Chuẩn bị slides và nguồn trong speaker notes ở giai đoạn sau; hiện chưa đưa file slides lên repo.
-- [ ] Chạy lại trên VMware cấu hình cuối 512 MB; ghi OS/Redis/CPU/RAM thực tế.
-- [ ] Chụp settings VMware và bằng chứng màn hình của lần chạy cuối.
-- [ ] Quay video môi trường nền sáng, chữ lớn; xem lại ở kích thước trình chiếu.
+- [x] Chạy hạ tầng trên VMware 512 MB, 2 CPUs; ghi Ubuntu 26.04.1, Redis 8.0.5, Python 3.14.4 và RAM/swap thực tế.
+- [x] Chụp settings VMware và bằng chứng màn hình của lần chạy này; đã nhận tám ảnh và archive log.
+- [x] Có recording môi trường nền sáng 1080p; đã xem frame mẫu ở kích thước gốc. Bản đầy đủ dài 8 phút 26.8 giây, chưa có lời dẫn nghe được.
+- [ ] Biên tập đoạn môi trường khoảng 90 giây hoặc theo thời lượng nhóm; kiểm tra trên máy trình chiếu.
+- [ ] Kiểm tra lại cảnh báo overcommit/PID file; lưu BGSAVE và log sau điều chỉnh trong guest.
+- [ ] Kiểm tra bốn workload cuối trên VM 512 MB với swap được ghi rõ.
 - [ ] Chốt slide section với nhóm, ghép video và tập nói khoảng 5 phút.
 - [ ] Chạy demo của từng thành viên từ README của họ, không cần hướng dẫn miệng.
 - [ ] Nhờ thành viên review PR và thống nhất merge.
 
-Kết quả kiểm tra tự động/thực nghiệm được ghi riêng trong [environment-verification.md](environment-verification.md). WSL rehearsal không thay thế mục VMware 512 MB phía trên.
+Kết quả ghi trong [environment-verification.md](environment-verification.md); [minh chứng VMware](screenshots/00-environment/vmware-2026-10-20/README.md) đã đủ cho allocation và hạ tầng/probe nhỏ. Repeat setup, reboot recovery, negative test và workload cuối trên VMware chưa có log; kết quả WSL giữ riêng. Slides được làm sau theo yêu cầu, chưa cập nhật hoặc nộp.
 
 ## Bàn giao tối thiểu từ mỗi chủ demo
 
@@ -33,7 +36,7 @@ Kết quả kiểm tra tự động/thực nghiệm được ghi riêng trong [e
 
 ## Demo 01: cấu trúc dữ liệu và TTL
 
-- [ ] Port 6383, đúng config và dataset riêng.
+- [x] Port 6383, đúng config và directory riêng đã được checker VMware xác nhận; dataset đầy đủ của demo vẫn cần chủ phần cung cấp.
 - [ ] String, List, Hash, Sorted Set đều có thao tác ghi và đọc minh họa.
 - [ ] Leaderboard đúng thứ tự score; List và Sorted Set được phân biệt rõ.
 - [ ] TTL giảm, key hết hạn, giải thích được -1 và -2.
@@ -51,7 +54,7 @@ Kết quả kiểm tra tự động/thực nghiệm được ghi riêng trong [e
 
 ## Demo 03: eviction
 
-- [ ] Port 6382, `maxmemory=10485760`, policy `allkeys-lru` được kiểm tra bằng CONFIG GET.
+- [x] Port 6382, `maxmemory=10485760`, policy `allkeys-lru` được checker VMware xác nhận.
 - [ ] Ghi `INFO memory`, `INFO stats` trước/sau, `evicted_keys` tăng.
 - [ ] Phân biệt `expired_keys` và `evicted_keys`; không dùng key hết TTL làm bằng chứng eviction.
 - [ ] Kiểm tra key mất/còn; hot key có xác suất giữ cao hơn, không hứa luôn tồn tại.
@@ -60,7 +63,7 @@ Kết quả kiểm tra tự động/thực nghiệm được ghi riêng trong [e
 
 ## Demo 04: persistence/crash
 
-- [ ] RDB 6380 và AOF 6381 dùng config và directory riêng.
+- [x] RDB 6380 và AOF 6381 dùng config/directory riêng; normal restart phục hồi probe đã được kiểm tra trên VMware, chưa phải crash test.
 - [ ] Xác nhận RDB đã có snapshot baseline cần thiết, AOF bật everysec; ghi INFO persistence.
 - [ ] Cùng workload, có số thứ tự key hoặc kiểm tra nội dung, không chỉ đếm key nếu nội dung có thể sai.
 - [ ] Ghi PID/port hiện tại, số key và thời điểm trước crash; chỉ kill đúng demo process.
@@ -80,4 +83,4 @@ Kết quả kiểm tra tự động/thực nghiệm được ghi riêng trong [e
 
 ## Nội dung PR của phần môi trường
 
-Nêu vấn đề, file thay đổi, môi trường thật và các lệnh đã kiểm tra. Link minh chứng; liệt kê mục chưa làm (VMware cuối, record, script của thành viên). Không ghi “mọi demo đã hoàn thành” khi chỉ mới verify server/config. Không cần commit/push/merge để hoàn thành bước chuẩn bị local.
+Nêu vấn đề, file thay đổi, môi trường thật và các lệnh đã kiểm tra. Link minh chứng; liệt kê mục chưa làm (cảnh báo cần retest, workload của thành viên, video biên tập và slides giai đoạn sau). Không ghi “mọi demo đã hoàn thành” khi chỉ mới verify server/config. Không cần commit/push/merge để hoàn thành bước đối chiếu local.

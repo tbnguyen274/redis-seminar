@@ -1,0 +1,104 @@
+Hit:1 http://sg.archive.ubuntu.com/ubuntu resolute InRelease
+Hit:2 http://sg.archive.ubuntu.com/ubuntu resolute-updates InRelease
+Hit:3 http://sg.archive.ubuntu.com/ubuntu resolute-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu resolute-security InRelease
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+python3 is already the newest version (3.14.3-0ubuntu2).
+python3 set to manually installed.
+iproute2 is already the newest version (6.19.0-1ubuntu1.1).
+iproute2 set to manually installed.
+procps is already the newest version (2:4.0.4-9ubuntu1).
+procps set to manually installed.
+Solving dependencies...
+The following additional packages will be installed:
+  liblzf1 python3-pip-whl python3-setuptools-whl python3.14-venv
+Suggested packages:
+  ruby-redis
+The following NEW packages will be installed:
+  liblzf1 python3-pip-whl python3-setuptools-whl python3-venv python3.14-venv
+  redis-server redis-tools
+0 upgraded, 7 newly installed, 0 to remove and 10 not upgraded.
+Need to get 4,030 kB of archives.
+After this operation, 10.4 MB of additional disk space will be used.
+Get:1 http://sg.archive.ubuntu.com/ubuntu resolute/universe amd64 liblzf1 amd64 3.6-4build1 [7,490 B]
+Get:2 http://sg.archive.ubuntu.com/ubuntu resolute/universe amd64 python3-pip-whl all 25.1.1+dfsg-1ubuntu2 [1,430 kB]
+Get:3 http://sg.archive.ubuntu.com/ubuntu resolute/universe amd64 python3-setuptools-whl all 78.1.1-0.1build1 [1,174 kB]
+Get:4 http://sg.archive.ubuntu.com/ubuntu resolute-updates/universe amd64 python3.14-venv amd64 3.14.4-1ubuntu0.2 [5,356 B]
+Get:5 http://sg.archive.ubuntu.com/ubuntu resolute/universe amd64 python3-venv amd64 3.14.3-0ubuntu2 [1,032 B]
+Get:6 http://sg.archive.ubuntu.com/ubuntu resolute-updates/universe amd64 redis-tools amd64 5:8.0.5-1ubuntu0.1 [1,359 kB]
+Get:7 http://sg.archive.ubuntu.com/ubuntu resolute-updates/universe amd64 redis-server amd64 5:8.0.5-1ubuntu0.1 [53.2 kB]
+Fetched 4,030 kB in 4s (1,054 kB/s)
+Selecting previously unselected package liblzf1:amd64.
+(Reading database…
+(Reading database… 5%
+(Reading database… 10%
+(Reading database… 15%
+(Reading database… 20%
+(Reading database… 25%
+(Reading database… 30%
+(Reading database… 35%
+(Reading database… 40%
+(Reading database… 45%
+(Reading database… 50%
+(Reading database… 55%
+(Reading database… 60%
+(Reading database… 65%
+(Reading database… 70%
+(Reading database… 75%
+(Reading database… 80%
+(Reading database… 85%
+(Reading database… 90%
+(Reading database… 95%
+(Reading database… 100%
+(Reading database… 99016 files and directories currently installed.)
+Preparing to unpack …/0-liblzf1_3.6-4build1_amd64.deb…
+Unpacking liblzf1:amd64 (3.6-4build1)…
+Selecting previously unselected package python3-pip-whl.
+Preparing to unpack …/1-python3-pip-whl_25.1.1+dfsg-1ubuntu2_all.deb…
+Unpacking python3-pip-whl (25.1.1+dfsg-1ubuntu2)…
+Selecting previously unselected package python3-setuptools-whl.
+Preparing to unpack …/2-python3-setuptools-whl_78.1.1-0.1build1_all.deb…
+Unpacking python3-setuptools-whl (78.1.1-0.1build1)…
+Selecting previously unselected package python3.14-venv.
+Preparing to unpack …/3-python3.14-venv_3.14.4-1ubuntu0.2_amd64.deb…
+Unpacking python3.14-venv (3.14.4-1ubuntu0.2)…
+Selecting previously unselected package python3-venv.
+Preparing to unpack …/4-python3-venv_3.14.3-0ubuntu2_amd64.deb…
+Unpacking python3-venv (3.14.3-0ubuntu2)…
+Selecting previously unselected package redis-tools.
+Preparing to unpack …/5-redis-tools_5%3a8.0.5-1ubuntu0.1_amd64.deb…
+Unpacking redis-tools (5:8.0.5-1ubuntu0.1)…
+Selecting previously unselected package redis-server.
+Preparing to unpack …/6-redis-server_5%3a8.0.5-1ubuntu0.1_amd64.deb…
+Unpacking redis-server (5:8.0.5-1ubuntu0.1)…
+Setting up python3-setuptools-whl (78.1.1-0.1build1)…
+Setting up python3-pip-whl (25.1.1+dfsg-1ubuntu2)…
+Setting up python3.14-venv (3.14.4-1ubuntu0.2)…
+Setting up python3-venv (3.14.3-0ubuntu2)…
+Setting up liblzf1:amd64 (3.6-4build1)…
+Setting up redis-tools (5:8.0.5-1ubuntu0.1)…
+Setting up redis-server (5:8.0.5-1ubuntu0.1)…
+Created symlink '/etc/systemd/system/redis.service' → '/usr/lib/systemd/system/redis-server.service'.
+
+Created symlink '/etc/systemd/system/multi-user.target.wants/redis-server.service' → '/usr/lib/systemd/system/redis-server.service'.
+
+Processing triggers for man-db (2.13.1-1build1)…
+Processing triggers for libc-bin (2.43-2ubuntu2.4)…
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+Synchronizing state of redis-server.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable redis-server
+PONG
+Redis server v=8.0.5 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d47fc40702b1fad8
+Python 3.14.4
