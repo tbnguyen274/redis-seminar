@@ -1,98 +1,46 @@
-# Kịch bản Thuyết trình & Dàn bài Slide: Memory & Eviction (Demo 03)
+# Kịch bản phần Memory và Eviction (Demo 03)
 
-- **Người trình bày:** Mạnh Tường
-- **Chủ đề:** Giới hạn bộ nhớ và Thuật toán Eviction trong Redis
-- **Thời lượng:** ~5 phút 30 giây
+Phạm vi: phần trình bày về Quản lý bộ nhớ và Cơ chế Eviction trong Redis, dự kiến khoảng **5–6 phút** trong seminar 30–45 phút của nhóm. Nguồn lý thuyết: [`docs/theory/03-eviction.md`](../theory/03-eviction.md).
 
----
+## Lời dẫn theo slides
 
-## Phần 1: Dàn bài Slide (Nội dung từng Slide)
+| Mốc thời gian | Nội dung trên slide | Lời giải thích gợi ý |
+|---|---|---|
+| 0:00–0:45 | Giới hạn bộ nhớ (`maxmemory`) | “Redis lưu trữ toàn bộ dữ liệu trên RAM. Khi bộ nhớ vật lý cạn kiệt, hệ điều hành Linux sẽ kích hoạt OOM Killer để tắt tiến trình. Tham số `maxmemory` giúp khống chế trần tài nguyên; trước mỗi lệnh ghi, Redis kiểm tra `used_memory > maxmemory` để quyết định thu hồi bộ nhớ hoặc từ chối ghi.” |
+| 0:45–1:30 | Phân biệt Expiration vs Eviction | “Expiration xảy ra khi key hết thời gian sống (TTL), áp dụng cho key có cài đặt thời hạn. Eviction xảy ra khi RAM chạm ngưỡng `maxmemory`, buộc Redis phải trục xuất dữ liệu để nhường chỗ cho dữ liệu mới, ngay cả khi key đó chưa hết hạn hoặc không cài TTL.” |
+| 1:30–2:15 | Các chính sách `maxmemory-policy` | “Có ba nhóm chính: `noeviction` giữ nguyên vẹn dữ liệu và từ chối lệnh ghi mới; `allkeys-lru` quét toàn bộ cơ sở dữ liệu để loại bỏ key ít dùng nhất, đây là lựa chọn chuẩn mực cho hệ thống Cache; `volatile-ttl` chỉ thu hồi trong tập key có TTL sắp hết hạn để bảo vệ dữ liệu tĩnh.” |
+| 2:15–3:00 | Thuật toán Approximate LRU | “Redis không dùng True LRU (danh sách liên kết đôi) vì tốn thêm 16–24 bytes con trỏ cho mỗi key và gây tranh chấp bộ nhớ ở mỗi lệnh đọc `GET`. Thay vào đó, Redis dùng Approximate LRU: lưu timestamp 24-bit trong header object, lấy mẫu ngẫu nhiên 5 keys và đưa vào Eviction Pool để chọn key cũ nhất để xóa.” |
+| 3:00–4:30 | Demo 03: Eviction thực tế | “Phần demo kiểm chứng instance port 6382 giới hạn 10MB. Khi nạp dữ liệu lớn vượt ngưỡng, các key nguội ít dùng bị loại bỏ (`EXISTS = 0`), trong khi các key nóng được truy cập liên tục vẫn được bảo toàn nguyên vẹn trong bộ nhớ (`EXISTS = 1`).” |
+| 4:30–5:00 | Kết luận & Khuyến nghị production | “Khi triển khai thực tế, khuyến nghị đặt `maxmemory` ở mức 70–80% RAM vật lý (hoặc 50–60% nếu có bật RDB/AOF) để chừa tài nguyên cho bộ đệm mạng và cơ chế Copy-on-Write khi fork tiến trình con.” |
 
-### Slide 1: Đặt vấn đề & Giới hạn Bộ nhớ (`maxmemory`)
-* **Tiêu đề:** Quản lý Bộ nhớ trong Redis: Chuyện gì xảy ra khi cạn RAM?
-* **Nội dung chính:**
-  - Redis lưu trữ 100% dữ liệu trên RAM để đạt tốc độ microsecond.
-  - RAM là tài nguyên hữu hạn. Nếu không đặt giới hạn, OS OOM Killer sẽ `kill -9` tiến trình Redis khi đầy RAM.
-  - Cấu hình: `maxmemory <bytes>` (ví dụ: `10mb`).
-  - Kiểm tra trước mỗi lệnh ghi: Nếu `used_memory > maxmemory` $\rightarrow$ Kích hoạt dọn dẹp hoặc từ chối ghi (`OOM command not allowed`).
-* **Hình minh họa:** Sơ đồ luồng kiểm tra `used_memory` trước khi thực thi lệnh ghi.
+## Chuẩn bị trước khi record
 
----
+- [ ] Instance port 6382 chạy độc lập với cấu hình `redis/redis-eviction.conf`.
+- [ ] Chạy `bash test/test_demo_03.sh` đạt 9/9 PASS trước khi ghi hình.
+- [ ] Terminal đặt giao diện nền sáng (Light mode), cỡ chữ lớn (20–24 pt) để dễ nhìn khi trình chiếu.
+- [ ] Mở sẵn hai cửa sổ: một bên theo dõi `watch -n 1 info memory/stats`, một bên chạy kịch bản.
 
-### Slide 2: Phân biệt Expiration (TTL) vs Eviction (Trục xuất)
-* **Tiêu đề:** Expiration vs Eviction: Đừng nhầm lẫn!
-* **Bảng so sánh trực quan:**
-  - **Expiration (Hết hạn):** Do thời gian sống của key kết thúc. Key không còn giá trị. Xóa theo cơ chế chủ động/thụ động. Theo dõi qua `expired_keys`.
-  - **Eviction (Trục xuất):** Do RAM chạm ngưỡng `maxmemory`. Key **vẫn còn hạn sử dụng** nhưng bị hy sinh để nhường chỗ cho dữ liệu mới. Theo dõi qua `evicted_keys`.
-* **Thông điệp:** *"Key bị expire là do key hết thời gian; key bị evict là do máy chủ hết bộ nhớ."*
+## Shot list video demo, khoảng 90 giây
 
----
+| Thời lượng | Thao tác / Lệnh thực hiện | Mục tiêu quan sát |
+|---|---|---|
+| 0–15 giây | `redis-cli -p 6382 config get maxmemory`, `config get maxmemory-policy` | Chứng minh cấu hình `10485760` (10MB) và chính sách `allkeys-lru`. |
+| 15–30 giây | `bash demos/03-eviction/reset.sh` | Đưa database về trạng thái sạch (`dbsize = 0`, `evicted_keys = 0`). |
+| 30–60 giây | `python3 demos/03-eviction/fill_memory.py` | Tạo cold/hot keys, bơm dữ liệu lớn, quan sát RAM chạm ngưỡng ~9.8M và `evicted_keys` bắt đầu tăng dần. |
+| 60–90 giây | Bảng tổng kết đối chứng | Chứng minh toàn bộ Cold Keys bị evict và toàn bộ Hot Keys vẫn còn tồn tại trong cache. |
 
-### Slide 3: Các Chính sách Eviction (`maxmemory-policy`)
-* **Tiêu đề:** Lựa chọn Chiến lược: 8 Chính sách Eviction
-* **Nội dung chính:**
-  - **`noeviction` (Mặc định):** Giữ nguyên vẹn dữ liệu, từ chối lệnh ghi mới $\rightarrow$ Dùng cho Database chính, session quan trọng.
-  - **`allkeys-lru`:** Trục xuất key ít được truy cập gần đây nhất trên toàn database $\rightarrow$ Chuẩn mực cho hệ thống Caching.
-  - **`volatile-ttl`:** Chỉ xóa trong tập key có cài TTL, ưu tiên key sắp hết hạn $\rightarrow$ Bảo vệ dữ liệu tĩnh vĩnh viễn.
-  - *Mở rộng:* `allkeys-lfu` (tần suất), `random` (ngẫu nhiên).
+## Sau record
 
----
+- [ ] Xem lại video ở độ phân giải trình chiếu; đọc được lệnh và kết quả.
+- [ ] Thời lượng video trong khoảng 1.5 – 2 phút, không để thời gian chết.
+- [ ] Đặt tên video rõ ràng theo quy ước của nhóm (`demo-03-eviction.mp4`).
 
-### Slide 4: Điểm nhấn Kiến trúc: Approximate LRU vs True LRU
-* **Tiêu đề:** Bí mật Hiệu năng: Thuật toán Approximate LRU của Redis
-* **Nội dung so sánh:**
-  - **Vì sao không dùng True LRU?** Danh sách liên kết đôi tốn thêm 16–24 bytes con trỏ/key và gây nghẽn lock trên memory khi chạy lệnh đọc `GET`.
-  - **Giải pháp của Redis (Approximate LRU):**
-    - Lưu trường `lru` 24-bit trong header mỗi object `robj`.
-    - Lấy mẫu ngẫu nhiên $N$ keys (`maxmemory-samples`, mặc định 5).
-    - Đưa vào bể ứng viên (Eviction Pool) và xóa key có thời gian nhàn rỗi (idle time) lớn nhất.
-  - **Kết luận:** Tiết kiệm RAM vượt trội, độ chính xác xấp xỉ 99% so với True LRU.
+## Câu hỏi tập trả lời
 
----
+1. Vì sao Redis dùng Approximate LRU thay vì True LRU? Đánh đổi khi tăng `maxmemory-samples` từ 5 lên 10?
+2. Nếu dùng policy `volatile-*` nhưng database không có key nào có TTL thì Redis xử lý thế nào?
+3. Quá trình eviction có làm block tiến trình đơn luồng của Redis không? Giải pháp `lazyfree-lazy-eviction` là gì?
+4. Phân biệt LRU và LFU? Trường hợp nào LRU bị thất bại (Cache Pollution)?
+5. Tại sao `top` trên Linux hiển thị dung lượng RAM cao hơn chỉ số `maxmemory` của Redis?
 
-### Slide 5: Thiết kế Thực nghiệm (Demo 03)
-* **Tiêu đề:** Demo 03: Kiểm chứng Giới hạn 10MB và Chính sách `allkeys-lru`
-* **Nội dung:**
-  - Cổng chạy: `6382`, cấu hình `maxmemory 10mb`, `maxmemory-policy allkeys-lru`.
-  - Thiết kế 2 nhóm dữ liệu:
-    - **Cold keys:** Ghi lúc đầu, không đọc lại.
-    - **Hot keys:** Ghi lúc đầu, đọc liên tục (`GET`).
-  - Bơm dữ liệu lớn vượt 10MB để quan sát eviction.
-
----
-
-### Slide 6: Kết quả Demo & Video Minh họa
-* **Tiêu đề:** Kết quả Thực nghiệm & Video Demo
-* **Nội dung:**
-  - Bộ nhớ giữ vững ở mức 10MB, `evicted_keys` tăng đều đặn.
-  - Cold keys bị xóa sạch; Hot keys được giữ lại 100%.
-  - Video demo quay sẵn (Light mode, phóng to terminal).
-
----
-
-## Phần 2: Kịch bản Nói Chi tiết (Speaking Script)
-
-*(Thời gian dự kiến cho phần Lý thuyết: ~2 phút 30 giây)*
-
-> **[Bắt đầu Slide 1]**  
-> *"Kính thưa thầy và các bạn, tiếp nối phần Cache-Aside của bạn Thắng, câu hỏi đặt ra là: Nếu lượng truy cập tăng vọt, dữ liệu cache liên tục được ghi vào mà RAM máy chủ có hạn, chuyện gì sẽ xảy ra?  
-> Redis là hệ thống hoàn toàn lưu trữ trên RAM. Nếu không giới hạn dung lượng, khi cạn kiệt RAM, tiến trình OOM Killer của hệ điều hành Linux sẽ lập tức kill tiến trình Redis, gây sập dịch vụ.  
-> Để ngăn chặn điều này, Redis cung cấp chỉ thị `maxmemory`. Trước mỗi lệnh ghi, Redis sẽ kiểm tra nếu dung lượng vượt ngưỡng, nó sẽ kích hoạt cơ chế dọn dẹp hoặc từ chối ghi."*
-
-> **[Chuyển sang Slide 2]**  
-> *"Ở đây, chúng ta cần phân biệt rất rõ ràng hai khái niệm thường bị nhầm lẫn: **Expiration** và **Eviction**.  
-> Expiration xảy ra khi một key kết thúc thời gian sống TTL của nó. Dữ liệu này đã lỗi thời và bị xóa để dọn rác.  
-> Ngược lại, Eviction xảy ra khi RAM chạm ngưỡng `maxmemory`. Lúc này, ngay cả khi dữ liệu vẫn còn hạn dùng hoặc là dữ liệu vĩnh viễn, Redis vẫn bắt buộc phải 'hy sinh' nó để nhường chỗ cho dữ liệu mới ghi vào."*
-
-> **[Chuyển sang Slide 3]**  
-> *"Vậy Redis quyết định hy sinh key nào? Điều đó phụ thuộc vào tham số `maxmemory-policy`.  
-> Mặc định, Redis dùng `noeviction` – tức là thà từ chối lệnh ghi và báo lỗi OOM chứ tuyệt đối không tự ý xóa dữ liệu của người dùng, phù hợp khi dùng Redis làm database.  
-> Nhưng khi dùng Redis làm Cache, chính sách chuẩn mực nhất là `allkeys-lru` – tự động tìm và xóa các key ít được sử dụng nhất trong thời gian qua. Ngoài ra, nếu hệ thống có cả dữ liệu tĩnh và dữ liệu cache, ta có thể dùng `volatile-ttl` để chỉ xóa các key có TTL sắp hết hạn."*
-
-> **[Chuyển sang Slide 4]**  
-> *"Một điểm rất đặc biệt trong kiến trúc của Redis: Redis không dùng thuật toán LRU chính xác (True LRU) bằng danh sách liên kết đôi như trong sách giáo khoa.  
-> Lý do là vì linked-list sẽ tốn thêm 16 đến 24 byte con trỏ cho mỗi key, đồng thời mỗi thao tác đọc `GET` lại phải sửa đổi con trỏ bộ nhớ, làm giảm hiệu năng.  
-> Thay vào đó, Redis dùng thuật toán **Approximate LRU**. Mỗi object chỉ gắn thêm 24-bit timestamp. Khi cần xóa, Redis lấy mẫu ngẫu nhiên 5 key, đưa vào một Eviction Pool và trục xuất key có thời gian nhàn rỗi lâu nhất. Thực nghiệm cho thấy với 5 mẫu ngẫu nhiên, kết quả đạt độ chính xác gần như tương đương True LRU nhưng tiết kiệm bộ nhớ đáng kể."*
-
-> **[Chuyển sang Slide 5 & 6 - Demo]**  
-> *"Để chứng minh cơ chế này trên thực tế, sau đây em xin trình bày Demo 03..."*
+Chi tiết đáp án chuyên sâu được lưu tại [`docs/theory/03-eviction-qa.md`](../theory/03-eviction-qa.md).

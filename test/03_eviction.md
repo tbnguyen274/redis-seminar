@@ -1,107 +1,102 @@
-# Hướng Dẫn Vận Hành & Kiểm Thử Demo 03: Eviction (allkeys-lru)
+# Runbook: Demo 03 - Redis Eviction (allkeys-lru)
 
-Tài liệu tra cứu nhanh toàn bộ quy trình cấu hình, kiểm thử tự động, kiểm thử thủ công và xử lý sự cố cho Demo 03 trên Redis instance port `6382`.
-
-> **Lưu ý:** Mặc định thực hiện các lệnh từ thư mục gốc của repository (`redis-seminar/`).
+Tài liệu vận hành, kiểm thử và tái lập thực nghiệm cơ chế Eviction trên Redis instance port `6382`.
 
 ---
 
-## 1. Thông tin Cấu hình Instance
+## 1. Thông số Instance
 
-- **Cổng dịch vụ (Port):** `6382`
-- **File cấu hình:** `redis/redis-eviction.conf`
-- **Thư mục dữ liệu:** `/tmp/redis-seminar/eviction`
-- **Giới hạn bộ nhớ:** `maxmemory 10mb` (10485760 bytes)
-- **Chính sách trục xuất:** `maxmemory-policy allkeys-lru`
+| Tham số | Giá trị |
+|---|---|
+| Port | `6382` |
+| Config file | `redis/redis-eviction.conf` |
+| Data directory | `/tmp/redis-seminar/eviction` |
+| Memory limit | `maxmemory 10mb` (10485760 bytes) |
+| Eviction policy | `maxmemory-policy allkeys-lru` |
+
+> **Lưu ý:** Thực thi các lệnh dưới đây từ thư mục gốc của repository (`redis-seminar/`).
 
 ---
 
-## 2. Khởi động & Kiểm tra Ban đầu
+## 2. Quickstart
+
+Khởi chạy toàn bộ quy trình demo (tự động bật instance, cài dependency, nạp dữ liệu và xuất kết quả):
 
 ```bash
-# 1. Tạo thư mục dữ liệu
-mkdir -p /tmp/redis-seminar/eviction
-
-# 2. Khởi động instance nền
-redis-server redis/redis-eviction.conf &
-
-# 3. Kiểm tra kết nối (Mong đợi: PONG)
-redis-cli -p 6382 ping
-
-# 4. Kiểm tra cấu hình đã nạp đúng chưa
-redis-cli -p 6382 config get maxmemory        # Mong đợi: 10485760
-redis-cli -p 6382 config get maxmemory-policy # Mong đợi: allkeys-lru
-```
-
----
-
-## 3. Kiểm thử Tự động (Automated Testing)
-
-Chạy bộ kiểm thử tự động 9 assertions để xác thực toàn bộ hệ thống hoạt động chính xác:
-
-```bash
-# Chạy từ thư mục gốc:
-bash test/test_demo_03.sh
-
-# Hoặc nếu đang đứng trong thư mục test/:
-cd test && bash test_demo_03.sh
-```
-
-### 9 tiêu chí được kiểm thử tự động:
-1. `Test 1`: Kết nối Redis port 6382 (`PING -> PONG`).
-2. `Test 2`: Xác thực `maxmemory` đúng bằng `10485760` bytes (10MB).
-3. `Test 3`: Xác thực `maxmemory-policy` đúng là `allkeys-lru`.
-4. `Test 4`: Xác thực lệnh dọn dẹp `FLUSHALL`.
-5. `Test 5`: Tạo 10 Cold Keys và 5 Hot Keys đối chứng.
-6. `Test 6`: Bơm dữ liệu lớn để kích hoạt `evicted_keys >= 15`.
-7. `Test 7`: Khẳng định Cold Keys ít dùng đã bị xóa (`EXISTS = 0`).
-8. `Test 8`: Khẳng định Hot Keys đọc liên tục được giữ lại (`EXISTS = 1`).
-9. `Test 9`: Khẳng định RAM được kiểm soát quanh mức 10MB, không tràn.
-
----
-
-## 4. Chạy Kịch bản Demo Chính (Phục vụ Quay Video)
-
-```bash
-# Chạy script demo có hiển thị tiến trình và bảng đối chứng màu sắc
 bash demos/03-eviction/run.sh
 ```
 
 ---
 
-## 5. Kiểm thử Thủ công Trực tiếp qua CLI (Khi Thuyết trình/Phản biện)
+## 3. Kiểm thử Tự động (Automated Verification)
+
+Chạy bộ kiểm thử tự động gồm 9 assertions để xác thực cấu hình và hành vi hệ thống:
 
 ```bash
-# Bước 1: Dọn sạch dữ liệu cũ
-redis-cli -p 6382 flushall && redis-cli -p 6382 config resetstat
+bash test/test_demo_03.sh
+```
 
-# Bước 2: Tạo dữ liệu đối chứng
-# - 3 Cold keys (chỉ ghi 1 lần rồi bỏ mặc):
-redis-cli -p 6382 set cold_k1 "ColdData_1"
-redis-cli -p 6382 set cold_k2 "ColdData_2"
-redis-cli -p 6382 set cold_k3 "ColdData_3"
+**Các hạng mục kiểm tra:**
+- Trạng thái kết nối và phản hồi `PONG` trên port `6382`.
+- Cấu hình `maxmemory` đúng 10MB và `maxmemory-policy` đúng `allkeys-lru`.
+- Tạo 10 Cold Keys và 5 Hot Keys đối chứng.
+- Kích hoạt thành công Eviction khi nạp dữ liệu vượt ngưỡng (`evicted_keys >= 15`).
+- Xác nhận Cold Keys bị trục xuất (`EXISTS = 0`) và Hot Keys được bảo toàn (`EXISTS = 1`).
+- Kiểm soát dung lượng RAM không vượt quá giới hạn.
 
-# - 2 Hot keys (sẽ được đọc liên tục):
-redis-cli -p 6382 set hot_k1 "HotData_1"
-redis-cli -p 6382 set hot_k2 "HotData_2"
+---
 
-# Bước 3: Bơm 120 key lớn (~100KB/key) để làm tràn 10MB RAM
+## 4. Tái lập Thủ công qua CLI (Manual Reproduction)
+
+### 4.1. Khởi động instance và kiểm tra cấu hình
+```bash
+mkdir -p /tmp/redis-seminar/eviction
+redis-server redis/redis-eviction.conf &
+
+redis-cli -p 6382 ping
+redis-cli -p 6382 config get maxmemory
+redis-cli -p 6382 config get maxmemory-policy
+redis-cli -p 6382 flushall
+```
+
+### 4.2. Khởi tạo tập key đối chứng
+```bash
+# 3 Cold Keys (chỉ ghi 1 lần)
+redis-cli -p 6382 set cold_k1 "val1"
+redis-cli -p 6382 set cold_k2 "val2"
+redis-cli -p 6382 set cold_k3 "val3"
+
+# 2 Hot Keys (sẽ truy cập lặp lại)
+redis-cli -p 6382 set hot_k1 "val1"
+redis-cli -p 6382 set hot_k2 "val2"
+```
+
+### 4.3. Nạp dữ liệu tràn bộ nhớ và cập nhật Hot Keys
+```bash
+# Ghi 120 keys, dung lượng mỗi payload ~100KB
 redis-benchmark -p 6382 -t set -n 120 -d 100000 -r 100000 -q
 
-# Bước 4: Đọc Hot Keys để cập nhật LRU clock
+# Cập nhật LRU clock cho Hot Keys
 redis-cli -p 6382 get hot_k1
 redis-cli -p 6382 get hot_k2
+```
 
-# Bước 5: Kiểm tra kết quả đối chứng
-redis-cli -p 6382 exists cold_k1 cold_k2 cold_k3   # Kết quả: 0 (Đã bị evict)
-redis-cli -p 6382 exists hot_k1 hot_k2             # Kết quả: 2 (Còn tồn tại)
+### 4.4. Kiểm tra kết quả đối chứng
+```bash
+# Kiểm tra RAM và số key bị loại bỏ
+redis-cli -p 6382 info memory | grep used_memory_human
+redis-cli -p 6382 info stats | grep evicted_keys
+
+# Đối chứng sự tồn tại của key
+redis-cli -p 6382 exists cold_k1 cold_k2 cold_k3   # Kỳ vọng: 0 (Đã bị evict)
+redis-cli -p 6382 exists hot_k1 hot_k2             # Kỳ vọng: 2 (Còn tồn tại)
 ```
 
 ---
 
-## 6. Giám sát Số liệu Thời gian Thực
+## 5. Giám sát Real-time
 
-Mở một cửa sổ terminal riêng để theo dõi dung lượng RAM và số lượng key bị trục xuất mỗi giây:
+Theo dõi dung lượng RAM và số lượng key bị trục xuất mỗi giây:
 
 ```bash
 watch -n 1 "redis-cli -p 6382 info memory | grep used_memory_human; redis-cli -p 6382 info stats | grep evicted_keys"
@@ -109,15 +104,15 @@ watch -n 1 "redis-cli -p 6382 info memory | grep used_memory_human; redis-cli -p
 
 ---
 
-## 7. Khôi phục Trạng thái (Reset) & Xử lý Sự cố
+## 6. Dọn dẹp & Khắc phục Sự cố
 
 ```bash
-# Dọn dẹp sạch dữ liệu port 6382 về trạng thái 0
+# Reset dữ liệu instance về 0
 bash demos/03-eviction/reset.sh
 
-# Giải phóng cổng 6382 nếu bị chiếm dụng (Address already in use)
+# Giải phóng port 6382 nếu bị xung đột tiến trình
 sudo fuser -k 6382/tcp
 
-# Tắt instance port 6382 an toàn
+# Tắt instance nền an toàn
 redis-cli -p 6382 shutdown
 ```

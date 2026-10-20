@@ -4,6 +4,8 @@
 # ==============================================================================
 
 PORT=6382
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 echo "=========================================================="
 echo " [RESET] Đang chuẩn bị dọn dẹp Redis instance port ${PORT}..."
@@ -14,7 +16,7 @@ if ! redis-cli -p ${PORT} ping > /dev/null 2>&1; then
     echo "[!] CẢNH BÁO: Không tìm thấy Redis instance đang chạy trên port ${PORT}."
     echo "[*] Đang thử khởi động Redis với cấu hình redis/redis-eviction.conf..."
     mkdir -p /tmp/redis-seminar/eviction
-    redis-server redis/redis-eviction.conf &
+    redis-server "${PROJECT_ROOT}/redis/redis-eviction.conf" &
     sleep 1
     if ! redis-cli -p ${PORT} ping > /dev/null 2>&1; then
         echo "[LỖI] Không thể kết nối tới port ${PORT}. Vui lòng kiểm tra lại redis-server."
