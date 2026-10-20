@@ -2,6 +2,18 @@
 
 Repository phục vụ seminar **Redis In-Memory Data Store** trên một máy ảo Linux tối thiểu **512 MB RAM**. Nội dung tập trung vào vai trò của cache, mô hình Cache-Aside, kiến trúc xử lý lệnh của Redis, cơ chế persistence RDB/AOF và các chính sách eviction khi bộ nhớ đầy.
 
+## Yêu cầu làm việc hiện tại
+
+- Nộp **slides** qua Moodle; không cần nộp báo cáo riêng. Seminar **30–45 phút/nhóm**.
+- Nghiên cứu và nguồn đặt ở [`theory/`](theory/README.md), rồi chọn lọc đưa lên slides. `report/seminar.md` là khung cũ, không dùng làm lý thuyết hiện hành.
+- Mỗi chủ demo phụ trách cả code, lý thuyết và trình bày phần mình. Người phụ trách môi trường quản lý hạ tầng và kiểm tra khả năng tái lập các demo.
+- Quay demo trước, terminal nền sáng và chữ lớn; kiểm tra video ở kích thước trình chiếu.
+- Làm trên branch riêng và tạo PR để nhóm review. Các phân công trong sheet là tham khảo, cần thành viên xác nhận.
+
+Bắt đầu với [hướng dẫn môi trường](linux/commands.md), [nghiên cứu overview](theory/01-redis-overview.md), [checklist chất lượng](docs/demo-quality-checklist.md) và [kịch bản nói/quay](docs/presentation-notes/01-overview-environment.md). [Kết quả kiểm tra](docs/environment-verification.md) phân biệt rehearsal WSL và VM cuối.
+
+[Slides phần tổng quan và môi trường](docs/slides/README.md) đã có section chỉnh sửa được để ghép vào deck nhóm; chưa có video cuối.
+
 ## Mục tiêu
 
 - Trình bày cách Redis hỗ trợ tăng tốc ứng dụng bằng cache.
@@ -15,12 +27,16 @@ Repository phục vụ seminar **Redis In-Memory Data Store** trên một máy �
 ```text
 redis-seminar/
 ├── README.md
+├── theory/                      # Nghiên cứu hiện hành và nguồn tham khảo
 ├── docs/
-│   ├── theory/                 # Tài liệu lý thuyết
+│   ├── theory/                 # Vị trí cũ, nội dung mới ở theory/
+│   ├── demo-quality-checklist.md # Tiêu chí review và việc còn lại
+│   ├── environment-verification.md # Kết quả kiểm tra thực tế
 │   ├── screenshots/            # Ảnh minh chứng cài đặt và demo
 │   └── presentation-notes/     # Kịch bản và ghi chú thuyết trình
 ├── linux/
 │   ├── setup.sh                # Cài đặt Redis trên Ubuntu/Debian
+│   ├── check.sh                # Kiểm tra service, port và config, không sửa dữ liệu
 │   ├── commands.md             # Lệnh kiểm tra và vận hành cơ bản
 │   └── troubleshooting.md      # Checklist xử lý sự cố
 ├── redis/
@@ -35,7 +51,7 @@ redis-seminar/
 │   ├── 03-eviction/            # Ghi dữ liệu vượt maxmemory
 │   └── 04-persistence-crash/   # kill -9 và kiểm tra dữ liệu phục hồi
 └── report/
-    └── seminar.md              # Khung báo cáo seminar
+    └── seminar.md              # Khung cũ, không phải sản phẩm nộp hiện tại
 ```
 
 File [`de_tai_seminar.md`](de_tai_seminar.md) là đề bài gốc dùng để đối chiếu phạm vi và tiêu chí demo.
@@ -46,7 +62,8 @@ File [`de_tai_seminar.md`](de_tai_seminar.md) là đề bài gốc dùng để �
    - Tạo VM Linux 512 MB RAM.
    - Chạy `sudo bash linux/setup.sh` để cài Redis và công cụ dòng lệnh.
    - Xác nhận dịch vụ bằng `redis-cli ping` (kết quả mong đợi: `PONG`).
-   - Tạo các thư mục dữ liệu bằng lệnh trong `linux/commands.md` trước khi chạy các instance riêng.
+   - Setup tạo năm thư mục dữ liệu; sau reboot, tạo lại nếu bị dọn theo `linux/commands.md`.
+   - Sau khi start đủ năm instance, chạy `bash linux/check.sh` để kiểm tra cấu hình thực tế.
 
 2. **Demo 01 - Cấu trúc dữ liệu và TTL**
    - Khởi động Redis bằng `redis/redis-data-structures.conf` trên port `6383`.
@@ -88,8 +105,8 @@ Client -> Application -> Redis
 - Phân bổ port: RDB `6380`, AOF `6381`, Eviction `6382`, Data Structures `6383`, Cache-Aside `6384`.
 - Không chạy `kill -9` trên Redis đang chứa dữ liệu quan trọng.
 - Chụp màn hình lệnh, cấu hình, số liệu thời gian, `INFO stats` và kết quả sau restart vào `docs/screenshots/`.
-- Ghi rõ phiên bản hệ điều hành, Redis và cấu hình thực tế trong báo cáo để kết quả có thể tái lập.
+- Ghi rõ phiên bản hệ điều hành, Redis và cấu hình thực tế trong minh chứng/tài liệu demo và slides để kết quả có thể tái lập.
 
 ## Trạng thái
 
-Repository hiện đã có cấu trúc, cấu hình mẫu và khung tài liệu. Mã nguồn chi tiết cho từng demo sẽ được bổ sung trong các thư mục tương ứng.
+Repository có cấu hình mẫu và tài liệu chuẩn bị môi trường. Nghiên cứu overview nằm trong `theory/`; mã nguồn chi tiết và lý thuyết của từng demo do chủ phần bổ sung. Việc server/config chạy được chưa chứng minh bốn demo ứng dụng đã hoàn thành. Xem checklist và verification để biết phần đã kiểm tra và phần còn lại.
