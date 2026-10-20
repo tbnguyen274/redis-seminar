@@ -107,8 +107,25 @@ watch -n 1 "redis-cli -p 6382 info memory | grep used_memory_human; redis-cli -p
 
 ## 6. Dọn dẹp & Khắc phục Sự cố
 
+### Dọn sạch dữ liệu đưa về 0 để chạy lại:
+```bash
+redis-cli -p 6382 flushall
+redis-cli -p 6382 config resetstat
+```
+Hoặc dùng script reset trọn gói:
 ```bash
 bash demos/03-eviction/reset.sh
+```
+
+### Khởi động lại instance (khi đã tắt hoặc bị kill):
+```bash
+mkdir -p /tmp/redis-seminar/eviction
+redis-server redis/redis-eviction.conf &
+redis-cli -p 6382 ping
+```
+
+### Giải phóng port và tắt instance:
+```bash
 sudo fuser -k 6382/tcp
 redis-cli -p 6382 shutdown
 ```
