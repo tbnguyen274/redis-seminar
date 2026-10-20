@@ -61,36 +61,28 @@ redis-cli -p 6382 flushall
 
 ### 4.2. Khởi tạo tập key đối chứng
 ```bash
-# 3 Cold Keys (chỉ ghi 1 lần)
 redis-cli -p 6382 set cold_k1 "val1"
 redis-cli -p 6382 set cold_k2 "val2"
 redis-cli -p 6382 set cold_k3 "val3"
-
-# 2 Hot Keys (sẽ truy cập lặp lại)
 redis-cli -p 6382 set hot_k1 "val1"
 redis-cli -p 6382 set hot_k2 "val2"
 ```
 
 ### 4.3. Nạp dữ liệu tràn bộ nhớ và cập nhật Hot Keys
 ```bash
-# Ghi 120 keys, dung lượng mỗi payload ~100KB
 redis-benchmark -p 6382 -t set -n 120 -d 100000 -r 100000 -q
-
-# Cập nhật LRU clock cho Hot Keys
 redis-cli -p 6382 get hot_k1
 redis-cli -p 6382 get hot_k2
 ```
 
 ### 4.4. Kiểm tra kết quả đối chứng
 ```bash
-# Kiểm tra RAM và số key bị loại bỏ
 redis-cli -p 6382 info memory | grep used_memory_human
 redis-cli -p 6382 info stats | grep evicted_keys
-
-# Đối chứng sự tồn tại của key
-redis-cli -p 6382 exists cold_k1 cold_k2 cold_k3   # Kỳ vọng: 0 (Đã bị evict)
-redis-cli -p 6382 exists hot_k1 hot_k2             # Kỳ vọng: 2 (Còn tồn tại)
+redis-cli -p 6382 exists cold_k1 cold_k2 cold_k3
+redis-cli -p 6382 exists hot_k1 hot_k2
 ```
+- Kỳ vọng: `exists cold_*` trả về `0` (đã bị trục xuất), `exists hot_*` trả về `2` (được giữ lại).
 
 ---
 
@@ -107,12 +99,7 @@ watch -n 1 "redis-cli -p 6382 info memory | grep used_memory_human; redis-cli -p
 ## 6. Dọn dẹp & Khắc phục Sự cố
 
 ```bash
-# Reset dữ liệu instance về 0
 bash demos/03-eviction/reset.sh
-
-# Giải phóng port 6382 nếu bị xung đột tiến trình
 sudo fuser -k 6382/tcp
-
-# Tắt instance nền an toàn
 redis-cli -p 6382 shutdown
 ```

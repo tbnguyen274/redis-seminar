@@ -52,6 +52,20 @@ Mỗi key-value trong Redis ngoài dung lượng dữ liệu thô còn chịu ch
 
 ### 3.3. Eviction với allkeys-lru
 
+Bảng ghi nhận kết quả thực nghiệm trên Redis instance port `6382` (cấu hình `maxmemory 10mb`, `maxmemory-policy allkeys-lru`):
+
+| Chỉ số theo dõi | Kỳ vọng lý thuyết | Kết quả thực tế (Đo trên Linux) | Trạng thái đánh giá |
+|---|---|---|---|
+| Cấu hình `maxmemory` | `10485760` bytes (10MB) | *(Điền kết quả config get)* | Khớp cấu hình |
+| Cấu hình `maxmemory-policy` | `allkeys-lru` | *(Điền kết quả config get)* | Khớp cấu hình |
+| RAM ban đầu (`used_memory_human`) | ~1.0 MB – 1.2 MB | | Trạng thái rỗng |
+| RAM khi nạp tràn (`used_memory_human`) | Chạm trần ~9.8 MB – 10.0 MB | | Kiểm soát dưới trần 10MB |
+| Số key bị trục xuất (`evicted_keys`) | Tăng dần (> 0) | | Eviction kích hoạt thành công |
+| Tỷ lệ sống sót Cold Keys (ít dùng) | 0/10 (Bị xóa hoàn toàn) | | Đạt kỳ vọng LRU |
+| Tỷ lệ sống sót Hot Keys (đọc liên tục) | 5/5 (Bảo toàn 100%) | | Đạt kỳ vọng LRU |
+
+- **Đánh giá kết luận:** *(Cập nhật sau khi chạy thực nghiệm và đối chiếu với ảnh chụp terminal trong docs/screenshots/)*.
+
 ### 3.4. Crash test: RDB so với AOF
 
 | Cấu hình | Số key trước crash | Số key sau restart | Số key mất |
