@@ -71,12 +71,17 @@ def main():
     print_header("BƯỚC 2: KHỞI TẠO 10 COLD KEYS VÀ 5 HOT KEYS")
     
     print(f"-> Tạo {BOLD}10 Cold Keys{RESET} (Key nguội: Ghi 1 lần lúc đầu và KHÔNG bao giờ đọc lại)...")
+    cold_payload = "C" * (50 * 1024)  # 50KB payload
     for i in range(1, 11):
-        r.set(f"cold_user_{i}", f"Data_Cold_AccountInfo_User_{i}")
+        r.set(f"cold_user_{i}", cold_payload)
+
+    print(f"[*] Tạm dừng 3 giây để LRU clock của Redis (độ phân giải 1s) ghi nhận idle time cho Cold Keys...")
+    time.sleep(3)
 
     print(f"-> Tạo {BOLD}5 Hot Keys{RESET} (Key nóng: Ghi lúc đầu và sẽ được ĐỌC LIÊN TỤC để cập nhật LRU)...")
+    hot_payload = "H" * (50 * 1024)   # 50KB payload
     for i in range(1, 6):
-        r.set(f"hot_user_{i}", f"Data_Hot_TrendingTopic_News_{i}")
+        r.set(f"hot_user_{i}", hot_payload)
 
     print(f"{GREEN}[✓]{RESET} Đã tạo xong 15 keys đối chứng. Tổng keys hiện có: {r.dbsize()}")
 
@@ -96,10 +101,13 @@ def main():
 
     while True:
         batch_count += 1
+        # CẬP NHẬT LRU CHO HOT KEYS trước và sau khi ghi filler
+        for h in range(1, 6):
+            _ = r.get(f"hot_user_{h}")
+
         # Ghi một payload lớn
         r.set(f"filler_payload_{batch_count}", large_payload)
 
-        # CẬP NHẬT LRU CHO HOT KEYS: Đọc tất cả 5 Hot Keys trong mỗi vòng lặp
         for h in range(1, 6):
             _ = r.get(f"hot_user_{h}")
 

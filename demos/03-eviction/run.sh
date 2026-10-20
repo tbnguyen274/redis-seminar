@@ -35,7 +35,20 @@ bash "${SCRIPT_DIR}/reset.sh"
 # 4. Kiểm tra thư viện python redis
 if ! python3 -c "import redis" > /dev/null 2>&1; then
     echo "[*] Đang cài đặt thư viện redis cho Python..."
-    pip3 install -r "${SCRIPT_DIR}/requirements.txt"
+    if command -v pip3 > /dev/null 2>&1; then
+        pip3 install -r "${SCRIPT_DIR}/requirements.txt" 2>/dev/null || \
+        pip3 install --break-system-packages -r "${SCRIPT_DIR}/requirements.txt" 2>/dev/null || \
+        pip3 install --user -r "${SCRIPT_DIR}/requirements.txt" 2>/dev/null || true
+    elif command -v pip > /dev/null 2>&1; then
+        pip install -r "${SCRIPT_DIR}/requirements.txt" 2>/dev/null || \
+        pip install --break-system-packages -r "${SCRIPT_DIR}/requirements.txt" 2>/dev/null || true
+    fi
+fi
+
+if ! python3 -c "import redis" > /dev/null 2>&1; then
+    echo "[LỖI] Chưa cài đặt được thư viện 'redis' cho Python."
+    echo "Vui lòng chạy: sudo apt install -y python3-redis"
+    exit 1
 fi
 
 # 5. Chạy kịch bản chính

@@ -35,28 +35,27 @@ redis-cli -p 6382 dbsize
 ```
 - Kỳ vọng: `OK`, RAM rỗng `~850K - 1M`, `(integer) 0`.
 
-### Bước 3: Khởi tạo tập key đối chứng
+### Bước 3: Khởi tạo các Cold Keys (ít dùng)
 ```bash
 redis-cli -p 6382 set cold_k1 "ColdData_1"
 redis-cli -p 6382 set cold_k2 "ColdData_2"
 redis-cli -p 6382 set cold_k3 "ColdData_3"
+```
+- Kỳ vọng: `OK` (3 keys này sẽ bị bỏ mặc để tích lũy idle time).
+
+### Bước 4: Khởi tạo và đọc làm mới Hot Keys (dùng thường xuyên)
+```bash
 redis-cli -p 6382 set hot_k1 "HotData_1"
 redis-cli -p 6382 set hot_k2 "HotData_2"
-redis-cli -p 6382 dbsize
-```
-- Kỳ vọng: `(integer) 5`.
-
-### Bước 4: Bơm dữ liệu lớn làm tràn 10MB RAM
-```bash
-redis-benchmark -p 6382 -t set -n 120 -d 100000 -r 100000 -q
-```
-
-### Bước 5: Truy cập Hot Keys để cập nhật LRU clock
-```bash
 redis-cli -p 6382 get hot_k1
 redis-cli -p 6382 get hot_k2
 ```
-- Kỳ vọng: `"HotData_1"`, `"HotData_2"`.
+- Kỳ vọng: `"HotData_1"`, `"HotData_2"` (cập nhật LRU clock về thời điểm hiện tại).
+
+### Bước 5: Bơm dữ liệu lớn làm tràn 10MB RAM kích hoạt Eviction
+```bash
+redis-benchmark -p 6382 -t set -n 120 -d 100000 -r 100000 -q
+```
 
 ### Bước 6: Kiểm tra biến thiên RAM và cơ chế Eviction
 ```bash

@@ -26,8 +26,13 @@ if ! command -v redis-cli &> /dev/null; then
     exit 1
 fi
 
+if ! command -v redis-benchmark &> /dev/null; then
+    echo "[LỖI] Chưa tìm thấy 'redis-benchmark'. Vui lòng chạy: sudo apt install -y redis-tools"
+    exit 1
+fi
+
 if ! command -v python3 &> /dev/null; then
-    echo "[LỖI] Chưa tìm thấy 'python3'. Vui lòng chạy: sudo apt install -y python3 python3-pip"
+    echo "[LỖI] Chưa tìm thấy 'python3'. Vui lòng chạy: sudo apt install -y python3 python3-pip python3-redis"
     exit 1
 fi
 echo "[✓] Các công cụ cần thiết đã sẵn sàng."
@@ -50,8 +55,24 @@ echo "[✓] Redis port ${PORT} đang hoạt động bình thường (PONG)."
 # 3. Kiểm tra dependency python
 echo "[3/4] Kiểm tra thư viện Python (redis)..."
 if ! python3 -c "import redis" &> /dev/null; then
-    echo " -> Đang cài đặt thư viện redis..."
-    pip3 install -r "${PROJECT_ROOT}/demos/03-eviction/requirements.txt"
+    echo " -> Chưa tìm thấy thư viện 'redis'. Đang thử cài đặt qua pip..."
+    if command -v pip3 &> /dev/null; then
+        pip3 install -r "${PROJECT_ROOT}/demos/03-eviction/requirements.txt" 2>/dev/null || \
+        pip3 install --break-system-packages -r "${PROJECT_ROOT}/demos/03-eviction/requirements.txt" 2>/dev/null || \
+        pip3 install --user -r "${PROJECT_ROOT}/demos/03-eviction/requirements.txt" 2>/dev/null || true
+    elif command -v pip &> /dev/null; then
+        pip install -r "${PROJECT_ROOT}/demos/03-eviction/requirements.txt" 2>/dev/null || \
+        pip install --break-system-packages -r "${PROJECT_ROOT}/demos/03-eviction/requirements.txt" 2>/dev/null || true
+    fi
+fi
+
+if ! python3 -c "import redis" &> /dev/null; then
+    echo "[LỖI] Chưa cài đặt được thư viện 'redis' cho Python."
+    echo "Vui lòng chạy lệnh cài đặt trên Linux Mint:"
+    echo "    sudo apt install -y python3-redis"
+    echo "hoặc:"
+    echo "    pip3 install -r demos/03-eviction/requirements.txt"
+    exit 1
 fi
 echo "[✓] Thư viện Python đã sẵn sàng."
 
