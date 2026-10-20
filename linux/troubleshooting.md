@@ -6,8 +6,6 @@
 
 Trong terminal gốc, dùng `jobs -l`; nếu job setup đang Stopped, dùng `fg` để tiếp tục. Nếu terminal gốc còn bị giữ, ở phiên SSH thứ hai kiểm tra PID hiện tại bằng `ps -p <PID> -o pid,ppid,stat,comm`; chỉ khi đúng process apt đang stop mới gửi `sudo kill -CONT <PID>`. Không dùng lại PID cũ mà chưa đối chiếu. Không xóa lock apt/dpkg hoặc chạy setup chồng lên tiến trình còn tồn tại.
 
-Archive VMware đã cung cấp cho thấy lượt setup được ghi kết thúc bình thường với `SETUP_EXIT=0`; không dùng triệu chứng trước đó để kết luận cài Redis thất bại.
-
 ## Script lỗi `pipefail`, `$'\r'` hoặc `bad interpreter`
 
 Đây thường là line ending CRLF do checkout trên Windows. Repo quy định LF cho `*.sh` và `*.conf` trong `.gitattributes`. Với clone cũ, kiểm tra `file linux/setup.sh`; đổi shell script về LF trước khi chạy. Không dùng `sudo sh linux/setup.sh`: script yêu cầu Bash, dùng `sudo bash linux/setup.sh`.
@@ -35,7 +33,7 @@ Nguồn: [Microsoft: systemd trong WSL](https://learn.microsoft.com/en-us/window
 4. Kiểm tra port đang được dùng: `sudo ss -lntp | grep 6379`.
 5. Kiểm tra quyền ghi của `dir`, file RDB và thư mục AOF.
 
-Port 6380–6384 là instance start tay: `systemctl status redis-server` chỉ phản ánh service mặc định, không phản ánh các port này. Đọc terminal foreground hoặc `/tmp/redis-seminar/<tên>/server.log` nếu start nền theo commands.md.
+Port 6380–6384 là instance start tay: `systemctl status redis-server` chỉ phản ánh service mặc định. Đọc log ngay trong terminal chạy `redis-server` của demo.
 
 Nếu báo address already in use, chạy `sudo ss -lntp 'sport = :6383'` với đúng port. Đối chiếu process trước khi stop; không kill tất cả Redis. Nếu thiếu `dir` sau reboot, tạo lại đúng thư mục và owner như [commands.md](commands.md).
 

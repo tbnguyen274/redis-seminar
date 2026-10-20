@@ -1,30 +1,22 @@
 # Checklist phần môi trường và chất lượng demo
 
-Theo cập nhật nhóm: nộp slides qua Moodle, seminar 30–45 phút, nên quay trước các demo với light mode và chữ lớn. Theory là tài liệu học/đối chiếu trong `theory/`; `report/seminar.md` là khung cũ. Checklist này ghi việc còn phải làm, không tự đánh dấu đạt chỉ vì có hướng dẫn.
+Checklist dùng khi bàn giao từng demo và chạy tích hợp cả nhóm. Kết quả từng lần kiểm tra nằm trong [environment-verification.md](environment-verification.md); lệnh vận hành nằm trong [linux/commands.md](../linux/commands.md).
 
-## Trạng thái công việc
+## Môi trường dùng chung
 
-### Người phụ trách môi trường
+- [ ] Thành viên dùng cùng commit và cấu hình `redis/*.conf`; ghi phiên bản OS/Redis/Python khi bàn giao.
+- [ ] Setup đã hoàn tất trên VM; instance tương ứng với demo khởi động được và trả `PONG` đúng port.
+- [ ] Client dùng đúng host/port, không sửa hoặc reset instance của phần khác.
+- [ ] Thay đổi cấu hình có trong PR, hướng dẫn chạy và kỳ vọng checker được cập nhật nếu cần.
+- [ ] Khi tích hợp, service 6379 và đủ năm instance 6380–6384 hoạt động; `bash linux/check.sh` trả `PASS`.
+- [ ] Bốn workload cuối chạy được trên VM 512 MB; ghi rõ swap và điều kiện đo.
+- [ ] Có hướng dẫn stop/start/reset và khôi phục thư mục sau reboot.
 
-- [x] Soạn nghiên cứu overview, use case, FAQ và nguồn chính thức trong `theory/01-redis-overview.md`.
-- [x] Chuẩn bị setup có Redis, Python/venv và năm thư mục dữ liệu.
-- [x] Chuẩn bị lệnh start/stop/reset/restart, script kiểm tra chỉ đọc và hướng dẫn phục hồi.
-- [x] Soạn lời nói, shot list quay môi trường và tiêu chí xem lại video.
-- [ ] Chuẩn bị slides và nguồn trong speaker notes ở giai đoạn sau; hiện chưa đưa file slides lên repo.
-- [x] Chạy hạ tầng trên VMware 512 MB, 2 CPUs; ghi Ubuntu 26.04.1, Redis 8.0.5, Python 3.14.4 và RAM/swap thực tế.
-- [x] Chụp settings VMware và bằng chứng màn hình của lần chạy này; đã nhận tám ảnh và archive log.
-- [x] Có recording môi trường nền sáng 1080p; đã xem frame mẫu ở kích thước gốc. Bản đầy đủ dài 8 phút 26.8 giây, chưa có lời dẫn nghe được.
-- [ ] Biên tập đoạn môi trường khoảng 90 giây hoặc theo thời lượng nhóm; kiểm tra trên máy trình chiếu.
-- [ ] Kiểm tra bốn workload cuối trên VM 512 MB với swap được ghi rõ.
-- [ ] Chốt slide section với nhóm, ghép video và tập nói khoảng 5 phút.
-- [ ] Chạy demo của từng thành viên từ README của họ, không cần hướng dẫn miệng.
-- [ ] Nhờ thành viên review PR và thống nhất merge.
-
-Kết quả ghi trong [environment-verification.md](environment-verification.md); [minh chứng VMware](screenshots/00-environment/vmware-2026-10-20/README.md) đã đủ cho allocation và hạ tầng/probe nhỏ. Repeat setup, reboot recovery, negative test và workload cuối trên VMware chưa có log; kết quả WSL giữ riêng. Slides được làm sau theo yêu cầu, chưa cập nhật hoặc nộp.
+Đây là checklist dùng lại cho mỗi lần review, không phải nhật ký hoàn thành. Minh chứng hạ tầng đã có trong [lần chạy VMware](screenshots/00-environment/vmware-2026-10-20/README.md); các workload được kiểm tra riêng khi chủ phần bàn giao.
 
 ## Bàn giao tối thiểu từ mỗi chủ demo
 
-- [ ] Theory của phần mình có nguồn và liên hệ tới experiment.
+- [ ] Lý thuyết của demo có nguồn và liên hệ tới experiment.
 - [ ] Script/chuỗi lệnh chạy từ repo root, ghi đúng port.
 - [ ] Requirements và phiên bản dependency; không phụ thuộc file bí mật hoặc đường dẫn riêng.
 - [ ] README có điều kiện đầu vào, lệnh chạy, output kỳ vọng và reset.
@@ -35,7 +27,7 @@ Kết quả ghi trong [environment-verification.md](environment-verification.md)
 
 ## Demo 01: cấu trúc dữ liệu và TTL
 
-- [x] Port 6383, đúng config và directory riêng đã được checker VMware xác nhận; dataset đầy đủ của demo vẫn cần chủ phần cung cấp.
+- [ ] Port 6383, đúng config và directory riêng.
 - [ ] String, List, Hash, Sorted Set đều có thao tác ghi và đọc minh họa.
 - [ ] Leaderboard đúng thứ tự score; List và Sorted Set được phân biệt rõ.
 - [ ] TTL giảm, key hết hạn, giải thích được -1 và -2.
@@ -53,7 +45,7 @@ Kết quả ghi trong [environment-verification.md](environment-verification.md)
 
 ## Demo 03: eviction
 
-- [x] Port 6382, `maxmemory=10485760`, policy `allkeys-lru` được checker VMware xác nhận.
+- [ ] Port 6382, `maxmemory=10485760`, policy `allkeys-lru` đúng cấu hình chung.
 - [ ] Ghi `INFO memory`, `INFO stats` trước/sau, `evicted_keys` tăng.
 - [ ] Phân biệt `expired_keys` và `evicted_keys`; không dùng key hết TTL làm bằng chứng eviction.
 - [ ] Kiểm tra key mất/còn; hot key có xác suất giữ cao hơn, không hứa luôn tồn tại.
@@ -62,7 +54,7 @@ Kết quả ghi trong [environment-verification.md](environment-verification.md)
 
 ## Demo 04: persistence/crash
 
-- [x] RDB 6380 và AOF 6381 dùng config/directory riêng; normal restart phục hồi probe đã được kiểm tra trên VMware, chưa phải crash test.
+- [ ] RDB 6380 và AOF 6381 dùng config/directory riêng.
 - [ ] Xác nhận RDB đã có snapshot baseline cần thiết, AOF bật everysec; ghi INFO persistence.
 - [ ] Cùng workload, có số thứ tự key hoặc kiểm tra nội dung, không chỉ đếm key nếu nội dung có thể sai.
 - [ ] Ghi PID/port hiện tại, số key và thời điểm trước crash; chỉ kill đúng demo process.
@@ -74,6 +66,7 @@ Kết quả ghi trong [environment-verification.md](environment-verification.md)
 ## Duyệt chung trước nộp
 
 - [ ] Bốn demo có người sở hữu và kết quả review rõ ràng.
+- [ ] Phần tổng quan và môi trường gói trong khoảng 5 phút, gồm video khoảng 90 giây; chỉ giới thiệu các nội dung sẽ được đào sâu ở từng demo.
 - [ ] Cùng thuật ngữ, port và phiên bản trên code, slides, video.
 - [ ] Chạy thử cả nhóm trong 30–45 phút, thống nhất thời gian Q&A với giảng viên/nhóm.
 - [ ] Slide không chứa số liệu dự đoán được trình bày như kết quả đo.
@@ -82,4 +75,4 @@ Kết quả ghi trong [environment-verification.md](environment-verification.md)
 
 ## Nội dung PR của phần môi trường
 
-Nêu vấn đề, file thay đổi, môi trường thật và các lệnh đã kiểm tra. Link minh chứng; liệt kê mục chưa làm (workload của thành viên, video biên tập và slides giai đoạn sau). Không ghi “mọi demo đã hoàn thành” khi chỉ mới verify server/config. Không cần commit/push/merge để hoàn thành bước đối chiếu local.
+Nêu thay đổi, cách chạy, kết quả kiểm tra và mục còn lại. Link minh chứng cần thiết; không đưa nhật ký thao tác hoặc đường dẫn máy cá nhân vào hướng dẫn dùng chung. Người review phải chạy lại được từ repo.

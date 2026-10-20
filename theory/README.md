@@ -14,4 +14,6 @@ Phân công cần được các thành viên xác nhận. File của phần khá
 
 Mỗi phần nên có: khái niệm và ví dụ; cơ chế và đánh đổi; liên hệ demo; kết quả thực nghiệm có môi trường đo; câu hỏi thường gặp; nguồn chính thức và ngày tra cứu. Phân biệt số liệu minh họa với số liệu đo thật. Ghi phiên bản khi tính năng phụ thuộc phiên bản Redis.
 
+Tài liệu nghiên cứu có thể dài; khi trình bày, chọn ý chính theo thời lượng từng phần. Tổng quan và môi trường dự kiến khoảng 5 phút gồm video 90 giây; chỉ giới thiệu các chủ đề thuộc demo sau, tránh trình bày lặp. Lý thuyết và demo của cả nhóm nằm trong khung 30–45 phút.
+
 `report/seminar.md` là khung cũ, không dùng làm nguồn lý thuyết hiện hành. `docs/theory/` là vị trí cũ; nội dung mới đặt tại `theory/`.

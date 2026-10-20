@@ -1,114 +1,55 @@
 # Redis Seminar
 
-Repository phục vụ seminar **Redis In-Memory Data Store** trên một máy ảo Linux tối thiểu **512 MB RAM**. Nội dung tập trung vào vai trò của cache, mô hình Cache-Aside, kiến trúc xử lý lệnh của Redis, cơ chế persistence RDB/AOF và các chính sách eviction khi bộ nhớ đầy.
+Môi trường và tài liệu dùng chung cho seminar Redis, gồm bốn demo: cấu trúc dữ liệu/TTL, Cache-Aside, eviction và persistence.
 
-## Yêu cầu làm việc hiện tại
+## Bắt đầu từ đâu?
 
-- Nộp **slides** qua Moodle; không cần nộp báo cáo riêng. Seminar **30–45 phút/nhóm**.
-- Nghiên cứu và nguồn đặt ở [`theory/`](theory/README.md), rồi chọn lọc đưa lên slides. `report/seminar.md` là khung cũ, không dùng làm lý thuyết hiện hành.
-- Mỗi chủ demo phụ trách cả code, lý thuyết và trình bày phần mình. Người phụ trách môi trường quản lý hạ tầng và kiểm tra khả năng tái lập các demo.
-- Quay demo trước, terminal nền sáng và chữ lớn; kiểm tra video ở kích thước trình chiếu.
-- Làm trên branch riêng và tạo PR để nhóm review. Các phân công trong sheet là tham khảo, cần thành viên xác nhận.
+> [!NOTE]
+> Lần đầu cài Ubuntu có thể sử dụng RAM cao hơn (VD. 2GB) để tăng tốc quá trình cài, sau đó hạ xuống 512MB
 
-Bắt đầu với [hướng dẫn môi trường](linux/commands.md), [nghiên cứu overview](theory/01-redis-overview.md), [checklist chất lượng](docs/demo-quality-checklist.md) và [kịch bản nói/quay](docs/presentation-notes/01-overview-environment.md). [Kết quả kiểm tra](docs/environment-verification.md) phân biệt rehearsal WSL và VM cuối.
+1. Chuẩn bị Ubuntu Server **512 MB RAM**.
+2. Clone repo và chạy `sudo bash linux/setup.sh` một lần trên mỗi VM để cài Redis, Python/venv và tạo thư mục dữ liệu.
+3. Khởi động Redis bằng file cấu hình tương ứng với demo, rồi kết nối đúng port. Setup không tự khởi động các instance demo.
+4. Viết code trong `demos/`, nghiên cứu trong `theory/`, làm trên branch riêng và tạo PR để nhóm review.
 
-Đã đối chiếu [minh chứng VMware ngày 20/10/2026](docs/screenshots/00-environment/vmware-2026-10-20/README.md): VM 512 MB/2 CPUs, Ubuntu 26.04.1, Redis 8.0.5, Python 3.14.4; checker, cách ly, TTL và normal restart đạt với swap bật. Workload cuối và crash-loss chưa được xác minh.
+Lệnh cụ thể: **[linux/commands.md](linux/commands.md)**. Khi gặp lỗi: [linux/troubleshooting.md](linux/troubleshooting.md).
 
-Slides phần tổng quan và môi trường sẽ được chuẩn bị ở giai đoạn sau; hiện chưa đưa file slides lên repo.
+## Làm độc lập và đồng nhất môi trường
 
-## Mục tiêu
+Mỗi thành viên có thể phát triển trên VM riêng, không cần đợi các demo khác. Dùng cùng commit repo và các file `redis/*.conf` để thống nhất cấu hình. Setup dùng gói apt của distro, **không khóa phiên bản**; để đồng nhất cả phiên bản, dùng cùng image/snapshot Ubuntu và ghi lại phiên bản thực tế khi bàn giao.
 
-- Trình bày cách Redis hỗ trợ tăng tốc ứng dụng bằng cache.
-- Thực hành String, List, Hash, Sorted Set và TTL.
-- Đo sự khác biệt giữa Cache Miss và Cache Hit trong mô hình Cache-Aside.
-- Quan sát Redis tự loại bỏ key với `allkeys-lru` khi chạm giới hạn bộ nhớ.
-- So sánh mức độ mất dữ liệu sau sự cố giữa RDB và AOF (`appendfsync everysec`).
+Nếu dùng chung một VM, thống nhất tài khoản vận hành và người quản lý từng instance. Cùng port là cùng dữ liệu: không start thêm process, reset hoặc đổi cấu hình instance mà người khác đang dùng. Các instance bind `127.0.0.1`; chạy ứng dụng demo trong cùng guest.
 
-## Cấu trúc repository
+| Demo | File cấu hình | Port | Code |
+|---|---|---:|---|
+| Cấu trúc dữ liệu và TTL | [redis-data-structures.conf](redis/redis-data-structures.conf) | 6383 | `demos/01-data-structures/` |
+| Cache-Aside | [redis-cache-aside.conf](redis/redis-cache-aside.conf) | 6384 | `demos/02-cache-aside/` |
+| Eviction | [redis-eviction.conf](redis/redis-eviction.conf) | 6382 | `demos/03-eviction/` |
+| Persistence — RDB | [redis-rdb.conf](redis/redis-rdb.conf) | 6380 | `demos/04-persistence-crash/` |
+| Persistence — AOF | [redis-aof.conf](redis/redis-aof.conf) | 6381 | `demos/04-persistence-crash/` |
 
-```text
-redis-seminar/
-├── README.md
-├── theory/                      # Nghiên cứu hiện hành và nguồn tham khảo
-├── docs/
-│   ├── theory/                 # Vị trí cũ, nội dung mới ở theory/
-│   ├── demo-quality-checklist.md # Tiêu chí review và việc còn lại
-│   ├── environment-verification.md # Kết quả kiểm tra thực tế
-│   ├── screenshots/            # Ảnh minh chứng cài đặt và demo
-│   └── presentation-notes/     # Kịch bản và ghi chú thuyết trình
-├── linux/
-│   ├── setup.sh                # Cài đặt Redis trên Ubuntu/Debian
-│   ├── check.sh                # Kiểm tra service, port và config, không sửa dữ liệu
-│   ├── commands.md             # Lệnh kiểm tra và vận hành cơ bản
-│   └── troubleshooting.md      # Checklist xử lý sự cố
-├── redis/
-│   ├── redis-rdb.conf          # Cấu hình thử nghiệm RDB
-│   ├── redis-aof.conf          # Cấu hình thử nghiệm AOF
-│   ├── redis-eviction.conf     # Cấu hình maxmemory và allkeys-lru
-│   ├── redis-data-structures.conf # Instance riêng cho demo 01
-│   └── redis-cache-aside.conf  # Instance riêng cho demo 02
-├── demos/
-│   ├── 01-data-structures/     # String, List, Hash, Sorted Set, TTL
-│   ├── 02-cache-aside/         # Mô phỏng DB chậm và đo miss/hit
-│   ├── 03-eviction/            # Ghi dữ liệu vượt maxmemory
-│   └── 04-persistence-crash/   # kill -9 và kiểm tra dữ liệu phục hồi
-└── report/
-    └── seminar.md              # Khung cũ, không phải sản phẩm nộp hiện tại
-```
+Port **6379** là service mặc định do setup bật, quản lý riêng với các instance demo. Muốn đổi cấu hình, sửa file tương ứng trong `redis/`, dừng đúng instance và khởi động lại bằng file đó. Cách kiểm tra cấu hình và phối hợp thay đổi nằm trong [commands.md](linux/commands.md#4-thay-đổi-cấu-hình).
 
-File [`de_tai_seminar.md`](de_tai_seminar.md) là đề bài gốc dùng để đối chiếu phạm vi và tiêu chí demo.
+Khi kiểm tra tích hợp, khởi động đủ năm instance rồi chạy `bash linux/check.sh`; script cần cả service 6379 và các port 6380–6384. Khi làm riêng một demo, chỉ cần kiểm tra port của demo đó.
 
-## Luồng hoạt động và demo
+## Tài liệu cần đọc
 
-1. **Chuẩn bị môi trường**
-   - Tạo VM Linux 512 MB RAM.
-   - Chạy `sudo bash linux/setup.sh` để cài Redis và công cụ dòng lệnh.
-   - Xác nhận dịch vụ bằng `redis-cli ping` (kết quả mong đợi: `PONG`).
-   - Setup tạo năm thư mục dữ liệu; sau reboot, tạo lại nếu bị dọn theo `linux/commands.md`.
-   - Sau khi start đủ năm instance, chạy `bash linux/check.sh` để kiểm tra cấu hình thực tế.
+| Nhu cầu | Tài liệu |
+|---|---|
+| Cài đặt, start/stop/reset, sửa cấu hình | [linux/commands.md](linux/commands.md) |
+| Xử lý lỗi | [linux/troubleshooting.md](linux/troubleshooting.md) |
+| Nghiên cứu lý thuyết và nguồn tham khảo | [theory/README.md](theory/README.md) |
+| Nội dung nói tổng quan và quay môi trường, khoảng 5 phút | [Ghi chú trình bày](docs/presentation-notes/01-overview-environment.md) |
+| Review và bàn giao demo | [Checklist chất lượng](docs/demo-quality-checklist.md) |
+| Kết quả thử nghiệm và minh chứng | [Kiểm tra môi trường](docs/environment-verification.md) |
+| Đề bài gốc | [de_tai_seminar.md](de_tai_seminar.md) |
 
-2. **Demo 01 - Cấu trúc dữ liệu và TTL**
-   - Khởi động Redis bằng `redis/redis-data-structures.conf` trên port `6383`.
-   - Thực hành String, List, Hash và Sorted Set.
-   - Dùng Sorted Set để tạo bảng xếp hạng.
-   - Gán TTL, quan sát key tồn tại rồi tự hết hạn.
+## Phạm vi và bàn giao
 
-3. **Demo 02 - Cache-Aside**
-   - Khởi động Redis bằng `redis/redis-cache-aside.conf` trên port `6384`.
-   - Ứng dụng tìm dữ liệu trong Redis trước.
-   - Nếu Cache Miss, ứng dụng mô phỏng truy vấn cơ sở dữ liệu khoảng 300 ms, sau đó ghi kết quả vào Redis.
-   - Nếu Cache Hit, ứng dụng trả kết quả trực tiếp từ Redis.
-   - Ghi lại thời gian của lần đầu và các lần sau để so sánh.
+- Seminar **30–45 phút/nhóm**, nộp **slides** qua Moodle; không cần báo cáo riêng.
+- Mỗi chủ demo chuẩn bị code, lý thuyết, kết quả thực đo và video. Theory có thể chi tiết; nội dung nói chọn lọc theo thời lượng. Phần tổng quan chỉ giới thiệu các chủ đề sẽ được đào sâu ở từng demo.
+- README từng demo cần có dependency, lệnh chạy, output kỳ vọng và cách reset. Hiện các thư mục demo mới là chỗ để bổ sung code.
+- Quay demo trước với terminal nền sáng, chữ lớn và kiểm tra playback trước buổi seminar.
+- `report/seminar.md` là khung cũ; nội dung nghiên cứu hiện hành đặt ở `theory/`. Slides được chuẩn bị ở giai đoạn sau.
 
-```text
-Client -> Application -> Redis
-                         | hit  -> trả dữ liệu
-                         | miss
-                         v
-                    Slow database (~300 ms)
-                         |
-                         +-> ghi cache có TTL -> trả dữ liệu
-```
-
-4. **Demo 03 - Eviction**
-   - Khởi động Redis bằng `redis/redis-eviction.conf` với giới hạn nhỏ và `allkeys-lru`.
-   - Ghi dữ liệu cho đến khi vượt `maxmemory`.
-   - Theo dõi `evicted_keys` và chứng minh các key ít được sử dụng bị loại bỏ.
-
-5. **Demo 04 - Persistence và sự cố**
-   - Chạy cùng một kịch bản ghi dữ liệu lần lượt với cấu hình RDB và AOF.
-   - Dùng `kill -9` để mô phỏng process Redis bị dừng đột ngột sau khi ghi; đây không phải thử nghiệm mất điện VM/host.
-   - Khởi động lại Redis, đếm số key còn lại và so sánh mức mất dữ liệu.
-   - Với AOF, sử dụng `appendfsync everysec`; mức mất dữ liệu kỳ vọng thường nhỏ hơn RDB thuần túy.
-
-## Nguyên tắc chạy demo
-
-- Dùng instance/port và thư mục dữ liệu riêng cho từng thử nghiệm để tránh trộn dữ liệu.
-- Phân bổ port: RDB `6380`, AOF `6381`, Eviction `6382`, Data Structures `6383`, Cache-Aside `6384`.
-- Không chạy `kill -9` trên Redis đang chứa dữ liệu quan trọng.
-- Chụp màn hình lệnh, cấu hình, số liệu thời gian, `INFO stats` và kết quả sau restart vào `docs/screenshots/`.
-- Ghi rõ phiên bản hệ điều hành, Redis và cấu hình thực tế trong minh chứng/tài liệu demo và slides để kết quả có thể tái lập.
-
-## Trạng thái
-
-Repository có cấu hình mẫu và tài liệu chuẩn bị môi trường. Nghiên cứu overview nằm trong `theory/`; mã nguồn chi tiết và lý thuyết của từng demo do chủ phần bổ sung. Việc server/config chạy được chưa chứng minh bốn demo ứng dụng đã hoàn thành. Xem checklist và verification để biết phần đã kiểm tra và phần còn lại.
+Hạ tầng đã có [minh chứng VMware 512 MB](docs/screenshots/00-environment/vmware-2026-10-20/README.md). Kiểm tra kết nối/cấu hình và normal restart chưa thay thế việc chạy bốn workload demo cuối.

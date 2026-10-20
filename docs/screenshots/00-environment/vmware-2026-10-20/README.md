@@ -1,14 +1,14 @@
 # Minh chứng VMware ngày 20/10/2026
 
-Đối chiếu recording, tám ảnh và archive log do người dùng cung cấp. Commit chạy trong guest: `2cd27a98b251231f1bc5e524451ce3ead546fcb4`, branch `feat/environment-prep`.
+Minh chứng gồm recording, tám ảnh và archive log của lần chạy VMware. Commit chạy trong guest: `2cd27a98b251231f1bc5e524451ce3ead546fcb4`, branch `feat/environment-prep`.
 
 ## Nguồn và cách lưu
 
 - [original-logs.tar.gz](original-logs.tar.gz) giữ nguyên byte của `redis-vm-evidence.tar.gz`; thư mục bên trong là `vm-20261020-075553/`.
 - [source-manifest.json](source-manifest.json) ghi SHA256 của archive, video và từng ảnh, cùng tên file gốc.
 - `logs/` là bản dễ đọc: đổi LF, bỏ khoảng trắng cuối dòng; [session-readable.txt](logs/session-readable.txt) bỏ thêm terminal control. Input có thể lặp do echo/redraw; dùng archive gốc khi cần đối chiếu nguyên bản.
-- Recording gốc: `F:\Git\Uni\Linux\Seminar evidence\2026-10-20 14-56-09.mp4`. Video giữ ngoài Git; khi bàn giao cho nhóm cần chuyển kèm file này. Metadata nằm ở [video-metadata.json](video-metadata.json).
-- Phiên bản **VMware Workstation Pro 26H1u1** do người dùng xác nhận trong chat. Ảnh settings và kernel log xác nhận VMware, không tự xác minh chuỗi phiên bản ứng dụng host.
+- Recording gốc: `2026-10-20 14-56-09.mp4`. Video giữ ngoài Git; khi bàn giao cần chuyển file hoặc bổ sung liên kết lưu trữ chung của nhóm. Metadata nằm ở [video-metadata.json](video-metadata.json).
+- Phiên bản **VMware Workstation Pro 26H1u1** theo xác nhận của người thực hiện. Ảnh settings và kernel log xác nhận VMware; chưa có ảnh About để đối chiếu phiên bản ứng dụng host.
 
 ## Chỉ mục ảnh
 

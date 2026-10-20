@@ -2,7 +2,7 @@
 
 ## Kết luận hiện tại: VMware 512 MB
 
-Đã đối chiếu ảnh, recording và log người dùng chạy ngày **20/10/2026**, phiên **07:55:53–08:04:24 UTC** (14:55:53–15:04:24 Việt Nam). Ảnh settings xác nhận VM **512 MB RAM, 2 processors**. Setup, checker, cách ly, TTL và normal restart đạt trong phạm vi dưới đây. Đây là kiểm tra hạ tầng với probe nhỏ; chưa chứng minh bốn workload cuối của seminar chạy ổn định ở mức RAM này.
+Đã đối chiếu ảnh, recording và log của lần chạy ngày **20/10/2026**, phiên **07:55:53–08:04:24 UTC** (14:55:53–15:04:24 Việt Nam). Ảnh settings xác nhận VM **512 MB RAM, 2 processors**. Setup, checker, cách ly, TTL và normal restart đạt trong phạm vi dưới đây. Đây là kiểm tra hạ tầng với probe nhỏ; chưa chứng minh bốn workload cuối của seminar chạy ổn định ở mức RAM này.
 
 Minh chứng và nguồn: [VMware 2026-10-20](screenshots/00-environment/vmware-2026-10-20/README.md). Kết quả WSL trước đó được giữ ở phần lịch sử cuối trang; không dùng phiên bản WSL thay cho VM cuối.
 
@@ -10,7 +10,7 @@ Minh chứng và nguồn: [VMware 2026-10-20](screenshots/00-environment/vmware-
 
 | Thành phần | Giá trị và nguồn |
 |---|---|
-| Hypervisor | VMware Workstation Pro **26H1u1**, người dùng xác nhận; guest/kernel nhận diện VMware |
+| Hypervisor | VMware Workstation Pro **26H1u1**, theo xác nhận của người thực hiện; guest/kernel nhận diện VMware |
 | Phân bổ VM | **512 MB RAM, 2 processors**, virtual disk 20 GB, NAT; ảnh settings |
 | Guest OS | Ubuntu **26.04.1 LTS** (Resolute Raccoon), x86_64 |
 | Kernel | `7.0.0-38-generic` |
@@ -97,7 +97,7 @@ RAM/CPU WSL phản ánh cấu hình rehearsal, không phải cấu hình đề b
 
 ### Kiểm tra WSL đã đạt
 
-- Setup chạy hoàn tất bằng quyền root với `SUDO_USER=kyrie`, rồi chạy lại thành công. Đây là cách gọi không tương tác trong môi trường kiểm tra; người dùng Linux bình thường dùng `sudo bash linux/setup.sh`.
+- Setup chạy hoàn tất bằng quyền root với `SUDO_USER` trỏ tới tài khoản vận hành, rồi chạy lại thành công. Đây là cách gọi không tương tác trong môi trường kiểm tra; cách chạy thông thường là `sudo bash linux/setup.sh`.
 - Shell scripts qua `bash -n`; gọi setup không có quyền root bị từ chối trước khi cài đặt.
 - Service mặc định active, enabled, port 6379 trả PONG.
 - Năm config gốc start được dưới user thường, có override `--daemonize yes` và logfile riêng cho rehearsal.

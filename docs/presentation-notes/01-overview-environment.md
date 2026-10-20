@@ -1,70 +1,54 @@
-# Kịch bản phần tổng quan và môi trường
+# Trình bày tổng quan và môi trường
 
-Phạm vi: phần người phụ trách môi trường, dự kiến khoảng **5 phút** trong seminar 30–45 phút. Đây là nội dung dùng để tập nói và quay, không phải báo cáo nộp. Nguồn lý thuyết: [01-redis-overview.md](../../theory/01-redis-overview.md).
+Thời lượng đề xuất: **5 phút, gồm video môi trường khoảng 90 giây**, trong seminar 30–45 phút của nhóm. Tài liệu này dùng để tập nói và chuẩn bị recording; slides được làm sau.
 
-Slides sẽ được chuẩn bị ở giai đoạn sau; hiện chưa đưa file slides lên repo. Kịch bản dưới đây dùng để chuẩn bị phần trình bày và quay demo.
+Nghiên cứu đầy đủ nằm trong [theory/01-redis-overview.md](../../theory/01-redis-overview.md). Phần mở đầu chỉ cần giải thích Redis dùng để làm gì và nhóm sẽ minh họa bằng những demo nào. Thuật toán, lệnh chi tiết và số liệu dành cho chủ từng demo.
 
-Đã có [minh chứng VMware ngày 20/10/2026](../screenshots/00-environment/vmware-2026-10-20/README.md): Workstation Pro 26H1u1 (người dùng xác nhận), 512 MB/2 CPUs, Ubuntu 26.04.1, Redis 8.0.5 và Python 3.14.4. Recording gốc dài **8 phút 26.8 giây**, nền sáng, không có lời dẫn nghe được; chưa biên tập về khoảng 90 giây. Chưa làm hoặc cập nhật slides trong lần đối chiếu này.
+## Nội dung nói
 
-## Lời dẫn theo slides
+| Thời gian | Ý chính |
+|---|---|
+| 0:00–0:45 | Redis là kho dữ liệu có cấu trúc, phục vụ dữ liệu chủ yếu từ RAM. Giới thiệu một ví dụ cache kết quả đọc lặp lại. |
+| 0:45–1:30 | Hit là có dữ liệu trong cache; miss cần lấy từ nguồn. Cache giảm công việc lặp nhưng cần xử lý dữ liệu cũ. Chưa đi sâu luồng Cache-Aside hoặc cách đo. |
+| 1:30–2:00 | Nêu ngắn gọn cache, session, leaderboard; RAM có giới hạn và cần chọn cách phục hồi phù hợp. |
+| 2:00–2:30 | Giới thiệu bốn demo: cấu trúc dữ liệu/TTL, Cache-Aside, eviction, persistence. Mỗi demo sẽ giải thích cơ chế và kết quả riêng. |
+| 2:30–3:00 | Môi trường chung: mỗi demo có process, port, thư mục và file config riêng; các thành viên dùng cùng cấu hình để tái lập. |
+| 3:00–4:30 | Video môi trường: cấu hình VM, phiên bản, PONG, cách ly giữa hai instance. Chỉ phát đoạn đã chọn trong khung 90 giây. |
+| 4:30–5:00 | Chốt môi trường đã sẵn sàng cho các demo; chuyển sang phần cấu trúc dữ liệu. |
 
-| Mốc thời gian | Nội dung trên slide | Lời giải thích gợi ý |
+Không đọc hết tài liệu nghiên cứu. Phần này không cần trình bày thao tác từng kiểu dữ liệu, công thức latency, thuật toán eviction hoặc cơ chế RDB/AOF. Kết quả kiểm tra hạ tầng không thay thế kết quả workload của từng demo.
+
+## Chuẩn bị recording
+
+- Hoàn tất cài đặt, tải dependency và chạy thử trước khi quay.
+- Start đủ năm instance; `bash linux/check.sh` trả `PASS`.
+- Terminal nền sáng, chữ lớn, khung hình 16:9; thử đọc ở kích thước trình chiếu.
+- Chuẩn bị ảnh settings RAM/CPU và output phiên bản của VM dùng trình diễn.
+- Không dành video chính cho thời gian chờ apt hoặc nhập mật khẩu.
+
+## Shot list môi trường, khoảng 90 giây
+
+| Thời gian | Hình/lệnh | Kết quả cần thấy |
 |---|---|---|
-| 0:00–0:35 | Redis và dữ liệu trong RAM | “Redis là kho dữ liệu có cấu trúc. Ngoài đọc/ghi value, ta còn thao tác List, Hash hay bảng điểm trực tiếp. Trong seminar, nhóm dùng Redis để khảo sát cache, bộ nhớ và phục hồi.” |
-| 0:35–1:20 | Cache hit/miss | “Khi nhiều request hỏi cùng dữ liệu, cache giúp dùng lại kết quả. Hit trả từ cache; miss thì ứng dụng lấy nguồn rồi ghi cache. TTL giới hạn thời gian giữ key, còn update dữ liệu cần chính sách invalidation.” |
-| 1:20–2:00 | Use case và giới hạn | “Redis thường dùng cho cache, session, quota, bảng xếp hạng và queue. Mức ảnh hưởng khi mất dữ liệu khác nhau: cache có thể dựng lại, nhưng session/job có thể ảnh hưởng người dùng. Cần chọn persistence phù hợp.” |
-| 2:00–2:35 | Bốn demo | “Bốn phần tiếp theo kiểm tra cấu trúc dữ liệu và TTL, thời gian hit/miss, eviction khi chạm bộ nhớ, rồi dữ liệu phục hồi từ RDB và AOF.” |
-| 2:35–3:05 | Môi trường cách ly | “Service mặc định ở 6379. Mỗi bài có process, port và thư mục riêng. Crash hoặc reset một bài không làm dừng server của bài khác.” |
-| 3:05–4:35 | Video môi trường | Dành khoảng 90 giây cho bản biên tập về sau; không phát nguyên recording 8 phút 26.8 giây trong slot này. Nêu phiên bản VMware/guest thực tế và swap bật. |
-| 4:35–5:00 | Chuyển phần | “Môi trường đã kiểm tra kết nối và cách ly. Phần đầu tiên sẽ cho thấy Redis lưu và thao tác các cấu trúc dữ liệu như thế nào.” |
+| 0–15 giây | Settings VM và `cat /etc/os-release` | Allocation RAM/CPU và OS thực tế |
+| 15–30 giây | `redis-server --version`, `redis-cli -p 6379 PING` | Phiên bản và `PONG` |
+| 30–50 giây | Phần port và kết luận của `bash linux/check.sh` | Các port hoạt động, `PASS` |
+| 50–80 giây | Probe cách ly dưới đây | 6383 có key, 6384 không có |
+| 80–90 giây | Bảng port/config trong hướng dẫn | Mỗi demo dùng instance riêng |
 
-Tập nói bằng ý chính, không đọc nguyên văn. Khi làm slides sau này, dùng kết quả VMware cho môi trường cuối; chỉ dùng số WSL nếu ghi rõ là rehearsal riêng. Hai checker PASS và normal restart không chứng minh workload cuối hoặc crash-loss đã hoàn thành.
+Chạy probe trước khi lấy số liệu demo, khi hai instance chưa có key `env:probe`:
 
-## Nguồn recording đã có và việc biên tập sau
+```bash
+redis-cli -p 6383 SET env:probe instance-6383 EX 60
+redis-cli -p 6383 GET env:probe
+redis-cli -p 6384 GET env:probe
+redis-cli -p 6383 DEL env:probe
+```
 
-File gốc: `F:\Git\Uni\Linux\Seminar evidence\2026-10-20 14-56-09.mp4`, 1080p/60 fps. [Chỉ mục minh chứng](../screenshots/00-environment/vmware-2026-10-20/README.md) có mốc thời gian gần đúng cho OS/service, checker, isolation/TTL và normal restart. Giữ bản gốc; chưa cắt video trong lần chỉnh tài liệu này. Ảnh settings CPU/RAM được cung cấp riêng, không giả định nằm trong recording.
+Kỳ vọng: `OK`, `instance-6383`, `(nil)`, `1`. Với output không tương tác, nil có thể là dòng trống. Probe chỉ minh họa cách ly, không phải bài đo hiệu năng.
 
-Khi nhóm làm phần trình chiếu, chọn đoạn thật có command và output, bỏ thời gian chờ cài package, giữ đủ thời gian đọc kết quả. Nếu thuyết minh trực tiếp thì video không cần voiceover; thử đồng bộ lời nói và playback trước buổi trình bày. Nếu dùng ảnh settings trong bản biên tập, ghi rõ đó là ảnh cấu hình VM.
+## Chọn footage và kiểm tra trước trình bày
 
-## Chuẩn bị trước khi record
+Recording và ảnh đã có được mô tả trong [chỉ mục minh chứng](../screenshots/00-environment/vmware-2026-10-20/README.md). Bản gốc dài 8:26.8; chọn đoạn phù hợp thay vì phát toàn bộ. Có thể thuyết minh trực tiếp hoặc thêm caption; giữ output đủ lâu để đọc và không cắt làm sai ý kết quả.
 
-- [ ] VM cuối có đúng RAM/CPU dự định và chạy ổn; chụp settings khi thích hợp.
-- [ ] Setup và tải dependency xong trước khi quay, không dành video chính để chờ apt.
-- [ ] Snapshot môi trường sẵn sàng; nhớ `/tmp` có thể cần tạo lại sau reboot.
-- [ ] Cả năm instance hoạt động, `bash linux/check.sh` trả PASS.
-- [ ] Key `env:probe` chưa được bài khác dùng; chưa bắt đầu đo cache/eviction.
-- [ ] Terminal nền sáng, chữ tối, cỡ khoảng 24–28 pt hoặc đủ lớn khi thử trên màn hình trình chiếu.
-- [ ] Khung hình 16:9; tắt thông báo, che thông tin riêng; giữ lệnh trên từng dòng.
-- [ ] Dùng giọng nói hoặc caption ngắn; giữ output đủ lâu để đọc.
-
-## Shot list video môi trường, khoảng 90 giây
-
-| Thời lượng | Hình/lệnh cần quay | Ý cần nói và kỳ vọng |
-|---|---|---|
-| 0–10 giây | VMware settings CPU/RAM | Nêu cấu hình thực, không dùng ảnh WSL thay ảnh VM |
-| 10–25 giây | `cat /etc/os-release`, `redis-server --version` | Chọn phần output cần thiết, đọc tên distro và Redis version |
-| 25–40 giây | `systemctl is-active redis-server`, `redis-cli -p 6379 PING` | `active`, `PONG` chứng minh service và lệnh hoạt động |
-| 40–55 giây | Vòng lặp PING các port hoặc phần port trong `linux/check.sh` | Sáu port trả PONG; không cuộn hết log cấu hình dài |
-| 55–75 giây | Block cách ly `env:probe` trong commands.md | 6383 đọc được, 6384 không có, xóa probe sau khi quay |
-| 75–90 giây | `redis-cli -p 6383 SHUTDOWN`, start lại bằng config, PING | Dừng bình thường và khôi phục đúng instance; server chạy foreground cần terminal thứ hai để PING |
-
-Không quay cảnh gõ mật khẩu. Nếu cần `sudo`, xác thực trước đoạn quay. Hãy chạy thử toàn bộ shot list một lượt trước khi record thật. Nếu lỗi, dừng record, đọc log/reset đúng bài, rồi quay lại từ trạng thái sạch.
-
-## Sau record
-
-- [ ] Xem video ở độ phân giải/cỡ hiển thị giống lúc trình chiếu; đọc được cả command và output.
-- [ ] Không cắt bỏ lỗi khiến kết luận khác với kết quả thực tế.
-- [ ] Kiểm tra âm lượng/caption và giữ phiên bản video có tên rõ ràng.
-- [ ] Thử phát video bằng slide deck trên máy dự định trình bày.
-- [ ] Giữ file video rời ngoài deck và bản dự phòng offline.
-- [ ] Ghi đường dẫn video dùng chung vào PR hoặc checklist nhóm; tránh commit video lớn vào Git khi nhóm chưa thống nhất.
-
-## Câu hỏi tập trả lời
-
-1. Vì sao cần cache nếu database cũng có cache nội bộ?
-2. Khi Redis lỗi thì app làm gì, database nguồn có chịu được fallback không?
-3. Vì sao nhiều logical database chưa đủ để cách ly crash và memory limit?
-4. Restart có luôn xóa dữ liệu không? Khác nhau giữa normal shutdown và kill -9?
-5. Minh chứng nào chứng minh VM 512 MB, minh chứng nào chỉ chứng minh Redis hoạt động?
-
-Đáp án nền nằm trong theory/01-redis-overview.md. Người phụ trách từng demo trả lời cơ chế sâu và số liệu của phần mình.
+Trước buổi seminar: thử playback trên máy trình chiếu, kiểm tra chữ/âm thanh, giữ bản video offline và tập toàn bộ phần nói cùng video trong 5 phút.

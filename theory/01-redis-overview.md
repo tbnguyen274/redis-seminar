@@ -6,7 +6,7 @@ Phạm vi: phần tổng quan của người phụ trách hạ tầng. Ngày đ�
 
 Redis là một kho dữ liệu có cấu trúc, lưu tập dữ liệu hoạt động chủ yếu trong RAM và cho phép thao tác qua các lệnh. Key thường là chuỗi; value có thể là String, List, Hash, Sorted Set và nhiều kiểu khác. Ứng dụng có thể yêu cầu tăng bộ đếm, thêm phần tử vào hàng đợi hoặc cập nhật điểm trực tiếp trên server. Redis có thể đóng vai trò cache, database hoặc thành phần messaging tùy thiết kế. [S1, S2]
 
-Trong seminar, ta dùng Redis để minh họa bốn câu hỏi: lưu dữ liệu theo cấu trúc nào, khi nào cache giúp giảm công việc lặp, chuyện gì xảy ra khi bộ nhớ đầy, và dữ liệu phục hồi ra sao sau crash.
+Seminar dùng Redis để minh họa bốn câu hỏi: lưu dữ liệu theo cấu trúc nào, khi nào cache giúp giảm công việc lặp, chuyện gì xảy ra khi bộ nhớ đầy, và dữ liệu phục hồi ra sao sau crash.
 
 RAM là nơi phục vụ dữ liệu chính không có nghĩa là Redis không ghi đĩa. RDB chụp snapshot; AOF ghi lại thay đổi để phục hồi. Cũng có thể tắt persistence khi dữ liệu có thể dựng lại. [S3]
 
@@ -62,7 +62,7 @@ Hai đại lượng trên khác nhau. Ghi rõ đơn vị ms, đo cùng một ph�
 
 Đây là cách phân vai trong kiến trúc minh họa. Không nên suy ra rằng database quan hệ luôn đọc đĩa ở mỗi request: chúng cũng có buffer/cache. Redis cũng có thể làm nguồn dữ liệu chính khi thiết kế chấp nhận mô hình dữ liệu, durability và recovery tương ứng. [S1–S4]
 
-## 4. Năm use case cần trình bày
+## 4. Năm use case tham khảo
 
 | Use case | Dữ liệu và thao tác minh họa | Nếu dữ liệu mất hoặc hết TTL |
 |---|---|---|
@@ -131,7 +131,9 @@ Yêu cầu đề bài là VM Linux 512 MB RAM. VMware có thể thể hiện c�
 
 ## 9. Nội dung chọn đưa lên slides
 
-Khoảng 5 phút gồm: định nghĩa Redis; lợi ích caching với ví dụ; các use case và giới hạn; bốn demo; môi trường cách ly; đoạn quay kiểm tra `PONG`. Tránh đọc hết tài liệu. Xem [ghi chú trình bày và quay](../docs/presentation-notes/01-overview-environment.md).
+Khoảng **5 phút, gồm video môi trường khoảng 90 giây**: định nghĩa Redis, một ví dụ caching, vài use case/giới hạn, giới thiệu bốn demo và cách ly môi trường. Đây là phần chọn lọc để nói; các mục chi tiết phía trên dùng nghiên cứu và trả lời câu hỏi.
+
+Phần tổng quan chỉ nêu mục đích của data structures/TTL, Cache-Aside, eviction và persistence. Các thao tác, công thức đo, thuật toán và cơ chế phục hồi do chủ từng demo trình bày sau. Xem [ghi chú trình bày và quay](../docs/presentation-notes/01-overview-environment.md).
 
 ## Tài liệu tham khảo
 
@@ -149,4 +151,4 @@ Khoảng 5 phút gồm: định nghĩa Redis; lợi ích caching với ví dụ;
 - **S10:** [Key eviction](https://redis.io/docs/latest/develop/reference/eviction/).
 - **S11:** [Redis security](https://redis.io/docs/latest/operate/oss_and_stack/management/security/).
 
-Phạm vi seminar và hình thức nộp dựa trên cập nhật của nhóm do người dùng cung cấp ngày 20/10/2026, [bảng tham khảo](https://docs.google.com/spreadsheets/d/1S-zmFakws1dpSU-tIph9FXWWWU3b6bIZE_6woAXYPsc/edit?gid=560560451#gid=560560451) và [đề bài trong repo](../de_tai_seminar.md).
+Phạm vi seminar và hình thức nộp dựa trên cập nhật nhóm ngày 20/10/2026, [bảng tham khảo](https://docs.google.com/spreadsheets/d/1S-zmFakws1dpSU-tIph9FXWWWU3b6bIZE_6woAXYPsc/edit?gid=560560451#gid=560560451) và [đề bài trong repo](../de_tai_seminar.md).
