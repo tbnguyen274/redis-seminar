@@ -52,19 +52,19 @@ Mỗi key-value trong Redis ngoài dung lượng dữ liệu thô còn chịu ch
 
 ### 3.3. Eviction với allkeys-lru
 
-Bảng ghi nhận kết quả thực nghiệm trên Redis instance port `6382` (cấu hình `maxmemory 10mb`, `maxmemory-policy allkeys-lru` thực thi trên Linux Mint):
+Bảng ghi nhận kết quả thực nghiệm trên Redis instance port `6382` (cấu hình `maxmemory 10mb`, `maxmemory-policy allkeys-lru` đo đạc thực tế trên môi trường Linux Mint):
 
-| Chỉ số theo dõi | Kỳ vọng lý thuyết | Kết quả thực tế (Đo trên Linux Mint) | Trạng thái đánh giá |
-|---|---|---|---|
-| Cấu hình `maxmemory` | `10485760` bytes (10MB) | `10485760` bytes (10 MB) | Đạt (Khớp cấu hình) |
-| Cấu hình `maxmemory-policy` | `allkeys-lru` | `allkeys-lru` | Đạt (Khớp cấu hình) |
-| RAM ban đầu (`used_memory_human`) | ~1.0 MB – 1.2 MB | `989.86K` (~0.99 MB) | Đạt (Trạng thái rỗng) |
-| RAM khi nạp tràn (`used_memory_human`) | Chạm trần ~9.8 MB – 10.0 MB | `9.96M` (đỉnh điểm `9.99M`) | Đạt (Kiểm soát dưới 10MB) |
-| Số key bị trục xuất (`evicted_keys`) | Tăng dần (> 0) | `37` keys | Đạt (Eviction hoạt động) |
-| Tỷ lệ sống sót Cold Keys (ít dùng) | 0/10 (Bị xóa hoàn toàn) | `0/10` (Bị xóa 10/10 keys) | Đạt 100% (Loại bỏ triệt để) |
-| Tỷ lệ sống sót Hot Keys (đọc liên tục) | 5/5 (Bảo toàn 100%) | `5/5` (Sống sót 5/5 keys) | Đạt 100% (Bảo toàn hoàn hảo) |
+| Chỉ số theo dõi | Kỳ vọng lý thuyết | Kết quả CLI thủ công (Video Demo) | Kết quả Script tự động (`fill_memory.py`) | Đánh giá |
+|---|---|---|---|---|
+| Cấu hình `maxmemory` | `10485760` bytes (10MB) | `10485760` bytes (10 MB) | `10485760` bytes (10 MB) | Khớp cấu hình |
+| Cấu hình `maxmemory-policy` | `allkeys-lru` | `allkeys-lru` | `allkeys-lru` | Khớp cấu hình |
+| RAM ban đầu (`used_memory_human`) | ~900 KB – 1.0 MB | `917.09K` | `989.86K` | Trạng thái rỗng |
+| RAM khi nạp tràn (`used_memory_human`) | Chạm trần ~9.8 MB – 10.0 MB | `9.86M` | `9.96M` | Kiểm soát dưới 10MB |
+| Số key bị trục xuất (`evicted_keys`) | Tăng dần (> 0) | `27` keys | `37` keys | Eviction kích hoạt |
+| Tỷ lệ sống sót Cold Keys (ít dùng) | 0% (Bị xóa toàn bộ) | `0/3` (`exists = 0`) | `0/10` (`exists = 0`) | Loại bỏ 100% |
+| Tỷ lệ sống sót Hot Keys (đọc liên tục) | 100% (Bảo toàn nguyên vẹn) | `2/2` (`exists = 2`) | `5/5` (`exists = 5`) | Bảo toàn 100% |
 
-- **Đánh giá kết luận:** Thuật toán `allkeys-lru` của Redis hoạt động chính xác tuyệt đối theo nguyên lý Approximate LRU. Toàn bộ 10 Cold Keys có thời gian rỗi (`idle_time >= 3s`) đã bị trục xuất nhường chỗ cho dữ liệu mới, trong khi 5 Hot Keys được đọc liên tục (`idle_time = 0s`) được bảo toàn trọn vẹn trong RAM. Dung lượng bộ nhớ được kiểm soát an toàn ở mức `9.96M`, không gây tràn ngưỡng `10MB` đã cấu hình.
+- **Đánh giá kết luận:** Thuật toán `allkeys-lru` của Redis hoạt động chính xác tuyệt đối theo nguyên lý Approximate LRU trên cả hai kịch bản gõ lệnh CLI thủ công và script tự động. Dữ liệu nguội lâu không truy cập (`cold_keys`) bị trục xuất toàn bộ nhường dung lượng cho dữ liệu mới, trong khi dữ liệu nóng thường xuyên được đọc (`hot_keys`) được bảo toàn trọn vẹn trong RAM. Dung lượng bộ nhớ được kiểm soát an toàn ở mức `9.86M - 9.96M`, không gây tràn ngưỡng trần `10MB` đã thiết lập.
 
 ### 3.4. Crash test: RDB so với AOF
 
