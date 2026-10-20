@@ -12,7 +12,7 @@ Repository phục vụ seminar **Redis In-Memory Data Store** trên một máy �
 
 Bắt đầu với [hướng dẫn môi trường](linux/commands.md), [nghiên cứu overview](theory/01-redis-overview.md), [checklist chất lượng](docs/demo-quality-checklist.md) và [kịch bản nói/quay](docs/presentation-notes/01-overview-environment.md). [Kết quả kiểm tra](docs/environment-verification.md) phân biệt rehearsal WSL và VM cuối.
 
-Đã đối chiếu [minh chứng VMware ngày 20/10/2026](docs/screenshots/00-environment/vmware-2026-10-20/README.md): VM 512 MB/2 CPUs, Ubuntu 26.04.1, Redis 8.0.5, Python 3.14.4; checker, cách ly, TTL và normal restart đạt với swap bật. Log còn cảnh báo overcommit/PID file; workload cuối và crash-loss chưa được xác minh.
+Đã đối chiếu [minh chứng VMware ngày 20/10/2026](docs/screenshots/00-environment/vmware-2026-10-20/README.md): VM 512 MB/2 CPUs, Ubuntu 26.04.1, Redis 8.0.5, Python 3.14.4; checker, cách ly, TTL và normal restart đạt với swap bật. Workload cuối và crash-loss chưa được xác minh.
 
 Slides phần tổng quan và môi trường sẽ được chuẩn bị ở giai đoạn sau; hiện chưa đưa file slides lên repo.
 

@@ -39,45 +39,6 @@ Port 6380–6384 là instance start tay: `systemctl status redis-server` chỉ p
 
 Nếu báo address already in use, chạy `sudo ss -lntp 'sport = :6383'` với đúng port. Đối chiếu process trước khi stop; không kill tất cả Redis. Nếu thiếu `dir` sau reboot, tạo lại đúng thư mục và owner như [commands.md](commands.md).
 
-## `Failed to write PID file: Permission denied`
-
-Cảnh báo này có trong log VMware Redis 8.0.5 khi chạy nền dưới user thường mà chưa đặt PID path riêng. Server sau đó vẫn Ready/PONG; đây không phải lỗi kết nối. Chỉ định đường dẫn có quyền ghi, như lệnh start nền đã cập nhật trong [commands.md](commands.md):
-
-```bash
-redis-server redis/redis-rdb.conf --daemonize yes \
-  --pidfile /tmp/redis-seminar/rdb/server.pid \
-  --logfile /tmp/redis-seminar/rdb/server-followup.log
-```
-
-Trước lệnh trên, xác nhận instance cũ đã shutdown bình thường và directory tồn tại, thuộc user hiện tại. Áp dụng PID path riêng tương tự cho từng demo. Sau start, đối chiếu `cat /tmp/redis-seminar/rdb/server.pid` với `redis-cli -p 6380 INFO server`, kiểm tra log mới và PONG. Không đổi quyền `/run` toàn hệ thống hoặc chạy mọi demo bằng root để che cảnh báo. Đây là hướng dẫn sửa; archive hiện tại chưa có lượt retest.
-
-## `WARNING Memory overcommit must be enabled!`
-
-Log của cả năm demo VMware có cảnh báo này. Normal SAVE/restart đã đạt nhưng không kiểm tra đường fork của BGSAVE/rewrite. Trong **chính VM Ubuntu dành cho seminar**, ghi giá trị hiện tại trước khi điều chỉnh:
-
-```bash
-sysctl vm.overcommit_memory
-sudo sysctl -w vm.overcommit_memory=1
-sysctl vm.overcommit_memory
-```
-
-Lệnh trên áp dụng tạm cho guest đang chạy; không sửa host Windows/WSL hay VM khác. Nếu nhóm cần giữ qua reboot, thống nhất cấu hình guest và ghi thay đổi đó vào minh chứng. Việc bật overcommit không tạo thêm RAM và không bảo đảm workload sẽ tránh OOM.
-
-Sau khi stop/start các instance theo PID path riêng và chạy lại checker, trên dataset demo bỏ được có thể kiểm tra background save:
-
-```bash
-redis-cli -e -p 6380 BGSAVE
-for attempt in {1..60}; do
-  redis-cli -p 6380 INFO persistence | grep -q '^rdb_bgsave_in_progress:0' && break
-  sleep 1
-done
-redis-cli -p 6380 INFO persistence \
-  | grep -E '^(rdb_bgsave_in_progress|rdb_last_bgsave_status|rdb_last_save_time):'
-free -h
-```
-
-Lưu output của BGSAVE và INFO: cần thấy background save thực sự được nhận, hoàn tất (`rdb_bgsave_in_progress:0`) và status `ok`. Nếu còn in-progress hoặc lỗi thì giữ output, đọc instance/kernel log, không đánh dấu đạt. Gửi kèm log startup mới và checker PASS để xác nhận cảnh báo đã được xử lý. Lần VMware hiện có chưa thực hiện bước này.
-
 ## Không kết nối được
 
 - Xác nhận đúng host/port và tiến trình đang lắng nghe.

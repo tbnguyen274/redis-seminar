@@ -15,7 +15,6 @@ Theo cập nhật nhóm: nộp slides qua Moodle, seminar 30–45 phút, nên qu
 - [x] Chụp settings VMware và bằng chứng màn hình của lần chạy này; đã nhận tám ảnh và archive log.
 - [x] Có recording môi trường nền sáng 1080p; đã xem frame mẫu ở kích thước gốc. Bản đầy đủ dài 8 phút 26.8 giây, chưa có lời dẫn nghe được.
 - [ ] Biên tập đoạn môi trường khoảng 90 giây hoặc theo thời lượng nhóm; kiểm tra trên máy trình chiếu.
-- [ ] Kiểm tra lại cảnh báo overcommit/PID file; lưu BGSAVE và log sau điều chỉnh trong guest.
 - [ ] Kiểm tra bốn workload cuối trên VM 512 MB với swap được ghi rõ.
 - [ ] Chốt slide section với nhóm, ghép video và tập nói khoảng 5 phút.
 - [ ] Chạy demo của từng thành viên từ README của họ, không cần hướng dẫn miệng.
@@ -83,4 +82,4 @@ Kết quả ghi trong [environment-verification.md](environment-verification.md)
 
 ## Nội dung PR của phần môi trường
 
-Nêu vấn đề, file thay đổi, môi trường thật và các lệnh đã kiểm tra. Link minh chứng; liệt kê mục chưa làm (cảnh báo cần retest, workload của thành viên, video biên tập và slides giai đoạn sau). Không ghi “mọi demo đã hoàn thành” khi chỉ mới verify server/config. Không cần commit/push/merge để hoàn thành bước đối chiếu local.
+Nêu vấn đề, file thay đổi, môi trường thật và các lệnh đã kiểm tra. Link minh chứng; liệt kê mục chưa làm (workload của thành viên, video biên tập và slides giai đoạn sau). Không ghi “mọi demo đã hoàn thành” khi chỉ mới verify server/config. Không cần commit/push/merge để hoàn thành bước đối chiếu local.

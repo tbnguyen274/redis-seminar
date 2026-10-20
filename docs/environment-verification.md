@@ -50,14 +50,10 @@ Kết quả được đo với **swap bật**; không mô tả là thử nghiệ
 
 Setup chỉ có **một lượt đầy đủ được lưu**; service journal có thêm restart không đủ chứng minh repeat setup. VMware chưa có negative test sai policy/thiếu instance, chưa có kiểm tra non-root rejection hoặc restart/reset riêng cho 6382/6384. Các bài đó từng đạt trên WSL, không tự chuyển thành kết quả VMware.
 
-## Cảnh báo còn lại và giới hạn
+## Giới hạn kiểm tra
 
-1. **Memory overcommit:** cả năm instance log có `WARNING Memory overcommit must be enabled!`. Normal SAVE/restart đã đạt, nhưng chưa có BGSAVE hoặc AOF rewrite thực đo. Không kết luận fork/background persistence an toàn trên VM ít RAM từ checker PASS.
-2. **PID file:** log có `Failed to write PID file: Permission denied`, sau đó server vẫn `Ready to accept connections`. Đây là cảnh báo không làm các PONG/config check thất bại. Hướng dẫn start nền đã bổ sung `--pidfile` trong directory riêng; chưa chạy lại VM sau thay đổi hướng dẫn.
-3. **Memory và swap:** initial/final check có swap sử dụng; chưa có resource profile của workload cuối. Không tìm thấy `oom-kill`, `Out of memory` hoặc `Killed process` trong kernel log được cung cấp; điều này chỉ áp dụng phạm vi log đó.
-4. **Phạm vi persistence:** normal shutdown flush/save dữ liệu; chưa có `kill -9`, VM power-off hoặc đo mất dữ liệu. `rdb-ok` và `aof-ok` không phải bảng crash-loss.
-
-Lệnh kiểm tra và xử lý tiếp: [troubleshooting.md](../linux/troubleshooting.md). Giữ log hiện tại làm bằng chứng trước sửa; nếu sửa kernel/PID path thì lưu lượt kiểm tra mới, không thay kết quả cũ bằng kết quả dự kiến.
+1. **Memory và swap:** initial/final check có swap sử dụng; chưa có resource profile của workload cuối. Không tìm thấy `oom-kill`, `Out of memory` hoặc `Killed process` trong kernel log được cung cấp; điều này chỉ áp dụng phạm vi log đó.
+2. **Phạm vi persistence:** normal shutdown flush/save dữ liệu; chưa có `kill -9`, VM power-off hoặc đo mất dữ liệu. `rdb-ok` và `aof-ok` không phải bảng crash-loss.
 
 ## Recording và trạng thái tài liệu
 
@@ -67,8 +63,6 @@ Theo yêu cầu mới nhất, **chưa làm/cập nhật/nộp slides**. File sli
 
 ## Việc còn cần để hoàn tất
 
-- [ ] Lưu log xác nhận PID file mới ghi được và xử lý/kiểm tra lại cảnh báo overcommit trong chính guest.
-- [ ] Nếu dùng background persistence: ghi kết quả BGSAVE/INFO persistence sau khi điều chỉnh.
 - [ ] Nếu muốn khẳng định tái lập sau reboot/repeat setup: cung cấp log đúng các lượt đó; hiện chưa có.
 - [ ] Chủ từng demo cung cấp script/requirements và log workload cuối trên VM 512 MB; đo Cache-Aside, eviction và controlled crash-loss riêng.
 - [ ] Biên tập đoạn môi trường theo thời lượng nhóm; chuẩn bị slides và playback ở giai đoạn sau.

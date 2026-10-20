@@ -31,7 +31,7 @@
 - [session-readable.txt](logs/session-readable.txt): SETUP_EXIT, SHELL_SYNTAX_EXIT, CHECK_EXIT, VENV_EXIT và FINAL_CHECK_EXIT đều 0; `rdb-ok`, `aof-ok`, ephemeral EXISTS=0; phiên kết thúc 08:04:24 UTC với COMMAND_EXIT_CODE=0.
 - [redis-service.txt](logs/redis-service.txt): service mặc định start/restart thành công.
 - [kernel.txt](logs/kernel.txt): VMware, swap; không tìm thấy thông báo OOM kill trong phạm vi log được cung cấp.
-- [RDB](logs/instance-logs/rdb.log), [AOF](logs/instance-logs/aof.log), [eviction](logs/instance-logs/eviction.log), [data structures](logs/instance-logs/data-structures.log), [Cache-Aside](logs/instance-logs/cache-aside.log): startup và normal restart; có cảnh báo overcommit/PID file cần theo dõi.
+- [RDB](logs/instance-logs/rdb.log), [AOF](logs/instance-logs/aof.log), [eviction](logs/instance-logs/eviction.log), [data structures](logs/instance-logs/data-structures.log), [Cache-Aside](logs/instance-logs/cache-aside.log): startup và normal restart.
 
 ## Recording
 

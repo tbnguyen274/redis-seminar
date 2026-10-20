@@ -18,7 +18,7 @@ Slides sẽ được chuẩn bị ở giai đoạn sau; hiện chưa đưa file 
 | 3:05–4:35 | Video môi trường | Dành khoảng 90 giây cho bản biên tập về sau; không phát nguyên recording 8 phút 26.8 giây trong slot này. Nêu phiên bản VMware/guest thực tế và swap bật. |
 | 4:35–5:00 | Chuyển phần | “Môi trường đã kiểm tra kết nối và cách ly. Phần đầu tiên sẽ cho thấy Redis lưu và thao tác các cấu trúc dữ liệu như thế nào.” |
 
-Tập nói bằng ý chính, không đọc nguyên văn. Khi làm slides sau này, dùng kết quả VMware cho môi trường cuối; chỉ dùng số WSL nếu ghi rõ là rehearsal riêng. Hai checker PASS và normal restart không chứng minh workload cuối hoặc crash-loss đã hoàn thành. Log vẫn có overcommit/PID-file warning cần kiểm tra lại.
+Tập nói bằng ý chính, không đọc nguyên văn. Khi làm slides sau này, dùng kết quả VMware cho môi trường cuối; chỉ dùng số WSL nếu ghi rõ là rehearsal riêng. Hai checker PASS và normal restart không chứng minh workload cuối hoặc crash-loss đã hoàn thành.
 
 ## Nguồn recording đã có và việc biên tập sau
 

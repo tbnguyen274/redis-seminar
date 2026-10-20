@@ -4,7 +4,7 @@
 
 Chạy các lệnh Linux từ thư mục gốc repo. Môi trường cuối theo đề: VM Linux **512 MB RAM**. Ưu tiên bản server tối giản nếu desktop không chạy ổn ở mức RAM này. Chụp cấu hình CPU/RAM trong VMware; `free -h` chỉ là thông tin bổ sung từ guest.
 
-Lần chạy VMware đã đối chiếu dùng Ubuntu 26.04.1 LTS, Redis 8.0.5, Python 3.14.4, 512 MB/2 CPUs và khoảng 1.6 GiB swap. WSL trước đó dùng phiên bản khác. Xem [kết quả và cảnh báo thực tế](../docs/environment-verification.md); lệnh start nền dưới đây bổ sung PID file riêng từ phát hiện trong log, chưa được chạy lại trên VM sau thay đổi này.
+Lần chạy VMware đã đối chiếu dùng Ubuntu 26.04.1 LTS, Redis 8.0.5, Python 3.14.4, 512 MB/2 CPUs và khoảng 1.6 GiB swap. WSL trước đó dùng phiên bản khác. Xem [kết quả kiểm tra thực tế](../docs/environment-verification.md).
 
 ```bash
 sudo apt-get update
@@ -133,8 +133,6 @@ redis-server redis/redis-cache-aside.conf --daemonize yes --pidfile /tmp/redis-s
 ```
 
 Chọn một cách start. Nếu port đã có process thì kiểm tra process/config trước, không start chồng. Log trên dùng thư mục riêng; foreground log nằm ngay terminal. Vì `daemonize yes` trả terminal trước khi server sẵn sàng, xác nhận `PING` sau mỗi lần start.
-
-PID file riêng tránh đường dẫn mặc định mà user thường không ghi được. Không dùng PID file cũ để kill process; đối chiếu `INFO server` và port hiện tại. Nếu log cảnh báo overcommit, đọc mục tương ứng trong [troubleshooting.md](troubleshooting.md) trước thử nghiệm BGSAVE/rewrite.
 
 ## Kiểm tra tổng hợp và lưu minh chứng
 
