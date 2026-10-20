@@ -4,7 +4,7 @@ Nộp **slides** qua Moodle, không yêu cầu báo cáo. Seminar dài **30–45
 
 | File dự kiến | Phạm vi | Người phụ trách theo bảng tham khảo |
 |---|---|---|
-| [01-redis-overview.md](01-redis-overview.md) | Redis, caching, use case, giới hạn, tổng quan môi trường | Nam Anh |
+| [01-redis-overview.md](01-redis-overview.md) | Giới thiệu Redis và cache qua ví dụ, ứng dụng và giới hạn cơ bản | Nam Anh |
 | `02-data-structures.md` | String, List, Hash, Sorted Set, TTL | Viết Toàn |
 | `03-cache-aside.md` | Hit/miss, invalidation, đo thời gian, rủi ro cache | Quốc Thắng |
 | `04-eviction.md` | maxmemory, các policy, approximate LRU | Mạnh Tường |

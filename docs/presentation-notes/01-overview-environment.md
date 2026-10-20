@@ -2,21 +2,21 @@
 
 Thời lượng đề xuất: **5 phút, gồm video môi trường khoảng 90 giây**, trong seminar 30–45 phút của nhóm. Tài liệu này dùng để tập nói và chuẩn bị recording; slides được làm sau.
 
-Nghiên cứu đầy đủ nằm trong [theory/01-redis-overview.md](../../theory/01-redis-overview.md). Phần mở đầu chỉ cần giải thích Redis dùng để làm gì và nhóm sẽ minh họa bằng những demo nào. Thuật toán, lệnh chi tiết và số liệu dành cho chủ từng demo.
+Nội dung mở đầu nằm trong [theory/01-redis-overview.md](../../theory/01-redis-overview.md), đi từ ví dụ sản phẩm đến Redis, cache và các demo. Thuật toán, lệnh chi tiết và số liệu dành cho chủ từng demo.
 
 ## Nội dung nói
 
 | Thời gian | Ý chính |
 |---|---|
-| 0:00–0:45 | Redis là kho dữ liệu có cấu trúc, phục vụ dữ liệu chủ yếu từ RAM. Giới thiệu một ví dụ cache kết quả đọc lặp lại. |
-| 0:45–1:30 | Hit là có dữ liệu trong cache; miss cần lấy từ nguồn. Cache giảm công việc lặp nhưng cần xử lý dữ liệu cũ. Chưa đi sâu luồng Cache-Aside hoặc cách đo. |
-| 1:30–2:00 | Nêu ngắn gọn cache, session, leaderboard; RAM có giới hạn và cần chọn cách phục hồi phù hợp. |
-| 2:00–2:30 | Giới thiệu bốn demo: cấu trúc dữ liệu/TTL, Cache-Aside, eviction, persistence. Mỗi demo sẽ giải thích cơ chế và kết quả riêng. |
-| 2:30–3:00 | Môi trường chung: mỗi demo có process, port, thư mục và file config riêng; các thành viên dùng cùng cấu hình để tái lập. |
+| 0:00–0:45 | Bắt đầu từ việc đọc lại thông tin sản phẩm. Giới thiệu Redis, RAM là bộ nhớ làm việc, key là khóa nhận diện và value là giá trị tương ứng. |
+| 0:45–1:30 | Giải thích cache là bản dữ liệu giữ lại để dùng lại; cache hit là tìm thấy bản lưu, cache miss là cần lấy từ nguồn. Dùng tiếp ví dụ sản phẩm. |
+| 1:30–2:00 | Nêu giới hạn qua ví dụ giá sản phẩm cũ và RAM hữu hạn. Giới thiệu thêm ứng dụng bảng xếp hạng. |
+| 2:00–2:30 | Dẫn sang bốn demo: tổ chức dữ liệu và thời hạn lưu, dùng cache, giới hạn bộ nhớ, phục hồi sau sự cố. |
+| 2:30–3:00 | Mỗi demo chạy một tiến trình Redis riêng, tức một chương trình Redis đang chạy, có cổng kết nối và thư mục dữ liệu riêng. |
 | 3:00–4:30 | Video môi trường: cấu hình VM, phiên bản, PONG, cách ly giữa hai instance. Chỉ phát đoạn đã chọn trong khung 90 giây. |
 | 4:30–5:00 | Chốt môi trường đã sẵn sàng cho các demo; chuyển sang phần cấu trúc dữ liệu. |
 
-Không đọc hết tài liệu nghiên cứu. Phần này không cần trình bày thao tác từng kiểu dữ liệu, công thức latency, thuật toán eviction hoặc cơ chế RDB/AOF. Kết quả kiểm tra hạ tầng không thay thế kết quả workload của từng demo.
+Trình bày liền mạch theo ví dụ, giải thích thuật ngữ ngay lần đầu xuất hiện. Các cơ chế và phép đo chi tiết được trình bày ở từng demo; kết quả kiểm tra hạ tầng không thay thế kết quả chạy các demo đó.
 
 ## Chuẩn bị recording
 
