@@ -17,9 +17,8 @@ bash demos/03-eviction/run.sh
 
 ## 2. Kịch Bản Gõ Từng Lệnh Khi Quay Video Demo (90 - 120 giây)
 
-### Bước 1: Khởi động instance và kiểm tra cấu hình ban đầu
+### Bước 1: Kiểm tra kết nối và cấu hình ban đầu
 ```bash
-redis-server redis/redis-eviction.conf &
 redis-cli -p 6382 ping
 redis-cli -p 6382 config get maxmemory
 redis-cli -p 6382 config get maxmemory-policy
@@ -35,43 +34,47 @@ redis-cli -p 6382 dbsize
 ```
 - Kỳ vọng: `OK`, RAM rỗng `~850K - 1M`, `(integer) 0`.
 
-### Bước 3: Khởi tạo các Cold Keys (ít dùng)
+### Bước 3: Khởi tạo các Cold Keys (ít dùng, tạo trước tiên)
 ```bash
 redis-cli -p 6382 set cold_k1 "ColdData_1"
 redis-cli -p 6382 set cold_k2 "ColdData_2"
 redis-cli -p 6382 set cold_k3 "ColdData_3"
 ```
-- Kỳ vọng: `OK` (3 keys này sẽ bị bỏ mặc để tích lũy idle time).
+- Kỳ vọng: `OK` (các key này nằm lại từ đầu, sẽ là đối tượng cũ nhất trong LRU).
 
-### Bước 4: Khởi tạo và đọc làm mới Hot Keys (dùng thường xuyên)
+### Bước 4: Nạp dữ liệu nền gần đầy RAM (~8.5MB)
+```bash
+redis-benchmark -p 6382 -c 1 -t set -n 85 -d 100000 -q
+```
+- Kỳ vọng: Nạp 85 keys x 100KB, RAM tăng lên ~9.4MB, chưa kích hoạt eviction.
+
+### Bước 5: Khởi tạo và truy cập Hot Keys (dữ liệu nóng mới nhất)
 ```bash
 redis-cli -p 6382 set hot_k1 "HotData_1"
 redis-cli -p 6382 set hot_k2 "HotData_2"
 redis-cli -p 6382 get hot_k1
 redis-cli -p 6382 get hot_k2
 ```
-- Kỳ vọng: `"HotData_1"`, `"HotData_2"` (cập nhật LRU clock về thời điểm hiện tại).
+- Kỳ vọng: `"HotData_1"`, `"HotData_2"` (Hot Keys được làm mới, có độ ưu tiên cao nhất).
 
-### Bước 5: Bơm dữ liệu lớn làm tràn 10MB RAM kích hoạt Eviction
+### Bước 6: Bơm thêm dữ liệu kích hoạt tràn 10MB RAM
 ```bash
-redis-benchmark -p 6382 -t set -n 120 -d 100000 -r 100000 -q
+redis-benchmark -p 6382 -c 1 -t set -n 15 -d 100000 -q
 ```
+- Kỳ vọng: Nạp thêm 15 keys x 100KB, RAM vượt 10MB, kích hoạt trục xuất ~5-8 keys cũ nhất.
 
-### Bước 6: Kiểm tra biến thiên RAM và cơ chế Eviction
+### Bước 7: Kiểm tra RAM và đối chứng kết quả LRU
 ```bash
 redis-cli -p 6382 info memory | grep used_memory_human
 redis-cli -p 6382 info stats | grep evicted_keys
-```
-- Kỳ vọng: `used_memory_human: ~9.8M - 10M`, `evicted_keys > 0`.
-
-### Bước 7: Đối chứng kết quả xóa key theo LRU
-```bash
 redis-cli -p 6382 exists cold_k1 cold_k2 cold_k3
 redis-cli -p 6382 exists hot_k1 hot_k2
 ```
 - Kỳ vọng:
-  - `cold_k1 cold_k2 cold_k3`: `(integer) 0` (đã bị loại bỏ).
-  - `hot_k1 hot_k2`: `(integer) 2` (được bảo toàn).
+  - `used_memory_human`: `~9.8M - 9.9M` (chạm trần an toàn).
+  - `evicted_keys`: `> 0` (khoảng 5 - 10 keys).
+  - `cold_k1 cold_k2 cold_k3`: `(integer) 0` (đã bị loại bỏ vì cũ nhất).
+  - `hot_k1 hot_k2`: `(integer) 2` (được bảo toàn 100%).
 
 ---
 

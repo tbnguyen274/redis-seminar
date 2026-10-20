@@ -59,14 +59,19 @@ redis-cli -p 6382 config get maxmemory-policy
 redis-cli -p 6382 flushall
 ```
 
-### 4.2. Khởi tạo các Cold Keys (ít dùng)
+### 4.2. Khởi tạo các Cold Keys (ít dùng, tạo trước tiên)
 ```bash
 redis-cli -p 6382 set cold_k1 "val1"
 redis-cli -p 6382 set cold_k2 "val2"
 redis-cli -p 6382 set cold_k3 "val3"
 ```
 
-### 4.3. Khởi tạo và đọc làm mới Hot Keys
+### 4.3. Nạp dữ liệu nền gần đầy RAM (~8.5MB)
+```bash
+redis-benchmark -p 6382 -c 1 -t set -n 85 -d 100000 -q
+```
+
+### 4.4. Khởi tạo và truy cập Hot Keys (dữ liệu mới nhất)
 ```bash
 redis-cli -p 6382 set hot_k1 "val1"
 redis-cli -p 6382 set hot_k2 "val2"
@@ -74,12 +79,12 @@ redis-cli -p 6382 get hot_k1
 redis-cli -p 6382 get hot_k2
 ```
 
-### 4.4. Nạp dữ liệu tràn bộ nhớ để kích hoạt Eviction
+### 4.5. Bơm thêm dữ liệu kích hoạt tràn 10MB RAM
 ```bash
-redis-benchmark -p 6382 -t set -n 120 -d 100000 -r 100000 -q
+redis-benchmark -p 6382 -c 1 -t set -n 15 -d 100000 -q
 ```
 
-### 4.5. Kiểm tra kết quả đối chứng
+### 4.6. Kiểm tra kết quả đối chứng
 ```bash
 redis-cli -p 6382 info memory | grep used_memory_human
 redis-cli -p 6382 info stats | grep evicted_keys
