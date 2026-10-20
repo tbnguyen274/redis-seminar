@@ -10,7 +10,7 @@ Theo cập nhật nhóm: nộp slides qua Moodle, seminar 30–45 phút, nên qu
 - [x] Chuẩn bị setup có Redis, Python/venv và năm thư mục dữ liệu.
 - [x] Chuẩn bị lệnh start/stop/reset/restart, script kiểm tra chỉ đọc và hướng dẫn phục hồi.
 - [x] Soạn lời nói, shot list quay môi trường và tiêu chí xem lại video.
-- [x] Chuẩn bị sáu slides chỉnh sửa được, nguồn trong speaker notes; đánh dấu đúng kết quả rehearsal WSL.
+- [ ] Chuẩn bị slides và nguồn trong speaker notes ở giai đoạn sau; hiện chưa đưa file slides lên repo.
 - [ ] Chạy lại trên VMware cấu hình cuối 512 MB; ghi OS/Redis/CPU/RAM thực tế.
 - [ ] Chụp settings VMware và bằng chứng màn hình của lần chạy cuối.
 - [ ] Quay video môi trường nền sáng, chữ lớn; xem lại ở kích thước trình chiếu.

@@ -2,7 +2,7 @@
 
 Phạm vi: phần người phụ trách môi trường, dự kiến khoảng **5 phút** trong seminar 30–45 phút. Đây là nội dung dùng để tập nói và quay, không phải báo cáo nộp. Nguồn lý thuyết: [01-redis-overview.md](../../theory/01-redis-overview.md).
 
-Deck chỉnh sửa được: [sáu slides tổng quan/môi trường](../slides/01-overview-environment.pptx). Slide cuối đang ghi kết quả rehearsal WSL thật; cần cập nhật bằng kết quả/video VM cuối khi có.
+Slides sẽ được chuẩn bị ở giai đoạn sau; hiện chưa đưa file slides lên repo. Kịch bản dưới đây dùng để chuẩn bị phần trình bày và quay demo.
 
 ## Lời dẫn theo slides
 

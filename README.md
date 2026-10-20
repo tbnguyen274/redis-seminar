@@ -12,7 +12,7 @@ Repository phục vụ seminar **Redis In-Memory Data Store** trên một máy �
 
 Bắt đầu với [hướng dẫn môi trường](linux/commands.md), [nghiên cứu overview](theory/01-redis-overview.md), [checklist chất lượng](docs/demo-quality-checklist.md) và [kịch bản nói/quay](docs/presentation-notes/01-overview-environment.md). [Kết quả kiểm tra](docs/environment-verification.md) phân biệt rehearsal WSL và VM cuối.
 
-[Slides phần tổng quan và môi trường](docs/slides/README.md) đã có section chỉnh sửa được để ghép vào deck nhóm; chưa có video cuối.
+Slides phần tổng quan và môi trường sẽ được chuẩn bị ở giai đoạn sau; hiện chưa đưa file slides lên repo.
 
 ## Mục tiêu
 
