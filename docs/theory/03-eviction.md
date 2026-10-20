@@ -1,10 +1,4 @@
-# Chuyên đề Lý thuyết: Quản lý Bộ nhớ và Cơ chế Eviction trong Redis
-
-- **Người thực hiện:** Mạnh Tường (Thành viên STT 4)
-- **Đề tài seminar:** Redis In-Memory Data Store
-- **Phần nội dung:** 2.4 - Cơ chế Eviction và Quản lý bộ nhớ
-
----
+# Quản lý Bộ nhớ và Cơ chế Eviction trong Redis
 
 ## 1. Cơ chế Giới hạn Bộ nhớ (`maxmemory`)
 

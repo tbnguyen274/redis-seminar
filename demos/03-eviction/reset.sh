@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Script Reset Môi trường Demo 03: Eviction (Port 6382)
-# Tác giả: Mạnh Tường
+# Script Reset Redis Instance cho Demo 03: Eviction (Port 6382)
 # ==============================================================================
 
 PORT=6382

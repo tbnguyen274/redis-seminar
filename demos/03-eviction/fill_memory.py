@@ -2,8 +2,6 @@
 """
 ==============================================================================
 Demo 03: Giới hạn Bộ nhớ (maxmemory) và Chính sách Trục xuất allkeys-lru
-Người thực hiện: Mạnh Tường (Thành viên STT 4)
-Đề tài: Redis In-Memory Data Store Seminar
 ==============================================================================
 """
 
