@@ -21,8 +21,11 @@ bash demos/03-eviction/run.sh
 ```bash
 mkdir -p /tmp/redis-seminar/eviction
 redis-server redis/redis-eviction.conf &
+
 redis-cli -p 6382 ping
+
 redis-cli -p 6382 config get maxmemory
+
 redis-cli -p 6382 config get maxmemory-policy
 ```
 - Kỳ vọng: `PONG`, `10485760` (~10MB), `allkeys-lru`.
@@ -30,8 +33,11 @@ redis-cli -p 6382 config get maxmemory-policy
 ### Bước 2: Dọn sạch database và ghi nhận trạng thái rỗng
 ```bash
 redis-cli -p 6382 flushall
+
 redis-cli -p 6382 config resetstat
+
 redis-cli -p 6382 info memory | grep used_memory_human
+
 redis-cli -p 6382 dbsize
 ```
 - Kỳ vọng: `OK`, RAM rỗng `~850K - 1M`, `(integer) 0`.
@@ -39,8 +45,11 @@ redis-cli -p 6382 dbsize
 ### Bước 3: Khởi tạo các Cold Keys (ít dùng, tạo trước tiên)
 ```bash
 redis-cli -p 6382 set cold_k1 "ColdData_1"
+
 redis-cli -p 6382 set cold_k2 "ColdData_2"
+
 redis-cli -p 6382 set cold_k3 "ColdData_3"
+
 ```
 - Kỳ vọng: `OK` (các key này nằm lại từ đầu, sẽ là đối tượng cũ nhất trong LRU).
 
