@@ -68,7 +68,7 @@ redis-cli -p 6382 set cold_k3 "val3"
 
 ### 4.3. Nạp dữ liệu nền gần đầy RAM (~8.5MB)
 ```bash
-redis-benchmark -p 6382 -c 1 -t set -n 85 -d 100000 -q
+redis-benchmark -p 6382 -c 1 -t set -n 85 -d 100000 -r 10000 -q
 ```
 
 ### 4.4. Khởi tạo và truy cập Hot Keys (dữ liệu mới nhất)
@@ -81,7 +81,7 @@ redis-cli -p 6382 get hot_k2
 
 ### 4.5. Bơm thêm dữ liệu kích hoạt tràn 10MB RAM
 ```bash
-redis-benchmark -p 6382 -c 1 -t set -n 15 -d 100000 -q
+redis-benchmark -p 6382 -c 1 -t set -n 20 -d 100000 -r 10000 -q
 ```
 
 ### 4.6. Kiểm tra kết quả đối chứng

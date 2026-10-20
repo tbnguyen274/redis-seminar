@@ -44,7 +44,7 @@ redis-cli -p 6382 set cold_k3 "ColdData_3"
 
 ### Bước 4: Nạp dữ liệu nền gần đầy RAM (~8.5MB)
 ```bash
-redis-benchmark -p 6382 -c 1 -t set -n 85 -d 100000 -q
+redis-benchmark -p 6382 -c 1 -t set -n 85 -d 100000 -r 10000 -q
 ```
 - Kỳ vọng: Nạp 85 keys x 100KB, RAM tăng lên ~9.4MB, chưa kích hoạt eviction.
 
@@ -59,9 +59,9 @@ redis-cli -p 6382 get hot_k2
 
 ### Bước 6: Bơm thêm dữ liệu kích hoạt tràn 10MB RAM
 ```bash
-redis-benchmark -p 6382 -c 1 -t set -n 15 -d 100000 -q
+redis-benchmark -p 6382 -c 1 -t set -n 20 -d 100000 -r 10000 -q
 ```
-- Kỳ vọng: Nạp thêm 15 keys x 100KB, RAM vượt 10MB, kích hoạt trục xuất ~5-8 keys cũ nhất.
+- Kỳ vọng: Nạp thêm 20 keys x 100KB, RAM vượt 10MB, kích hoạt trục xuất ~8-12 keys cũ nhất.
 
 ### Bước 7: Kiểm tra RAM và đối chứng kết quả LRU
 ```bash
