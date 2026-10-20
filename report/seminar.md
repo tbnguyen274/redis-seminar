@@ -65,6 +65,11 @@ Bảng ghi nhận kết quả thực nghiệm trên Redis instance port `6382` (
 | Tỷ lệ sống sót Hot Keys (đọc liên tục) | 100% (Bảo toàn nguyên vẹn) | `2/2` (`exists = 2`) | `5/5` (`exists = 5`) | Bảo toàn 100% |
 
 - **Đánh giá kết luận:** Thuật toán `allkeys-lru` của Redis hoạt động chính xác tuyệt đối theo nguyên lý Approximate LRU trên cả hai kịch bản gõ lệnh CLI thủ công và script tự động. Dữ liệu nguội lâu không truy cập (`cold_keys`) bị trục xuất toàn bộ nhường dung lượng cho dữ liệu mới, trong khi dữ liệu nóng thường xuyên được đọc (`hot_keys`) được bảo toàn trọn vẹn trong RAM. Dung lượng bộ nhớ được kiểm soát an toàn ở mức `9.86M - 9.96M`, không gây tràn ngưỡng trần `10MB` đã thiết lập.
+- **Minh chứng thực nghiệm đính kèm:**
+  - Ảnh cấu hình ban đầu: ![Cấu hình ban đầu](../docs/screenshots/03-eviction/01-config.png)
+  - Ảnh nạp dữ liệu tràn ngưỡng: ![Kích hoạt Eviction](../docs/screenshots/03-eviction/02-eviction-trigger.png)
+  - Ảnh đối chứng kết quả LRU: ![Kết quả LRU](../docs/screenshots/03-eviction/03-lru-result.png)
+  - Video quay demo trực tiếp: [`demos/03-eviction/demo-03-eviction.mp4`](../demos/03-eviction/demo-03-eviction.mp4)
 
 ### 3.4. Crash test: RDB so với AOF
 

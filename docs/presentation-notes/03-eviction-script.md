@@ -15,25 +15,26 @@ Phạm vi: phần trình bày về Quản lý bộ nhớ và Cơ chế Eviction 
 
 ## Chuẩn bị trước khi record
 
-- [ ] Instance port 6382 chạy độc lập với cấu hình `redis/redis-eviction.conf`.
-- [ ] Chạy `bash test/test_demo_03.sh` đạt 9/9 PASS trước khi ghi hình.
-- [ ] Terminal đặt giao diện nền sáng (Light mode), cỡ chữ lớn (20–24 pt) để dễ nhìn khi trình chiếu.
-- [ ] Mở sẵn hai cửa sổ: một bên theo dõi `watch -n 1 info memory/stats`, một bên chạy kịch bản.
+- [x] Instance port 6382 chạy độc lập với cấu hình `redis/redis-eviction.conf`.
+- [x] Chạy `bash test/test_demo_03.sh` đạt 9/9 PASS trước khi ghi hình.
+- [x] Terminal đặt giao diện nền sáng (Light mode), cỡ chữ lớn (20–24 pt) để dễ nhìn khi trình chiếu.
+- [x] Xác thực quy trình gõ từng lệnh trên terminal chuẩn xác trước khi record.
 
 ## Shot list video demo, khoảng 90 giây
 
 | Thời lượng | Thao tác / Lệnh thực hiện | Mục tiêu quan sát |
 |---|---|---|
-| 0–15 giây | `redis-cli -p 6382 config get maxmemory`, `config get maxmemory-policy` | Chứng minh cấu hình `10485760` (10MB) và chính sách `allkeys-lru`. |
-| 15–30 giây | `bash demos/03-eviction/reset.sh` | Đưa database về trạng thái sạch (`dbsize = 0`, `evicted_keys = 0`). |
-| 30–60 giây | `python3 demos/03-eviction/fill_memory.py` | Tạo cold/hot keys, bơm dữ liệu lớn, quan sát RAM chạm ngưỡng ~9.8M và `evicted_keys` bắt đầu tăng dần. |
-| 60–90 giây | Bảng tổng kết đối chứng | Chứng minh toàn bộ Cold Keys bị evict và toàn bộ Hot Keys vẫn còn tồn tại trong cache. |
+| 0–15 giây | `redis-cli -p 6382 ping`, `config get maxmemory`, `config get maxmemory-policy` | Chứng minh kết nối, cấu hình `10485760` (10MB) và chính sách `allkeys-lru`. |
+| 15–30 giây | `redis-cli -p 6382 flushall`, `config resetstat`, `set cold_k*` | Đưa database về trạng thái sạch (`dbsize = 0`), tạo các Cold Keys đối chứng. |
+| 30–60 giây | `redis-benchmark -n 85`, `set/get hot_k*`, `redis-benchmark -n 20` | Bơm dữ liệu lớn, làm mới Hot Keys, kích hoạt tràn trần 10MB RAM. |
+| 60–90 giây | `info memory`, `info stats`, `exists cold_*`, `exists hot_*` | Chứng minh RAM đạt 9.86M, 27 keys bị trục xuất, toàn bộ Cold Keys bị evict và toàn bộ Hot Keys sống sót. |
 
 ## Sau record
 
-- [ ] Xem lại video ở độ phân giải trình chiếu; đọc được lệnh và kết quả.
-- [ ] Thời lượng video trong khoảng 1.5 – 2 phút, không để thời gian chết.
-- [ ] Đặt tên video rõ ràng theo quy ước của nhóm (`demo-03-eviction.mp4`).
+- [x] Xem lại video ở độ phân giải trình chiếu; đọc được lệnh và kết quả.
+- [x] Thời lượng video trong khoảng 1.5 – 2 phút, không để thời gian chết.
+- [x] Đặt tên video rõ ràng theo quy ước của nhóm (`demo-03-eviction.mp4`).
+- [x] Chụp ảnh minh chứng terminal đưa vào `docs/screenshots/03-eviction/`.
 
 ## Câu hỏi tập trả lời
 
