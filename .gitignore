@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.venv/
+.venv-win/
+/demos/04-persistence-crash/results/*
+!/demos/04-persistence-crash/results/.gitkeep
