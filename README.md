@@ -82,7 +82,7 @@ Client -> Application -> Redis
    - Ghi baseline, tạo checkpoint RDB bằng `BGSAVE`, rồi ghi delta cho cả RDB và AOF.
    - Dùng `SIGKILL` để mô phỏng Redis process crash, sau đó restart và kiểm chứng từng key/value. Đây không phải thử nghiệm cắt nguồn máy.
    - Mỗi lần chạy lưu CSV riêng và dữ liệu trial tại `demos/04-persistence-crash/results/run-<UTC>-<id>/`.
-   - Tổng hợp số liệu thực tế vào [báo cáo chung](report/seminar.md); không suy ra AOF luôn mất chính xác một giây dữ liệu.
+   - Tổng hợp số liệu thực tế vào [báo cáo](demos/04-persistence-crash/report.md); không suy ra AOF luôn mất chính xác một giây dữ liệu.
 
 ## Nguyên tắc chạy demo
 

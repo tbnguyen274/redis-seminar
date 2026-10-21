@@ -269,7 +269,7 @@ Expected = ACKed SETs; ACK(ms) = final ACK -> SIGKILL.
 
 `trial-results.json` vẫn lưu đầy đủ dữ liệu, gồm PID, port, baseline/delta, timing gốc, kích thước file, trạng thái persistence và ID key mẫu. Thay đổi này chỉ áp dụng output của các lần chạy mới; CSV cũ và số liệu nguồn của báo cáo không bị sửa. CSV bài học Bash giữ nguyên schema riêng.
 
-Sau migration, JSON của trial mới có thêm `redis_py_version`. Các file INFO mới dùng kiểu dữ liệu do redis-py phân tích: bộ đếm là số nguyên, keyspace có thể là dict lồng nhau, thay vì mọi value đều là chuỗi. Không sửa các JSON/CSV cũ để đổi sang schema mới; khi viết công cụ đối chiếu cần nhận biết hai dạng này.
+Sau migration, JSON của trial mới có thêm `redis_py_version`. Các file INFO mới dùng kiểu dữ liệu do redis-py phân tích: bộ đếm là số nguyên, keyspace có thể là dict lồng nhau, thay vì mọi value đều là chuỗi.
 
 Các trường chi tiết sau chỉ nằm trong JSON của run mới (hoặc CSV cũ):
 
