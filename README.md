@@ -37,11 +37,13 @@ Khi kiểm tra tích hợp, khởi động đủ năm instance rồi chạy `bas
 | Nhu cầu | Tài liệu |
 |---|---|
 | Cài đặt, start/stop/reset, sửa cấu hình | [linux/commands.md](linux/commands.md) |
+| Chạy demo setup theo thứ tự recording, có giải thích và output kỳ vọng | [linux/environment-demo.md](linux/environment-demo.md) |
 | Xử lý lỗi | [linux/troubleshooting.md](linux/troubleshooting.md) |
 | Nghiên cứu lý thuyết và nguồn tham khảo | [theory/README.md](theory/README.md) |
 | Nội dung nói tổng quan và quay môi trường, khoảng 5 phút | [Ghi chú trình bày](docs/presentation-notes/01-overview-environment.md) |
 | Review và bàn giao demo | [Checklist chất lượng](docs/demo-quality-checklist.md) |
-| Kết quả thử nghiệm và minh chứng | [Kiểm tra môi trường](docs/environment-verification.md) |
+| Ảnh/log của giai đoạn setup môi trường | [docs/screenshots/00-environment-setup/](docs/screenshots/00-environment-setup/README.md) |
+| Kết quả thử nghiệm và phạm vi đã kiểm tra | [Kiểm tra môi trường](docs/environment-verification.md) |
 | Đề bài gốc | [de_tai_seminar.md](de_tai_seminar.md) |
 
 ## Phạm vi và bàn giao
@@ -52,4 +54,4 @@ Khi kiểm tra tích hợp, khởi động đủ năm instance rồi chạy `bas
 - Quay demo trước với terminal nền sáng, chữ lớn và kiểm tra playback trước buổi seminar.
 - `report/seminar.md` là khung cũ; nội dung nghiên cứu hiện hành đặt ở `theory/`. Slides được chuẩn bị ở giai đoạn sau.
 
-Hạ tầng đã có [minh chứng VMware 512 MB](docs/screenshots/00-environment/vmware-2026-10-20/README.md). Kiểm tra kết nối/cấu hình và normal restart chưa thay thế việc chạy bốn workload demo cuối.
+Hạ tầng đã có [minh chứng VMware 512 MB](docs/screenshots/00-environment-setup/vmware-2026-10-20/README.md). Kiểm tra kết nối/cấu hình và normal restart chưa thay thế việc chạy bốn workload demo cuối.

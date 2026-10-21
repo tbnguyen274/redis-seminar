@@ -12,7 +12,7 @@ Checklist dùng khi bàn giao từng demo và chạy tích hợp cả nhóm. K�
 - [ ] Bốn workload cuối chạy được trên VM 512 MB; ghi rõ swap và điều kiện đo.
 - [ ] Có hướng dẫn stop/start/reset và khôi phục thư mục sau reboot.
 
-Đây là checklist dùng lại cho mỗi lần review, không phải nhật ký hoàn thành. Minh chứng hạ tầng đã có trong [lần chạy VMware](screenshots/00-environment/vmware-2026-10-20/README.md); các workload được kiểm tra riêng khi chủ phần bàn giao.
+Đây là checklist dùng lại cho mỗi lần review, không phải nhật ký hoàn thành. Minh chứng hạ tầng đã có trong [lần chạy VMware](screenshots/00-environment-setup/vmware-2026-10-20/README.md); các workload được kiểm tra riêng khi chủ phần bàn giao.
 
 ## Bàn giao tối thiểu từ mỗi chủ demo
 

@@ -4,6 +4,8 @@ Thời lượng đề xuất: **5 phút, gồm video môi trường khoảng 90 
 
 Nội dung mở đầu nằm trong [theory/01-redis-overview.md](../../theory/01-redis-overview.md), đi từ ví dụ sản phẩm đến Redis, cache và các demo. Thuật toán, lệnh chi tiết và số liệu dành cho chủ từng demo.
 
+Toàn bộ lệnh của demo setup, theo thứ tự recording đầy đủ: [environment-demo.md](../../linux/environment-demo.md). Shot list 90 giây dưới đây dùng để chọn đoạn trình chiếu.
+
 ## Nội dung nói
 
 | Thời gian | Ý chính |
@@ -49,6 +51,6 @@ Kỳ vọng: `OK`, `instance-6383`, `(nil)`, `1`. Với output không tương t�
 
 ## Chọn footage và kiểm tra trước trình bày
 
-Recording và ảnh đã có được mô tả trong [chỉ mục minh chứng](../screenshots/00-environment/vmware-2026-10-20/README.md). Bản gốc dài 8:26.8; chọn đoạn phù hợp thay vì phát toàn bộ. Có thể thuyết minh trực tiếp hoặc thêm caption; giữ output đủ lâu để đọc và không cắt làm sai ý kết quả.
+Recording và ảnh đã có được mô tả trong [chỉ mục minh chứng](../screenshots/00-environment-setup/vmware-2026-10-20/README.md). Bản gốc dài 8:26.8; chọn đoạn phù hợp thay vì phát toàn bộ. Có thể thuyết minh trực tiếp hoặc thêm caption; giữ output đủ lâu để đọc và không cắt làm sai ý kết quả.
 
 Trước buổi seminar: thử playback trên máy trình chiếu, kiểm tra chữ/âm thanh, giữ bản video offline và tập toàn bộ phần nói cùng video trong 5 phút.

@@ -4,7 +4,7 @@
 
 Đã đối chiếu ảnh, recording và log của lần chạy ngày **20/10/2026**, phiên **07:55:53–08:04:24 UTC** (14:55:53–15:04:24 Việt Nam). Ảnh settings xác nhận VM **512 MB RAM, 2 processors**. Setup, checker, cách ly, TTL và normal restart đạt trong phạm vi dưới đây. Đây là kiểm tra hạ tầng với probe nhỏ; chưa chứng minh bốn workload cuối của seminar chạy ổn định ở mức RAM này.
 
-Minh chứng và nguồn: [VMware 2026-10-20](screenshots/00-environment/vmware-2026-10-20/README.md). Kết quả WSL trước đó được giữ ở phần lịch sử cuối trang; không dùng phiên bản WSL thay cho VM cuối.
+Minh chứng và nguồn: [VMware 2026-10-20](screenshots/00-environment-setup/vmware-2026-10-20/README.md). Kết quả WSL trước đó được giữ ở phần lịch sử cuối trang; không dùng phiên bản WSL thay cho VM cuối.
 
 ## Môi trường VMware thực đo
 
@@ -57,7 +57,7 @@ Setup chỉ có **một lượt đầy đủ được lưu**; service journal c�
 
 ## Recording và trạng thái tài liệu
 
-Đã có tám ảnh, archive log và video **8 phút 26.8 giây**, H.264 1920×1080/60 fps. Đã xem các frame mẫu trên toàn timeline: terminal nền sáng, chữ đọc được ở kích thước gốc. AAC có trong file nhưng đo mean/max -91 dB, thực tế không có lời dẫn nghe được; có thể thuyết minh trực tiếp. Video vẫn là bản ghi đầy đủ có đoạn cài package/chờ, chưa cắt thành đoạn khoảng 90 giây. Xem [chỉ mục video và ảnh](screenshots/00-environment/vmware-2026-10-20/README.md).
+Đã có tám ảnh, archive log và video **8 phút 26.8 giây**, H.264 1920×1080/60 fps. Đã xem các frame mẫu trên toàn timeline: terminal nền sáng, chữ đọc được ở kích thước gốc. AAC có trong file nhưng đo mean/max -91 dB, thực tế không có lời dẫn nghe được; có thể thuyết minh trực tiếp. Video vẫn là bản ghi đầy đủ có đoạn cài package/chờ, chưa cắt thành đoạn khoảng 90 giây. Xem [chỉ mục video và ảnh](screenshots/00-environment-setup/vmware-2026-10-20/README.md).
 
 Theo yêu cầu mới nhất, **chưa làm/cập nhật/nộp slides**. File slides đã được gỡ khỏi branch remote; bản local giữ riêng cho giai đoạn sau. Video gốc giữ ngoài Git; chưa ghép hoặc kiểm tra playback trong deck/máy chiếu.
 
@@ -77,7 +77,7 @@ Phần sau ghi phạm vi của lần rehearsal trước VMware, giữ để đ�
 
 Đã kiểm tra môi trường bằng lệnh thực tế ngày **20/10/2026**, khoảng **09:47 giờ Việt Nam**. Log dùng UTC (02:47). Đây là **WSL2 rehearsal**, không phải bằng chứng VM VMware 512 MB. Không chạy VMware, đổi RAM toàn máy hoặc đo mất dữ liệu bằng crash test trong lần chuẩn bị này.
 
-Log thô: [wsl-rehearsal.txt](screenshots/00-environment/wsl-rehearsal.txt).
+Log thô: [wsl-rehearsal.txt](screenshots/00-environment-setup/wsl-rehearsal.txt).
 
 ### Môi trường WSL thực đo
 

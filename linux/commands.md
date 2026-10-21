@@ -5,6 +5,8 @@ VM trình diễn theo đề bài có **512 MB RAM**.
 
 Lần đầu: mục 1 → 2. Mỗi buổi làm việc: mục 2; sau reboot thêm mục 6. Sửa cấu hình: mục 4. Kiểm tra cả nhóm: mục 7.
 
+Demo setup theo recording, gồm giải thích từng bước và output kỳ vọng: [environment-demo.md](environment-demo.md).
+
 ## 1. Cài đặt lần đầu
 
 ```bash

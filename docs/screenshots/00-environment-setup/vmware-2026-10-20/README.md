@@ -1,6 +1,8 @@
-# Minh chứng VMware ngày 20/10/2026
+# Minh chứng setup môi trường VMware ngày 20/10/2026
 
 Minh chứng gồm recording, tám ảnh và archive log của lần chạy VMware. Commit chạy trong guest: `2cd27a98b251231f1bc5e524451ce3ead546fcb4`, branch `feat/environment-prep`.
+
+Giai đoạn: **00 — setup môi trường chung**. Chạy lại theo [hướng dẫn từng bước](../../../../linux/environment-demo.md); xem [chỉ mục giai đoạn setup](../README.md).
 
 ## Nguồn và cách lưu
 
