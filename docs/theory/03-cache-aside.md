@@ -105,3 +105,4 @@ Giải pháp: cài đặt worker update cache thường xuyên, dùng lock để
 Giải pháp: Dùng TTL Jitter, tức là thêm một khoảng thời gian ngẫu nhiên vào TTL của các dữ liệu trong cache để tránh việc nhiều dữ liệu hết hạn cùng lúc.
 
 ### Demo Cache-Aside với Redis
+
