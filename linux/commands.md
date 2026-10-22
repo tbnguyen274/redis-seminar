@@ -7,7 +7,7 @@ Lần đầu: mục 1 → 2. Mỗi buổi làm việc: mục 2; sau reboot thêm
 
 Demo setup theo recording, gồm giải thích từng bước và output kỳ vọng: [environment-demo.md](environment-demo.md).
 
-## 1. Cài đặt lần đầu
+## Cài đặt lần đầu
 
 ```bash
 sudo apt-get update
@@ -29,7 +29,7 @@ python3 --version
 
 Kết nối thành công trả `PONG`. Gói apt không được khóa phiên bản; dùng cùng image/snapshot nếu cần cùng phiên bản Redis/Python.
 
-## 2. Khởi động demo
+## Khởi động demo
 
 | Demo | File trong `redis/` | Port | Thư mục dữ liệu |
 |---|---|---:|---|
@@ -56,52 +56,6 @@ redis-server redis/redis-cache-aside.conf
 redis-server redis/redis-eviction.conf
 ```
 
-```bash
-# Demo 04: chạy trong hai terminal riêng
-redis-server redis/redis-rdb.conf
-```
-
-```bash
-redis-server redis/redis-aof.conf
-```
-
-Ví dụ kiểm tra demo 01 từ terminal thứ hai:
-
-```bash
-redis-cli -h 127.0.0.1 -p 6383 PING
-```
-
-Kỳ vọng `PONG`. Client của từng demo dùng `127.0.0.1` và port trong bảng, không mặc định dùng 6379. Trên VM dùng chung, nếu instance đã chạy thì dùng instance đó, không start chồng.
-
-## 3. Dependency Python (nếu demo cần)
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-Tạo venv một lần; kích hoạt lại trong mỗi terminal chạy Python. Cài dependency bằng `python -m pip install -r <đường-dẫn-requirements.txt>` theo README của demo. Chủ demo bổ sung file requirements cùng code.
-
-## 4. Thay đổi cấu hình
-
-| Muốn đổi | Sửa ở đâu |
-|---|---|
-| Port, bind, thư mục dữ liệu | `port`, `bind`, `dir` trong file `redis/*.conf` của demo |
-| Giới hạn RAM và eviction | `maxmemory`, `maxmemory-policy` trong `redis/redis-eviction.conf` |
-| Snapshot RDB | `save`, `dbfilename` trong `redis/redis-rdb.conf` |
-| AOF | `appendonly`, `appendfsync`, `save` trong `redis/redis-aof.conf` |
-| Host/port client, TTL, dữ liệu và tham số đo | Code của demo trong `demos/` |
-| Dependency ứng dụng | File requirements của demo |
-
-Sửa file trên branch riêng, dừng đúng instance theo port **đang chạy**, rồi start lại bằng file đã sửa. Nếu đổi `dir`, tạo thư mục mới có quyền ghi trước khi start; nếu đổi port, cập nhật cả client và tài liệu demo. Không sửa `/etc/redis/redis.conf` để cấu hình các demo 6380–6384.
-
-Ví dụ áp dụng và kiểm tra cấu hình eviction, khi vẫn dùng port 6382:
-
-```bash
-redis-cli -p 6382 SHUTDOWN
-redis-server redis/redis-eviction.conf
-```
-
 Trong terminal thứ hai:
 
 ```bash
@@ -111,22 +65,15 @@ redis-cli -p 6382 CONFIG GET maxmemory-policy
 
 Mặc định: `10485760` bytes (10 MiB), `allkeys-lru`. `CONFIG SET` chỉ đổi cấu hình đang chạy, không tự cập nhật file trong repo. Thay đổi dùng chung cần PR và thống nhất với nhóm; nếu đổi giá trị mà `linux/check.sh` kiểm tra thì cập nhật kỳ vọng tương ứng trong script.
 
-## 5. Dừng, chạy lại và reset
+## Dừng, chạy lại và reset
 
-Dừng đúng port, ví dụ demo 01:
-
-```bash
-redis-cli -p 6383 SHUTDOWN
-```
-
-Chạy lại bằng lệnh start ở mục 2. `sudo systemctl restart redis-server` chỉ restart service 6379, không restart các instance demo.
-
-**Reset chỉ trên dữ liệu demo bỏ được; lưu kết quả trước khi xóa.** Các port 6382–6384 tắt persistence: stop/start để xóa dataset và đặt lại bộ đếm. Nếu chỉ xóa key mà giữ process:
-
-```bash
-redis-cli -p 6383 FLUSHALL SYNC
-redis-cli -p 6383 DBSIZE
-```
+| Demo | Port | Thư mục dữ liệu |
+|---|---:|---|
+| Persistence RDB | `6380` | `demos/04-persistence-crash/results/run-.../trial-.../rdb/data` |
+| Persistence AOF | `6381` | `demos/04-persistence-crash/results/run-.../trial-.../aof/data` |
+| Eviction | `6382` | `/tmp/redis-seminar/eviction` |
+| Data Structures và TTL | `6383` | `/tmp/redis-seminar/data-structures` |
+| Cache-Aside | `6384` | `/tmp/redis-seminar/cache-aside` |
 
 RDB: xóa key và lưu snapshot rỗng để dữ liệu cũ không quay lại:
 
@@ -136,31 +83,95 @@ redis-cli -p 6380 SAVE
 redis-cli -p 6380 DBSIZE
 ```
 
-AOF: ghi lệnh xóa vào AOF, rồi dừng bình thường:
+## Chạy persistence crash test trên Bash/Linux
+
+Hai file `redis/redis-rdb.conf` và `redis/redis-aof.conf` là template có placeholder. Không truyền trực tiếp chúng cho `redis-server`. Script tự tạo config thực với đường dẫn tuyệt đối, khởi động, gây crash và restart các instance riêng.
+
+Cần Redis 7+, Python 3.9+ và hai port 6380/6381 còn trống. Các lệnh bên dưới dùng Bash trên Ubuntu/Debian hoặc trong WSL, chạy từ thư mục gốc repository.
+
+### 1. Cài công cụ hệ thống bằng apt
+
+`requirements.txt` chỉ chứa package Python. Các chương trình Redis và công cụ Linux phải cài riêng:
+
+| Gói | Cung cấp | Khi nào cần |
+|---|---|---|
+| `redis-server` | Tiến trình Redis | Mọi crash trial |
+| `redis-tools` | `redis-cli` | Kiểm tra thủ công và bài Bash |
+| `python3` | Trình chạy Python | Bản Python |
+| `python3-venv` | Tạo virtualenv | Cài dependency Python trong môi trường riêng |
+| `strace` | Theo dõi syscall | Chỉ khi dùng `--trace-fsync` |
+| `iproute2` | `ss` kiểm tra port | Bài `persistence_crash.sh` |
 
 ```bash
-redis-cli -p 6381 FLUSHALL SYNC
-redis-cli -p 6381 SHUTDOWN
+sudo apt update
+sudo apt install -y redis-server redis-tools python3 python3-venv
+redis-server --version
+redis-cli --version
+python3 --version
 ```
 
-Start lại AOF theo mục 2, dùng `redis-cli -p 6381 DBSIZE` kiểm tra kết quả `0`. Không xóa file persistence khi server đang chạy. `FLUSHALL` không đặt lại thống kê hoặc cấu hình tạm; với eviction, restart từ file config trước mỗi lượt đo.
-
-## 6. Sau reboot
-
-Service 6379 tự khởi động. `/tmp` có thể bị dọn; tạo lại thư mục dưới user vận hành rồi start demo cần dùng theo mục 2, không cần chạy lại setup chỉ để tạo thư mục:
+Cài thêm theo chế độ sẽ chạy, không bắt buộc cho bản Python thông thường:
 
 ```bash
-mkdir -p /tmp/redis-seminar/{rdb,aof,eviction,data-structures,cache-aside}
+# Chỉ cần khi bật --trace-fsync
+sudo apt install -y strace
+
+# Chỉ cần khi chạy bài Bash persistence_crash.sh
+sudo apt install -y iproute2
 ```
 
-## 7. Kiểm tra tích hợp cả nhóm
+`linux/setup.sh` hiện chỉ cài `redis-server`/`redis-tools` và quản lý dịch vụ Redis mặc định. Nó chưa cài Python/venv, strace, iproute2 hoặc dependency Python cho demo 04.
 
-Chỉ chạy sau khi **service 6379 và đủ năm instance 6380–6384** đã start theo cấu hình chung:
+### 2. Cài dependency Python bằng pip trong virtualenv
+
+Thực hiện một lần khi chuẩn bị repo; không dùng `sudo pip`:
 
 ```bash
-bash linux/check.sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r demos/04-persistence-crash/requirements.txt
 ```
 
-Kỳ vọng cuối output: `PASS`. Script chỉ đọc trạng thái/cấu hình, không sửa dữ liệu. Thiếu instance hoặc cấu hình khác kỳ vọng sẽ thất bại; khi làm riêng một demo, dùng `PING` và `CONFIG GET` trên port của demo đó.
+[requirements.txt](../demos/04-persistence-crash/requirements.txt) hiện ghim `redis==5.3.1` (redis-py, client Python), không cài Redis server. Các dependency Python gián tiếp được pip cài theo thư viện; không đưa `redis-server` hoặc `strace` vào file này.
 
-Xử lý lỗi: [troubleshooting.md](troubleshooting.md). Kết quả các lần thử nghiệm: [environment-verification.md](../docs/environment-verification.md).
+Mỗi lần mở terminal mới, chỉ cần kích hoạt lại virtualenv đã có. Với WSL, tạo và dùng virtualenv bên Linux, không dùng lại virtualenv tạo bằng Python Windows.
+
+### 3. Chạy bản Python
+
+```bash
+source .venv/bin/activate
+python demos/04-persistence-crash/scripts/run_trials.py \
+  --trials 3 --baseline 2000 --delta 1000 --delays 0,0.2,1.5
+```
+
+Mỗi lần chạy tạo `results/run-<UTC>-<id>/summary.csv` riêng trong thư mục demo. Xem [hướng dẫn demo 04](../demos/04-persistence-crash/README.md) để biết cấu trúc trial và cách đọc kết quả.
+
+### 4. Chạy tùy chọn quan sát fsync
+
+Sau khi đã cài `strace` và kích hoạt virtualenv:
+
+```bash
+python demos/04-persistence-crash/scripts/run_trials.py \
+  --trials 3 --baseline 100 --delta 30 --delays 0,0.5,1.5 \
+  --trace-fsync
+```
+
+Chế độ này chỉ quan sát fsync của incremental AOF, có overhead và không phải thử nghiệm cắt nguồn máy. Không chạy Python bằng sudo để xử lý lỗi ptrace; xem thông báo lỗi và chính sách của máy lab trước.
+
+### 5. Chạy bài Bash theo từng bước
+
+Cần `redis-server`, `redis-tools`, `iproute2`, Bash 4+ và các công cụ Linux thông dụng có sẵn trên Ubuntu. Không cần Python hoặc redis-py:
+
+```bash
+bash demos/04-persistence-crash/scripts/persistence_crash.sh
+```
+
+Không chạy đồng thời bài Bash và bản Python vì cùng dùng port 6380/6381. Hai bản tự khởi động Redis riêng; không cần bật thủ công các instance ở hai port này trước khi chạy.
+
+### 6. Kiểm tra offline
+
+Sau khi cài requirements, trong virtualenv; không cần Redis server đang chạy:
+
+```bash
+python -m unittest discover -s demos/04-persistence-crash/tests -v
+```
