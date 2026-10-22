@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redis • Cache-aside lab</title>
+    <style>
+      :root {
+        font-family: system-ui, sans-serif;
+        color: #e7edf5;
+        background: #10151e;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 1180px;
+        margin: auto;
+        padding: 40px 24px;
+      }
+      header {
+        margin-bottom: 28px;
+      }
+      .eyebrow {
+        color: #fb816d;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+      }
+      h1 {
+        font-size: 38px;
+        margin: 12px 0;
+      }
+      p {
+        color: #aebacd;
+        line-height: 1.6;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 310px 1fr;
+        gap: 24px;
+      }
+      .panel,
+      .result {
+        background: #19212e;
+        border: 1px solid #303c4e;
+        border-radius: 14px;
+        padding: 22px;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 0 0 18px;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: #c6d1e0;
+        margin: 16px 0 6px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #47556a;
+        border-radius: 7px;
+        background: #111824;
+        color: #fff;
+        font: inherit;
+      }
+      input:focus,
+      select:focus,
+      button:focus-visible {
+        outline: 2px solid #ff987b;
+        outline-offset: 3px;
+      }
+      .pair {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      button {
+        cursor: pointer;
+        width: 100%;
+        border: 0;
+        border-radius: 8px;
+        background: #ff826b;
+        color: #22130f;
+        font: 700 14px system-ui;
+        padding: 13px;
+        margin-top: 22px;
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+      }
+      fieldset {
+        padding: 0;
+        border: 0;
+        margin: 0;
+        min-width: 0;
+      }
+      .help {
+        font-size: 12px;
+        margin-bottom: 0;
+      }
+      .flow {
+        padding: 14px 18px;
+        background: #202b3b;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #b9c9de;
+        margin-bottom: 18px;
+      }
+      .flow strong {
+        color: #fff;
+      }
+      #status {
+        min-height: 28px;
+        font-size: 14px;
+        color: #ffc08c;
+        margin-bottom: 12px;
+      }
+      #results {
+        display: grid;
+        gap: 16px;
+      }
+      .empty {
+        text-align: center;
+        padding: 70px 24px;
+        border: 1px dashed #42516a;
+        border-radius: 14px;
+      }
+      .empty h2 {
+        margin-bottom: 8px;
+      }
+      .result h2 {
+        margin-bottom: 5px;
+      }
+      .summary {
+        font-size: 13px;
+        color: #8cddc0;
+        margin: 8px 0 16px;
+      }
+      .table-wrap {
+        max-height: 320px;
+        overflow: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13px;
+        text-align: left;
+      }
+      th {
+        color: #95a8c2;
+        font-weight: 500;
+      }
+      td,
+      th {
+        padding: 9px 6px;
+        border-bottom: 1px solid #2b3748;
+      }
+      .badge {
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 4px;
+        padding: 4px 7px;
+        background: #344257;
+        color: #d1dbe9;
+      }
+      .hit {
+        background: #183f36;
+        color: #8ce2bc;
+      }
+      .miss {
+        background: #50392c;
+        color: #ffc693;
+      }
+      .bar {
+        height: 6px;
+        background: #ff9c78;
+        border-radius: 5px;
+        min-width: 2px;
+      }
+      .hit-bar {
+        background: #6ed5ab;
+      }
+      .timing {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+      #error {
+        color: #ffb2ae;
+      }
+      .log-panel {
+        margin-bottom: 18px;
+      }
+      .log-panel h2 {
+        margin-bottom: 8px;
+      }
+      .log-panel p {
+        margin: 0 0 12px;
+        font-size: 12px;
+      }
+      #log {
+        height: calc(2 * 1.7 * 12px + 26px);
+        overflow: auto;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        background: #111824;
+        border: 1px solid #303c4e;
+        border-radius: 8px;
+        padding: 12px;
+        font:
+          12px/1.7 ui-monospace,
+          monospace;
+      }
+      #log:empty::before {
+        content: "Run an experiment to see events here.";
+        color: #95a8c2;
+      }
+      .layout > section {
+        min-width: 0;
+      }
+      @media (max-width: 760px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        main {
+          padding: 24px 16px;
+        }
+        h1 {
+          font-size: 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="eyebrow">REDIS / INTERACTIVE DEMO 02</div>
+        <h1>Cache-aside</h1>
+        <p>
+          Watch a slow database request become a cache hit. Explore what happens
+          when cached data expires or is deleted.
+        </p>
+      </header>
+      <div class="layout">
+        <aside class="panel">
+          <h2>Configure your experiment</h2>
+          <form id="settings">
+            <fieldset id="controls">
+              <div class="pair">
+                <div>
+                  <label for="ttl">TTL (seconds)</label
+                  ><input
+                    id="ttl"
+                    name="ttl"
+                    type="number"
+                    min="1"
+                    max="60"
+                    value="5"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="delay_ms">DB delay (ms)</label
+                  ><input
+                    id="delay_ms"
+                    name="delay_ms"
+                    type="number"
+                    min="0"
+                    max="2000"
+                    value="300"
+                    required
+                  />
+                </div>
+              </div>
+              <label>Requests per case</label>
+              <div class="pair">
+                <div>
+                  <label for="without_count">Without cache</label
+                  ><input
+                    id="without_count"
+                    name="without_count"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value="5"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="with_count">With cache</label
+                  ><input
+                    id="with_count"
+                    name="with_count"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value="10"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="expiration_count">After expiration</label
+                  ><input
+                    id="expiration_count"
+                    name="expiration_count"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value="3"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="invalidation_count">After invalidation</label
+                  ><input
+                    id="invalidation_count"
+                    name="invalidation_count"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value="3"
+                    required
+                  />
+                </div>
+              </div>
+              <button type="submit" id="run">Run experiment →</button>
+            </fieldset>
+          </form>
+        </aside>
+        <section aria-label="Demo results">
+          <section class="panel log-panel" aria-labelledby="log-title">
+            <h2 id="log-title">Experiment event log</h2>
+            <p>
+              Live events appear below. Scroll up to review; scroll to the
+              bottom to follow new events.
+            </p>
+            <div
+              id="log"
+              role="log"
+              aria-live="off"
+              aria-labelledby="log-title"
+              tabindex="0"
+            ></div>
+          </section>
+
+          <div id="status" role="status" aria-live="polite">Ready to run</div>
+          <p id="error" role="alert" hidden></p>
+          <div id="results">
+            <div class="empty">
+              <p>
+                Run an experiment to compare request timings,<br />cache hits,
+                and database lookups.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <script>
+      const form = document.querySelector("#settings"),
+        controls = document.querySelector("#controls"),
+        results = document.querySelector("#results"),
+        statusLine = document.querySelector("#status"),
+        error = document.querySelector("#error"),
+        log = document.querySelector("#log");
+      const cards = new Map();
+      let scale = 300,
+        done = false;
+      function appendLog(message) {
+        const follow = log.scrollHeight - log.scrollTop - log.clientHeight < 24;
+        log.textContent += `[${new Date().toLocaleTimeString()}] ${message}\n`;
+        if (follow) log.scrollTop = log.scrollHeight;
+      }
+      function eventReceived(event) {
+        if (event.type === "start") {
+          appendLog(event.title);
+          const card = document.createElement("article");
+          card.className = "result";
+          card.innerHTML =
+            '<h2></h2><div class="summary">Running…</div><div class="table-wrap"><table><thead><tr><th>Request</th><th>Source</th><th>Time</th><th style="width:30%">Latency</th></tr></thead><tbody></tbody></table></div>';
+          card.querySelector("h2").textContent = event.title;
+          results.append(card);
+          cards.set(event.case, card);
+          statusLine.textContent = event.title + "…";
+        } else if (event.type === "note") {
+          statusLine.textContent = event.message;
+          appendLog(event.message);
+        } else if (event.type === "request") {
+          appendLog(
+            `Request ${event.number} | ${event.status} | ${event.elapsed_ms.toFixed(2)} ms`,
+          );
+          const row = document.createElement("tr");
+          row.innerHTML =
+            '<td></td><td><span class="badge"></span></td><td class="timing"></td><td><div class="bar"></div></td>';
+          row.children[0].textContent = event.number;
+          const badge = row.querySelector(".badge");
+          badge.textContent = event.status;
+          badge.classList.add(
+            event.status === "HIT"
+              ? "hit"
+              : event.status === "MISS"
+                ? "miss"
+                : "bypass",
+          );
+          row.children[2].textContent = event.elapsed_ms.toFixed(2) + " ms";
+          const bar = row.querySelector(".bar");
+          bar.style.width =
+            Math.min(100, (event.elapsed_ms / scale) * 100) + "%";
+          if (event.status === "HIT") bar.classList.add("hit-bar");
+          cards.get(event.case).querySelector("tbody").append(row);
+        } else if (event.type === "summary") {
+          appendLog(
+            `Average: ${event.average_ms.toFixed(2)} ms over ${event.count} requests`,
+          );
+          cards.get(event.case).querySelector(".summary").textContent =
+            `Average ${event.average_ms.toFixed(2)} ms · ${event.count} requests · ` +
+            (event.case === "without"
+              ? "Cache bypassed"
+              : `${event.hits} hits · ${Math.round((event.hits / event.count) * 100)}% hit rate`);
+        } else if (event.type === "done") {
+          done = true;
+          appendLog("Experiment complete.");
+          statusLine.textContent =
+            "Experiment complete. Adjust the inputs to run again.";
+        } else if (event.type === "error") throw new Error(event.message);
+      }
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const settings = Object.fromEntries(new FormData(form));
+        for (const key in settings) settings[key] = Number(settings[key]);
+        controls.disabled = true;
+        results.replaceChildren();
+        cards.clear();
+        error.hidden = true;
+        log.textContent = "";
+        done = false;
+        scale = Math.max(settings.delay_ms, 1);
+        statusLine.textContent = "Starting experiment…";
+        try {
+          const response = await fetch("/api/run", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(settings),
+          });
+          if (!response.ok)
+            throw new Error(
+              response.status === 409
+                ? "Another experiment is running. Try again when it finishes."
+                : "Unable to start the demo. Check your inputs and the server.",
+            );
+          const reader = response.body.getReader(),
+            decoder = new TextDecoder();
+          let buffer = "";
+          while (true) {
+            const chunk = await reader.read();
+            if (chunk.done) break;
+            buffer += decoder.decode(chunk.value, { stream: true });
+            let newline;
+            while ((newline = buffer.indexOf("\n")) !== -1) {
+              const line = buffer.slice(0, newline);
+              buffer = buffer.slice(newline + 1);
+              if (line) eventReceived(JSON.parse(line));
+            }
+          }
+          if (!done)
+            throw new Error(
+              "The connection ended before the experiment completed. Please run it again.",
+            );
+        } catch (err) {
+          appendLog("Error: " + err.message);
+          error.textContent = err.message;
+          error.hidden = false;
+          statusLine.textContent = "Experiment stopped.";
+        } finally {
+          controls.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
