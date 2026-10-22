@@ -24,8 +24,8 @@ redis-seminar/
 │   ├── commands.md             # Lệnh kiểm tra và vận hành cơ bản
 │   └── troubleshooting.md      # Checklist xử lý sự cố
 ├── redis/
-│   ├── redis-rdb.conf          # Cấu hình thử nghiệm RDB
-│   ├── redis-aof.conf          # Cấu hình thử nghiệm AOF
+│   ├── redis-rdb.conf          # Template RDB cho script demo 04
+│   ├── redis-aof.conf          # Template AOF cho script demo 04
 │   ├── redis-eviction.conf     # Cấu hình maxmemory và allkeys-lru
 │   ├── redis-data-structures.conf # Instance riêng cho demo 01
 │   └── redis-cache-aside.conf  # Instance riêng cho demo 02
@@ -77,10 +77,12 @@ Client -> Application -> Redis
    - Theo dõi `evicted_keys` và chứng minh các key ít được sử dụng bị loại bỏ.
 
 5. **Demo 04 - Persistence và sự cố**
-   - Chạy cùng một kịch bản ghi dữ liệu lần lượt với cấu hình RDB và AOF.
-   - Dùng `kill -9` để mô phỏng sập nguồn ngay sau khi ghi.
-   - Khởi động lại Redis, đếm số key còn lại và so sánh mức mất dữ liệu.
-   - Với AOF, sử dụng `appendfsync everysec`; mức mất dữ liệu kỳ vọng thường nhỏ hơn RDB thuần túy.
+   - Bản Python cần virtualenv và dependency `redis-py` theo `demos/04-persistence-crash/requirements.txt`; cài theo README của demo, không dùng `sudo pip`.
+   - Chạy script theo [hướng dẫn demo 04](demos/04-persistence-crash/README.md). Script tự khởi động hai instance từ template `redis/redis-rdb.conf` và `redis/redis-aof.conf`; không chạy trực tiếp hai template.
+   - Ghi baseline, tạo checkpoint RDB bằng `BGSAVE`, rồi ghi delta cho cả RDB và AOF.
+   - Dùng `SIGKILL` để mô phỏng Redis process crash, sau đó restart và kiểm chứng từng key/value. Đây không phải thử nghiệm cắt nguồn máy.
+   - Mỗi lần chạy lưu CSV riêng và dữ liệu trial tại `demos/04-persistence-crash/results/run-<UTC>-<id>/`.
+   - Tổng hợp số liệu thực tế vào [báo cáo](demos/04-persistence-crash/report.md); không suy ra AOF luôn mất chính xác một giây dữ liệu.
 
 ## Nguyên tắc chạy demo
 
@@ -92,4 +94,4 @@ Client -> Application -> Redis
 
 ## Trạng thái
 
-Repository hiện đã có cấu trúc, cấu hình mẫu và khung tài liệu. Mã nguồn chi tiết cho từng demo sẽ được bổ sung trong các thư mục tương ứng.
+Repository đã có cấu trúc, tài liệu và demo persistence crash kèm unit tests. Các demo còn lại tiếp tục được bổ sung trong thư mục tương ứng.
