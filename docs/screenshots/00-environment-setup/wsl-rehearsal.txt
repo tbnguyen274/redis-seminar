@@ -1,0 +1,128 @@
+WSL2 REHEARSAL ONLY; not a 512 MB VMware verification.
+PASS: Bash syntax
+PASS: setup rejects non-root before installation
+Checked at: 2026-10-20 02:47:18 UTC
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+VERSION_ID="24.04"
+6.18.33.2-microsoft-standard-WSL2
+Logical CPUs: 16
+               total        used        free      shared  buff/cache   available
+Mem:           7.6Gi       679Mi       6.2Gi       3.6Mi       946Mi       6.9Gi
+Swap:          2.0Gi          0B       2.0Gi
+Redis server v=7.0.15 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d064f9f48c901a92
+Python 3.12.3
+active
+Port 6379: PONG
+process_id:788
+Port 6380: PONG
+process_id:806
+Port 6381: PONG
+process_id:816
+Port 6382: PONG
+process_id:826
+Port 6383: PONG
+process_id:836
+Port 6384: PONG
+process_id:846
+Port 6380: dir=/tmp/redis-seminar/rdb
+Port 6380: appendonly=no
+Port 6381: dir=/tmp/redis-seminar/aof
+Port 6381: appendonly=yes
+Port 6381: appendfsync=everysec
+Port 6381: save=
+Port 6382: maxmemory=10485760
+Port 6382: maxmemory-policy=allkeys-lru
+Port 6382: dir=/tmp/redis-seminar/eviction
+Port 6382: save=
+Port 6382: appendonly=no
+Port 6383: dir=/tmp/redis-seminar/data-structures
+Port 6383: save=
+Port 6383: appendonly=no
+Port 6384: dir=/tmp/redis-seminar/cache-aside
+Port 6384: save=
+Port 6384: appendonly=no
+LISTEN 0      511         127.0.0.1:6384      0.0.0.0:*
+LISTEN 0      511         127.0.0.1:6379      0.0.0.0:*
+LISTEN 0      511         127.0.0.1:6382      0.0.0.0:*
+LISTEN 0      511         127.0.0.1:6383      0.0.0.0:*
+LISTEN 0      511         127.0.0.1:6380      0.0.0.0:*
+LISTEN 0      511         127.0.0.1:6381      0.0.0.0:*
+LISTEN 0      511             [::1]:6379         [::]:*
+PASS: service, ports and demo configuration checks.
+python3	3.12.3-0ubuntu2.1
+redis-server	5:7.0.15-1ubuntu0.24.04.5
+redis-tools	5:7.0.15-1ubuntu0.24.04.5
+enabled
+kyrie:kyrie /tmp/redis-seminar/aof
+kyrie:kyrie /tmp/redis-seminar/cache-aside
+kyrie:kyrie /tmp/redis-seminar/data-structures
+kyrie:kyrie /tmp/redis-seminar/eviction
+kyrie:kyrie /tmp/redis-seminar/rdb
+PASS: read back own instance
+PASS: 6384 isolated from 6383
+PASS: basic expiry readiness
+PASS: RDB normal restart reloads saved data
+PASS: RDB reset remains empty after restart
+PASS: AOF normal restart reloads saved data
+PASS: AOF reset remains empty after restart
+server.log
+appendonlydir/appendonly.aof.1.base.rdb
+appendonlydir/appendonly.aof.1.incr.aof
+appendonlydir/appendonly.aof.manifest
+PASS: eviction restart clears ephemeral data
+PASS: data-structures restart clears ephemeral data
+PASS: cache-aside restart clears ephemeral data
+PASS: checker rejects wrong eviction policy
+PASS: checker rejects missing instance
+pip 24.0 from /tmp/redis-seminar/cache-aside/venv-check/lib/python3.12/site-packages/pip (python 3.12)
+PASS: Python virtual environment includes pip
+Checked at: 2026-10-20 02:47:23 UTC
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+VERSION_ID="24.04"
+6.18.33.2-microsoft-standard-WSL2
+Logical CPUs: 16
+               total        used        free      shared  buff/cache   available
+Mem:           7.6Gi       707Mi       6.1Gi       3.5Mi       967Mi       6.9Gi
+Swap:          2.0Gi          0B       2.0Gi
+Redis server v=7.0.15 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d064f9f48c901a92
+Python 3.12.3
+active
+Port 6379: PONG
+process_id:788
+Port 6380: PONG
+process_id:959
+Port 6381: PONG
+process_id:982
+Port 6382: PONG
+process_id:995
+Port 6383: PONG
+process_id:1006
+Port 6384: PONG
+process_id:1108
+Port 6380: dir=/tmp/redis-seminar/rdb
+Port 6380: appendonly=no
+Port 6381: dir=/tmp/redis-seminar/aof
+Port 6381: appendonly=yes
+Port 6381: appendfsync=everysec
+Port 6381: save=
+Port 6382: maxmemory=10485760
+Port 6382: maxmemory-policy=allkeys-lru
+Port 6382: dir=/tmp/redis-seminar/eviction
+Port 6382: save=
+Port 6382: appendonly=no
+Port 6383: dir=/tmp/redis-seminar/data-structures
+Port 6383: save=
+Port 6383: appendonly=no
+Port 6384: dir=/tmp/redis-seminar/cache-aside
+Port 6384: save=
+Port 6384: appendonly=no
+LISTEN 0      511         127.0.0.1:6384      0.0.0.0:*
+LISTEN 0      511         127.0.0.1:6379      0.0.0.0:*
+LISTEN 0      511         127.0.0.1:6382      0.0.0.0:*
+LISTEN 0      511         127.0.0.1:6383      0.0.0.0:*
+LISTEN 0      511         127.0.0.1:6380      0.0.0.0:*
+LISTEN 0      511         127.0.0.1:6381      0.0.0.0:*
+LISTEN 0      511             [::1]:6379         [::]:*
+PASS: service, ports and demo configuration checks.
+PASS: all five test instances stopped; default systemd service remains available.
+PASS: environment integration checks complete. No crash-test loss measurements taken.

@@ -1,0 +1,48 @@
+Checked at: 2026-10-20 08:03:30 UTC
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
+VERSION_ID="26.04"
+7.0.0-38-generic
+Logical CPUs: 2
+               total        used        free      shared  buff/cache   available
+Mem:           404Mi       246Mi        10Mi       340Ki       165Mi       157Mi
+Swap:          1.6Gi       107Mi       1.5Gi
+Redis server v=8.0.5 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d47fc40702b1fad8
+Python 3.14.4
+active
+Port 6379: PONG
+process_id:3264
+Port 6380: PONG
+process_id:3934
+Port 6381: PONG
+process_id:3941
+Port 6382: PONG
+process_id:3806
+Port 6383: PONG
+process_id:3948
+Port 6384: PONG
+process_id:3820
+Port 6380: dir=/tmp/redis-seminar/rdb
+Port 6380: appendonly=no
+Port 6381: dir=/tmp/redis-seminar/aof
+Port 6381: appendonly=yes
+Port 6381: appendfsync=everysec
+Port 6381: save=
+Port 6382: maxmemory=10485760
+Port 6382: maxmemory-policy=allkeys-lru
+Port 6382: dir=/tmp/redis-seminar/eviction
+Port 6382: save=
+Port 6382: appendonly=no
+Port 6383: dir=/tmp/redis-seminar/data-structures
+Port 6383: save=
+Port 6383: appendonly=no
+Port 6384: dir=/tmp/redis-seminar/cache-aside
+Port 6384: save=
+Port 6384: appendonly=no
+LISTEN 0      511        127.0.0.1:6379      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6381      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6380      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6383      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6382      0.0.0.0:*
+LISTEN 0      511        127.0.0.1:6384      0.0.0.0:*
+LISTEN 0      511            [::1]:6379         [::]:*
+PASS: service, ports and demo configuration checks.

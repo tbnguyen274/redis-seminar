@@ -1,46 +1,71 @@
-# Redis commands
+# Lệnh chuẩn bị và chạy demo
 
-## Kiểm tra dịch vụ
+Chạy lệnh trong **guest Ubuntu Server**, từ thư mục gốc repo. Dùng cùng commit, cấu hình `redis/*.conf` để đồng nhất môi trường.
+VM trình diễn theo đề bài có **512 MB RAM**.
+
+Lần đầu: mục 1 → 2. Mỗi buổi làm việc: mục 2; sau reboot thêm mục 6. Sửa cấu hình: mục 4. Kiểm tra cả nhóm: mục 7.
+
+Demo setup theo recording, gồm giải thích từng bước và output kỳ vọng: [environment-demo.md](environment-demo.md).
+
+## Cài đặt lần đầu
 
 ```bash
-sudo systemctl status redis-server
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install -y git ca-certificates
+git clone --branch feat/environment-prep https://github.com/tbnguyen274/redis-seminar.git
+cd redis-seminar
+sudo bash linux/setup.sh
+```
+
+Setup cài Redis, Python/venv và công cụ kiểm tra, tạo năm thư mục dữ liệu dưới `/tmp/redis-seminar/`, bật service mặc định **6379**. Setup **không** start năm instance demo. Chạy lại setup sẽ restart 6379; không chạy giữa lúc đang đo.
+
+```bash
+redis-cli -p 6379 PING
+git rev-parse HEAD
 redis-server --version
-redis-cli ping
-redis-cli INFO server
-redis-cli INFO memory
-redis-cli INFO persistence
-redis-cli INFO stats
+python3 --version
 ```
 
-## Quản lý dịch vụ và log
+Kết nối thành công trả `PONG`. Gói apt không được khóa phiên bản; dùng cùng image/snapshot nếu cần cùng phiên bản Redis/Python.
+
+## Khởi động demo
+
+| Demo | File trong `redis/` | Port | Thư mục dữ liệu |
+|---|---|---:|---|
+| Cấu trúc dữ liệu/TTL | `redis-data-structures.conf` | 6383 | `/tmp/redis-seminar/data-structures` |
+| Cache-Aside | `redis-cache-aside.conf` | 6384 | `/tmp/redis-seminar/cache-aside` |
+| Eviction | `redis-eviction.conf` | 6382 | `/tmp/redis-seminar/eviction` |
+| RDB | `redis-rdb.conf` | 6380 | `/tmp/redis-seminar/rdb` |
+| AOF | `redis-aof.conf` | 6381 | `/tmp/redis-seminar/aof` |
+
+**Chọn lệnh tương ứng với demo**. Mỗi lệnh giữ terminal để hiện log; mở terminal khác để chạy ứng dụng/Redis CLI. Nếu chạy nhiều instance, mỗi instance dùng một terminal riêng.
 
 ```bash
-sudo systemctl restart redis-server
-sudo journalctl -u redis-server --since "10 minutes ago"
-sudo ss -lntp | grep 6379
-```
-
-## Chạy với file cấu hình riêng
-
-Tạo các thư mục dữ liệu và cấp quyền cho người dùng hiện tại:
-
-```bash
-sudo mkdir -p \
-  /tmp/redis-seminar/eviction \
-  /tmp/redis-seminar/data-structures \
-  /tmp/redis-seminar/cache-aside
-sudo chown -R "$USER":"$USER" /tmp/redis-seminar
-```
-
-Khởi động từng instance trong một terminal riêng:
-
-```bash
-redis-server redis/redis-eviction.conf
+# Demo 01
 redis-server redis/redis-data-structures.conf
+```
+
+```bash
+# Demo 02
 redis-server redis/redis-cache-aside.conf
 ```
 
-Các file mẫu dùng port và thư mục dữ liệu khác nhau để tránh trộn dữ liệu giữa các demo.
+```bash
+# Demo 03
+redis-server redis/redis-eviction.conf
+```
+
+Trong terminal thứ hai:
+
+```bash
+redis-cli -p 6382 CONFIG GET maxmemory
+redis-cli -p 6382 CONFIG GET maxmemory-policy
+```
+
+Mặc định: `10485760` bytes (10 MiB), `allkeys-lru`. `CONFIG SET` chỉ đổi cấu hình đang chạy, không tự cập nhật file trong repo. Thay đổi dùng chung cần PR và thống nhất với nhóm; nếu đổi giá trị mà `linux/check.sh` kiểm tra thì cập nhật kỳ vọng tương ứng trong script.
+
+## Dừng, chạy lại và reset
 
 | Demo | Port | Thư mục dữ liệu |
 |---|---:|---|
@@ -50,14 +75,13 @@ Các file mẫu dùng port và thư mục dữ liệu khác nhau để tránh tr
 | Data Structures và TTL | `6383` | `/tmp/redis-seminar/data-structures` |
 | Cache-Aside | `6384` | `/tmp/redis-seminar/cache-aside` |
 
-Kiểm tra kết nối đúng port:
+RDB: xóa key và lưu snapshot rỗng để dữ liệu cũ không quay lại:
 
 ```bash
-redis-cli -p 6383 PING
-redis-cli -p 6384 PING
+redis-cli -p 6380 FLUSHALL SYNC
+redis-cli -p 6380 SAVE
+redis-cli -p 6380 DBSIZE
 ```
-
-Khi viết script Cache-Aside, cấu hình client kết nối tới `127.0.0.1:6384` thay vì port mặc định `6379`.
 
 ## Chạy persistence crash test trên Bash/Linux
 

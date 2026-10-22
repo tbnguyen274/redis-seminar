@@ -1,0 +1,57 @@
+{
+  "received_date": "2026-10-20",
+  "tested_commit": "2cd27a98b251231f1bc5e524451ce3ead546fcb4",
+  "hypervisor_version_source": "User reports VMware Workstation Pro 26H1u1; settings screenshot identifies 512 MB and 2 processors",
+  "original_logs_sha256": "f75a2656f9644fc7aee7c31539cd5bb003ce895381b8bb64df84d99c168ce66b",
+  "video": {
+    "source_filename": "2026-10-20 14-56-09.mp4",
+    "source_directory": "F:\\Git\\Uni\\Linux\\Seminar evidence",
+    "sha256": "381faf34c1d47b76b888799778f7ceb5956db755902a14cbd6f91824b4eb4ab8",
+    "stored_in_repository": false,
+    "duration_seconds": 506.833333,
+    "audio_review": "AAC track present; ffmpeg volumedetect mean/max -91.0 dB, effectively silent"
+  },
+  "screenshots": [
+    {
+      "source": "Screenshots/1.png",
+      "repository_file": "screenshots/01-vm-settings.png",
+      "sha256": "e265fac7bc98ebb029299a5cb551db77f368474e879594693ac447ede6675f93"
+    },
+    {
+      "source": "Screenshots/2-ubuntu.png",
+      "repository_file": "screenshots/02-os-and-commit.png",
+      "sha256": "13c21fad5f6c129fededa971f509b26f0561f60632a66ef1c256ea42f6fcc710"
+    },
+    {
+      "source": "Screenshots/2-redis.png",
+      "repository_file": "screenshots/03-setup-versions.png",
+      "sha256": "edc28e5eb6d7363643800ee6048ecdd0e0e9ce845f3c636b17ca192fa8d97ec9"
+    },
+    {
+      "source": "Screenshots/3.png",
+      "repository_file": "screenshots/04-service.png",
+      "sha256": "ec7ff1edc8c23012cd471d31836b29d8940bdce78037da7ae932983a790e7a96"
+    },
+    {
+      "source": "Screenshots/4-1.png",
+      "repository_file": "screenshots/05-ports.png",
+      "sha256": "b05aff51844cb67bc966f10f595eace17bc714a0d78630146e0589b5acaa91fc"
+    },
+    {
+      "source": "Screenshots/4-2.png",
+      "repository_file": "screenshots/06-config-pass.png",
+      "sha256": "02bc5b362aa456ef865bace8fc3ff8265a0247ec362b58a2eff7ceeba03f9dc0"
+    },
+    {
+      "source": "Screenshots/5.png",
+      "repository_file": "screenshots/07-isolation-ttl.png",
+      "sha256": "1a31fce1bb52e7f192758508a7f1313c5ca457c67f712e3764d9198e7a8b3e18"
+    },
+    {
+      "source": "Screenshots/6.png",
+      "repository_file": "screenshots/08-normal-restart.png",
+      "sha256": "03f040dac4b7dea8838031660efe33edb3a0751d1b343a76948cfa8437302a64"
+    }
+  ],
+  "text_processing": "logs/*.txt and instance logs use LF and trim trailing whitespace; session-readable.txt also strips terminal controls, retains input echo/repetition. original-logs.tar.gz preserves original bytes."
+}
