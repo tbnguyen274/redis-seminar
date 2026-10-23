@@ -17,6 +17,27 @@
 
 ### 2.4. Eviction: noeviction, allkeys-lru và volatile-ttl
 
+#### a. Cơ chế giới hạn bộ nhớ (`maxmemory`)
+Redis lưu trữ dữ liệu hoàn toàn trên RAM. Để kiểm soát tài nguyên trên máy chủ và tránh bị tiến trình OOM Killer của hệ điều hành tắt đột ngột, Redis cung cấp tham số cấu hình `maxmemory`. Trước mỗi lệnh ghi dữ liệu mới, Redis kiểm tra nếu `used_memory > maxmemory`, hệ thống sẽ kích hoạt thuật toán thu hồi bộ nhớ theo chính sách `maxmemory-policy`. Nếu không thể thu hồi thêm bộ nhớ, Redis từ chối lệnh ghi và trả lỗi `OOM command not allowed`.
+
+#### b. Phân biệt Expiration (Hết hạn TTL) và Eviction (Trục xuất khi đầy RAM)
+- **Expiration (Hết hạn):** Xóa các key khi thời gian sống (TTL) định sẵn đã trôi qua hết. Cơ chế này áp dụng cho các key có cài đặt `EXPIRE` và diễn ra theo hai phương thức: thụ động (khi có truy cập) hoặc chủ động (quét ngẫu nhiên định kỳ 100ms).
+- **Eviction (Trục xuất):** Buộc phải xóa key khi bộ nhớ RAM chạm ngưỡng `maxmemory` để lấy chỗ cho dữ liệu mới, ngay cả khi key đó còn hạn sử dụng hoặc không bao giờ hết hạn.
+
+#### c. Các chính sách Eviction chính
+1. **`noeviction` (Mặc định):** Không xóa bất kỳ dữ liệu nào. Khi RAM đầy, từ chối mọi lệnh ghi mới và trả lỗi OOM. Thích hợp khi Redis đóng vai trò cơ sở dữ liệu chính xác thực, không được phép mất mát dữ liệu.
+2. **`allkeys-lru`:** Quét trên toàn bộ database và loại bỏ các key có thời gian không được truy cập lâu nhất (Least Recently Used). Đây là cấu hình tối ưu nhất cho bài toán Caching, đảm bảo dữ liệu "nóng" luôn được giữ lại.
+3. **`volatile-ttl`:** Chỉ áp dụng đối với tập hợp các key có cài đặt TTL, ưu tiên xóa các key có thời gian sống còn lại ngắn nhất. Các key tĩnh hoặc không có TTL sẽ được bảo toàn an toàn.
+
+#### d. Thuật toán Approximate LRU trong Redis
+Redis không sử dụng thuật toán True LRU (danh sách liên kết đôi kết hợp bảng băm) vì mô hình này tiêu tốn thêm 16–24 bytes con trỏ cho mỗi key và gây tranh chấp ghi trên bộ nhớ ở mỗi lệnh đọc `GET`. Thay vào đó, Redis sử dụng **Approximate LRU**:
+- Mỗi đối tượng dữ liệu (`robj`) lưu trữ một trường thời gian 24-bit (`lru clock`).
+- Khi bộ nhớ đầy, Redis lấy ngẫu nhiên $N$ key (`maxmemory-samples`, mặc định là 5) và đưa vào bể ứng viên (Eviction Pool) có kích thước 16 phần tử, sắp xếp theo thời gian nhàn rỗi (idle time) giảm dần.
+- Key có thời gian nhàn rỗi lớn nhất trong pool sẽ bị tiêu hủy. Cách tiếp cận này tiết kiệm RAM đáng kể và đạt độ chính xác xấp xỉ True LRU.
+
+#### e. Memory Overhead và Phân mảnh bộ nhớ (`mem_fragmentation_ratio`)
+Mỗi key-value trong Redis ngoài dung lượng dữ liệu thô còn chịu chi phí metadata từ `dictEntry` (24B) và `robj` (16B). Trình cấp phát bộ nhớ jemalloc phân bổ RAM theo trang cố định, dẫn đến hiện tượng phân mảnh bộ nhớ khi dữ liệu bị xóa hoặc cập nhật liên tục. Hệ số `mem_fragmentation_ratio = used_memory_rss / used_memory` phản ánh mức độ phân mảnh; nếu chỉ số này lớn hơn 1.5, cần kích hoạt `activedefrag yes` để tối ưu lại RAM.
+
 ## 3. Kết quả demo
 
 ### 3.1. Cấu trúc dữ liệu và TTL
@@ -31,6 +52,25 @@
 
 ### 3.3. Eviction với allkeys-lru
 
+Bảng ghi nhận kết quả thực nghiệm trên Redis instance port `6382` (cấu hình `maxmemory 10mb`, `maxmemory-policy allkeys-lru` đo đạc thực tế trên môi trường Linux Mint):
+
+| Chỉ số theo dõi | Kỳ vọng lý thuyết | Kết quả CLI thủ công (Video Demo) | Kết quả Script tự động (`fill_memory.py`) | Đánh giá |
+|---|---|---|---|---|
+| Cấu hình `maxmemory` | `10485760` bytes (10MB) | `10485760` bytes (10 MB) | `10485760` bytes (10 MB) | Khớp cấu hình |
+| Cấu hình `maxmemory-policy` | `allkeys-lru` | `allkeys-lru` | `allkeys-lru` | Khớp cấu hình |
+| RAM ban đầu (`used_memory_human`) | ~900 KB – 1.0 MB | `917.09K` | `989.86K` | Trạng thái rỗng |
+| RAM khi nạp tràn (`used_memory_human`) | Chạm trần ~9.8 MB – 10.0 MB | `9.86M` | `9.96M` | Kiểm soát dưới 10MB |
+| Số key bị trục xuất (`evicted_keys`) | Tăng dần (> 0) | `27` keys | `37` keys | Eviction kích hoạt |
+| Tỷ lệ sống sót Cold Keys (ít dùng) | 0% (Bị xóa toàn bộ) | `0/3` (`exists = 0`) | `0/10` (`exists = 0`) | Loại bỏ 100% |
+| Tỷ lệ sống sót Hot Keys (đọc liên tục) | 100% (Bảo toàn nguyên vẹn) | `2/2` (`exists = 2`) | `5/5` (`exists = 5`) | Bảo toàn 100% |
+
+- **Đánh giá kết luận:** Thuật toán `allkeys-lru` của Redis hoạt động chính xác tuyệt đối theo nguyên lý Approximate LRU trên cả hai kịch bản gõ lệnh CLI thủ công và script tự động. Dữ liệu nguội lâu không truy cập (`cold_keys`) bị trục xuất toàn bộ nhường dung lượng cho dữ liệu mới, trong khi dữ liệu nóng thường xuyên được đọc (`hot_keys`) được bảo toàn trọn vẹn trong RAM. Dung lượng bộ nhớ được kiểm soát an toàn ở mức `9.86M - 9.96M`, không gây tràn ngưỡng trần `10MB` đã thiết lập.
+- **Minh chứng thực nghiệm đính kèm:**
+  - Ảnh cấu hình ban đầu: ![Cấu hình ban đầu](../docs/screenshots/03-eviction/01-config.png)
+  - Ảnh nạp dữ liệu tràn ngưỡng: ![Kích hoạt Eviction](../docs/screenshots/03-eviction/02-eviction-trigger.png)
+  - Ảnh đối chứng kết quả LRU: ![Kết quả LRU](../docs/screenshots/03-eviction/03-lru-result.png)
+  - Video quay demo trực tiếp: [`demos/03-eviction/demo-03-eviction.mp4`](../demos/03-eviction/demo-03-eviction.mp4)
+
 ### 3.4. Crash test: RDB so với AOF
 
 | Cấu hình | Số key trước crash | Số key sau restart | Số key mất |
@@ -43,3 +83,8 @@
 ## 5. Kết luận
 
 ## 6. Tài liệu tham khảo
+
+1. Redis Documentation - Key Eviction: https://redis.io/docs/latest/develop/reference/eviction/
+2. Redis Documentation - Memory Optimization: https://redis.io/docs/latest/develop/optimization/memory-optimization/
+3. Salvatore Sanfilippo (antirez) - "Redis as an LRU cache": http://antirez.com/news/109
+4. Redis Source Code Repository - `src/evict.c` and `src/server.h`: https://github.com/redis/redis
