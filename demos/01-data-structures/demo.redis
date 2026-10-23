@@ -1,0 +1,60 @@
+# Demo 01 - Data Structures & TTL (bản gõ tay / copy từng lệnh khi live demo)
+# Mở: redis-cli -p 6383   rồi copy từng dòng lệnh bên dưới (bỏ qua dòng bắt đầu bằng #).
+# Hoặc chạy cả file một lần (redis-cli không hiểu comment "#", nên lọc bỏ trước):
+#   grep -v -e '^#' -e '^$' demos/01-data-structures/demo.redis | redis-cli -p 6383
+# Lưu ý: redis-cli không có lệnh "sleep", nên phần chờ TTL hết hạn hãy làm tay
+# (đợi ~5 giây rồi gõ lại GET/TTL), hoặc dùng run.sh để có đếm ngược tự động.
+
+FLUSHDB
+
+# ---------- 1. STRING: cache + counter ----------
+SET cache:product:1001 '{"id":1001,"name":"Ban phim co","price":890000}' EX 60
+GET cache:product:1001
+TTL cache:product:1001
+INCR stats:page:home:views
+INCRBY stats:page:home:views 10
+GET stats:page:home:views
+
+# ---------- 2. LIST: queue (RPUSH vào cuối, LPOP lấy ở đầu = FIFO) ----------
+RPUSH queue:emails "job:1 gui mail chao mung" "job:2 gui OTP" "job:3 gui hoa don"
+LRANGE queue:emails 0 -1
+LLEN queue:emails
+LPOP queue:emails
+LRANGE queue:emails 0 -1
+
+# ---------- 3. HASH: user profile ----------
+HSET user:1001 name "Viet Toan" email "toan@example.com" role "member" login_count 0
+HGET user:1001 email
+HINCRBY user:1001 login_count 1
+HSET user:1001 role "admin"
+HGETALL user:1001
+
+# ---------- 4. SORTED SET: leaderboard ----------
+ZADD leaderboard:game 1500 alice 2300 bob 1800 carol 900 dave 2100 eve
+ZREVRANGE leaderboard:game 0 2 WITHSCORES
+ZINCRBY leaderboard:game 600 carol
+ZREVRANGE leaderboard:game 0 2 WITHSCORES
+ZREVRANK leaderboard:game carol
+ZSCORE leaderboard:game carol
+ZRANGEBYSCORE leaderboard:game 1000 2000 WITHSCORES
+
+# ---------- 5. TTL ----------
+SET session:abc123 "user:1001" EX 5
+TTL session:abc123
+TTL user:1001
+EXPIRE user:1001 300
+TTL user:1001
+PERSIST user:1001
+TTL user:1001
+# Bẫy: SET lại làm mất TTL; KEEPTTL giữ TTL cũ
+SET cache:product:1001 '{"id":1001,"price":850000}'
+TTL cache:product:1001
+EXPIRE cache:product:1001 60
+SET cache:product:1001 '{"id":1001,"price":800000}' KEEPTTL
+TTL cache:product:1001
+
+# ---------- 6. Sau khi chờ > 5 giây ----------
+GET session:abc123
+TTL session:abc123
+EXISTS session:abc123
+DBSIZE

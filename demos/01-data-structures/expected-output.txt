@@ -1,0 +1,189 @@
+
+== 0. Chuẩn bị ==
+   Kết nối instance demo riêng (port 6383) và làm sạch dữ liệu cũ
+127.0.0.1:6383> PING
+    PONG
+127.0.0.1:6383> INFO server  (lọc version/port)
+    redis_version:7.0.15
+    tcp_port:6383
+Đã xóa dữ liệu demo trên 127.0.0.1:6383 (DBSIZE = 0).
+
+== 1. STRING - cache và bộ đếm ==
+   Kiểu đơn giản nhất: 1 key -> 1 giá trị (text, số, JSON...), tối đa 512 MB
+127.0.0.1:6383> SET cache:product:1001 '{"id":1001,"name":"Ban phim co","price":890000}' EX 60
+    OK
+127.0.0.1:6383> GET cache:product:1001
+    "{\"id\":1001,\"name\":\"Ban phim co\",\"price\":890000}"
+127.0.0.1:6383> TTL cache:product:1001
+    (integer) 60
+   -> SET ... EX 60: ghi cache và gán TTL 60 giây trong CÙNG MỘT lệnh (nguyên tử).
+127.0.0.1:6383> INCR stats:page:home:views
+    (integer) 1
+127.0.0.1:6383> INCR stats:page:home:views
+    (integer) 2
+127.0.0.1:6383> INCRBY stats:page:home:views 10
+    (integer) 12
+127.0.0.1:6383> GET stats:page:home:views
+    "12"
+   -> INCR là thao tác nguyên tử: 1000 client cùng tăng cũng không bị mất lượt đếm.
+
+== 2. LIST - hàng đợi công việc (queue) ==
+   Danh sách có thứ tự CHÈN; thêm/lấy ở 2 đầu O(1)
+127.0.0.1:6383> RPUSH queue:emails 'job:1 gui mail chao mung' 'job:2 gui OTP' 'job:3 gui hoa don'
+    (integer) 3
+127.0.0.1:6383> LRANGE queue:emails 0 -1
+    1) "job:1 gui mail chao mung"
+    2) "job:2 gui OTP"
+    3) "job:3 gui hoa don"
+127.0.0.1:6383> LLEN queue:emails
+    (integer) 3
+   -> Worker lấy việc từ đầu kia (FIFO: RPUSH vào cuối, LPOP ra ở đầu):
+127.0.0.1:6383> LPOP queue:emails
+    "job:1 gui mail chao mung"
+127.0.0.1:6383> LRANGE queue:emails 0 -1
+    1) "job:2 gui OTP"
+    2) "job:3 gui hoa don"
+   -> Thực tế worker dùng BLPOP để chờ (block) đến khi có việc mới, không phải hỏi liên tục.
+
+== 3. HASH - lưu thông tin user ==
+   1 key chứa nhiều cặp field -> value, giống một object/row
+127.0.0.1:6383> HSET user:1001 name 'Viet Toan' email toan@example.com role member login_count 0
+    (integer) 4
+127.0.0.1:6383> HGET user:1001 email
+    "toan@example.com"
+127.0.0.1:6383> HINCRBY user:1001 login_count 1
+    (integer) 1
+127.0.0.1:6383> HSET user:1001 role admin
+    (integer) 0
+127.0.0.1:6383> HGETALL user:1001
+    1) "name"
+    2) "Viet Toan"
+    3) "email"
+    4) "toan@example.com"
+    5) "role"
+    6) "admin"
+    7) "login_count"
+    8) "1"
+   -> Sửa 1 field không cần đọc - ghi lại cả object như khi lưu JSON trong String.
+
+== 4. SORTED SET - bảng xếp hạng (leaderboard) ==
+   Mỗi member có 1 score; Redis luôn giữ thứ tự theo score, member không trùng
+127.0.0.1:6383> ZADD leaderboard:game 1500 alice 2300 bob 1800 carol 900 dave 2100 eve
+    (integer) 5
+127.0.0.1:6383> ZREVRANGE leaderboard:game 0 2 WITHSCORES
+    1) "bob"
+    2) "2300"
+    3) "eve"
+    4) "2100"
+    5) "carol"
+    6) "1800"
+   -> carol thắng thêm một trận, được cộng 600 điểm:
+127.0.0.1:6383> ZINCRBY leaderboard:game 600 carol
+    "2400"
+127.0.0.1:6383> ZREVRANGE leaderboard:game 0 2 WITHSCORES
+    1) "carol"
+    2) "2400"
+    3) "bob"
+    4) "2300"
+    5) "eve"
+    6) "2100"
+127.0.0.1:6383> ZREVRANK leaderboard:game carol
+    (integer) 0
+   -> ZREVRANK đếm từ 0 -> carol đang hạng 1.
+127.0.0.1:6383> ZSCORE leaderboard:game carol
+    "2400"
+127.0.0.1:6383> ZRANGEBYSCORE leaderboard:game 1000 2000 WITHSCORES
+    1) "alice"
+    2) "1500"
+   -> ZADD lại member đã có chỉ cập nhật score, không tạo bản trùng:
+127.0.0.1:6383> ZADD leaderboard:game 1000 dave
+    (integer) 0
+127.0.0.1:6383> ZCARD leaderboard:game
+    (integer) 5
+
+== 5. So sánh nhanh LIST và SORTED SET ==
+   Cùng dữ liệu điểm số, hai cách lưu cho kết quả khác nhau
+127.0.0.1:6383> RPUSH compare:list 1500 2300 1800 2300
+    (integer) 4
+127.0.0.1:6383> LRANGE compare:list 0 -1
+    1) "1500"
+    2) "2300"
+    3) "1800"
+    4) "2300"
+127.0.0.1:6383> ZADD compare:zset 1500 alice 2300 bob 1800 carol 2300 bob
+    (integer) 3
+127.0.0.1:6383> ZREVRANGE compare:zset 0 -1 WITHSCORES
+    1) "bob"
+    2) "2300"
+    3) "carol"
+    4) "1800"
+    5) "alice"
+    6) "1500"
+   -> LIST: giữ thứ tự chèn, cho phép trùng -> hợp với queue, lịch sử, timeline.
+   -> SORTED SET: tự sắp theo score, member duy nhất -> hợp với xếp hạng, ưu tiên, lịch hẹn giờ.
+
+== 6. TTL - thời gian sống của key ==
+   Redis tự xóa key khi hết hạn
+127.0.0.1:6383> SET session:abc123 user:1001 EX 5
+    OK
+127.0.0.1:6383> TTL session:abc123
+    (integer) 5
+   -> Key không có hạn sử dụng -> TTL trả về -1:
+127.0.0.1:6383> TTL user:1001
+    (integer) -1
+   -> Gán TTL cho key ĐÃ tồn tại bằng EXPIRE:
+127.0.0.1:6383> EXPIRE user:1001 300
+    (integer) 1
+127.0.0.1:6383> TTL user:1001
+    (integer) 300
+   -> Bỏ TTL, key thành vĩnh viễn trở lại bằng PERSIST:
+127.0.0.1:6383> PERSIST user:1001
+    (integer) 1
+127.0.0.1:6383> TTL user:1001
+    (integer) -1
+   -> Bẫy hay gặp: SET lại giá trị sẽ XÓA TTL cũ (trừ khi thêm KEEPTTL):
+127.0.0.1:6383> SET cache:product:1001 '{"id":1001,"price":850000}'
+    OK
+127.0.0.1:6383> TTL cache:product:1001
+    (integer) -1
+127.0.0.1:6383> EXPIRE cache:product:1001 60
+    (integer) 1
+127.0.0.1:6383> SET cache:product:1001 '{"id":1001,"price":800000}' KEEPTTL
+    OK
+127.0.0.1:6383> TTL cache:product:1001
+    (integer) 60
+
+== 7. Chờ session:abc123 hết hạn ==
+   Quan sát TTL giảm dần rồi key biến mất
+   TTL session:abc123 = 5
+   TTL session:abc123 = 4
+   TTL session:abc123 = 3
+   TTL session:abc123 = 2
+   TTL session:abc123 = 1
+   TTL session:abc123 = -2
+127.0.0.1:6383> GET session:abc123
+    (nil)
+127.0.0.1:6383> TTL session:abc123
+    (integer) -2
+127.0.0.1:6383> EXISTS session:abc123
+    (integer) 0
+   -> -2 nghĩa là key KHÔNG tồn tại (đã hết hạn hoặc chưa từng có); GET trả về (nil).
+
+== 8. Tổng kết ==
+   Các key còn lại và kiểu dữ liệu của chúng
+   cache:product:1001           string TTL=55
+   compare:list                 list   TTL=-1
+   compare:zset                 zset   TTL=-1
+   leaderboard:game             zset   TTL=-1
+   queue:emails                 list   TTL=-1
+   stats:page:home:views        string TTL=-1
+   user:1001                    hash   TTL=-1
+127.0.0.1:6383> DBSIZE
+    (integer) 7
+127.0.0.1:6383> INFO stats  (lọc expired_keys / evicted_keys)
+    expired_keys:5
+    evicted_keys:0
+   -> Lần chạy này có 1 key bị xóa do HẾT TTL (expired), 0 key bị loại do THIẾU RAM (evicted, xem Demo 03).
+
+Hoàn thành demo trong 5 giây. Chạy lại từ đầu: bash demos/01-data-structures/run.sh
+Chỉ dọn dữ liệu: bash demos/01-data-structures/run.sh --reset
