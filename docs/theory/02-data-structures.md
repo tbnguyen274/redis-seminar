@@ -18,7 +18,7 @@ Dùng dấu `:` phân cấp theo dạng `<loại>:<đối tượng>:<id>`. Dễ 
 
 | Mục đích | Mẫu key | Kiểu | TTL |
 |---|---|---|---|
-| Cache dữ liệu từ DB (dùng chung với Demo 02) | `cache:product:<id>` | String (JSON) | Có, gán bằng `SET ... EX` |
+| Cache dữ liệu từ DB | `cache:product:<id>` | String (JSON) | Có, gán bằng `SET ... EX` |
 | Bộ đếm | `stats:page:<tên>:views` | String (số) | Không |
 | Hàng đợi | `queue:<tên>` | List | Không |
 | Thông tin đối tượng | `user:<id>` | Hash | Không |
@@ -102,7 +102,7 @@ Giới hạn khi dùng làm queue: phần tử đã `POP` là mất khỏi Redis
 | Dữ liệu lồng nhiều tầng | Lưu được | Không (Hash chỉ phẳng 1 tầng) |
 | TTL | Cho cả key | Cho cả key (TTL từng field chỉ có từ Redis 7.4) |
 
-Kết luận: object cache nguyên khối, ít sửa thì dùng String JSON (Demo 02). Object hay sửa từng phần thì dùng Hash.
+Kết luận: object cache nguyên khối, ít sửa thì dùng String JSON (Demo 02 cache bằng String + `SETEX`). Object hay sửa từng phần thì dùng Hash.
 
 ## 5. Sorted Set (ZSET)
 

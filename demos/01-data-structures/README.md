@@ -12,7 +12,7 @@ Demo dùng một instance Redis riêng ở **port 6383** để thao tác bốn k
 | Sorted Set | Bảng xếp hạng game | `leaderboard:game` |
 | TTL | Session tự hết hạn sau 5 giây | `session:abc123` |
 
-Lý thuyết chi tiết nằm ở [`docs/theory/02-data-structures.md`](../../docs/theory/02-data-structures.md). Kịch bản nói nằm ở [`docs/presentation-notes/01-data-structures.md`](../../docs/presentation-notes/01-data-structures.md).
+Lý thuyết chi tiết nằm ở [`docs/theory/02-data-structures.md`](../../docs/theory/02-data-structures.md). Kịch bản nói nằm ở [`docs/presentation-notes/02-data-structures.md`](../../docs/presentation-notes/02-data-structures.md).
 
 ## File trong thư mục
 

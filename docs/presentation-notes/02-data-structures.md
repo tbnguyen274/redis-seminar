@@ -42,15 +42,12 @@ Người trình bày: **Viết Toàn**. Thời lượng: **5–6 phút** (khoả
 4. Gợi ý công cụ: OBS Studio, hoặc `asciinema rec demo01.cast` (nhẹ, chữ nét, có thể xuất GIF bằng `agg`).
 5. Cắt video còn khoảng 2–2,5 phút. Chụp 6 ảnh minh chứng theo danh sách trong `demos/01-data-structures/README.md`.
 
-## Phối hợp với phần Cache-Aside (Demo 02)
+## Liên hệ với phần Cache-Aside (Demo 02)
 
-Cần thống nhất trước khi viết `demos/02-cache-aside/app.py`:
+Demo 02 (`demos/02-cache-aside/app.py`) dùng key `demo:user:1` và ghi cache bằng `SETEX key ttl value` (mặc định TTL 5 giây). Đây chính là String + TTL trong Demo 01, ghi và gán hạn trong một lệnh nguyên tử, tương đương `SET key value EX ttl`.
 
-- Key cache: `cache:product:<id>`, kiểu String chứa JSON.
-- Ghi cache **bằng một lệnh** `SET key value EX <ttl>` (trong redis-py: `r.set(key, value, ex=ttl)`), không tách `SET` rồi `EXPIRE`.
-- TTL đề xuất: 60 giây, để khớp số liệu với Demo 01.
-- Demo 01 nhắc "SET lại làm mất TTL", nên khi Demo 02 cập nhật cache cũng phải luôn truyền `ex=`.
-- Instance riêng: Demo 01 dùng `6383`, Demo 02 dùng `6384`. Không dùng chung port.
+- Khi nối sang Thắng, chỉ cần nói: "String + TTL là nền móng của cache. Demo tiếp theo dùng đúng cặp này để cache kết quả truy vấn chậm."
+- Hai demo dùng tên key khác nhau và instance riêng (Demo 01 port `6383`, Demo 02 port `6384`), nên không ảnh hưởng nhau.
 
 ## Câu hỏi dự phòng
 
