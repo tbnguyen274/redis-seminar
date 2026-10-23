@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Redis In-Memory Data Store seminar for CSC11117, with Data Structures and TTL, Redis architecture, RDB/AOF persistence, interactive diagrams and presenter notes.">
+<meta name="description" content="Redis In-Memory Data Store seminar for CSC11117, with Data Structures and TTL, Cache-Aside, Redis architecture, RDB/AOF persistence, interactive diagrams and presenter notes.">
 <title>Redis In-Memory Data Store | CSC11117</title>
 <style>
 :root {
@@ -228,6 +228,66 @@ th { font-weight:600; }
 .ds-quiz-feedback { min-height:65px; margin-top:13px; color:var(--muted); font-size:16px; line-height:1.4; }
 .ds-quiz-feedback.is-correct { color:#286247; }
 .ds-quiz-feedback.is-wrong { color:#a43a30; }
+/* Cache-Aside: native diagrams and a placeholder for the demo Drive link. */
+.ds-slide.ca-slide { --accent:#08776f; --tint:#eaf6f2; --ca-miss:#b43b31; }
+.ca-slide .ca-body { display:flex; flex-direction:column; gap:16px; }
+.ds-slide.ca-slide h3 { font-size:24px; font-weight:600; line-height:1.3; }
+.ca-copy { font-size:22px; line-height:1.45; }
+.ca-copy strong { color:var(--accent); font-weight:600; }
+.ca-note { color:var(--muted); font-size:18px; line-height:1.45; }
+.ca-statement { margin-top:auto; padding-top:14px; border-top:1px solid var(--line); font-size:22px; line-height:1.45; }
+.ca-hit { color:var(--accent); }
+.ca-miss { color:var(--ca-miss); }
+.ca-path { display:grid; grid-template-columns:112px minmax(0,1fr); gap:24px; padding:25px 0; border-bottom:1px solid var(--line); }
+.ca-path:last-of-type { border-bottom:0; }
+.ca-path-label { padding-top:13px; font-size:31px; font-weight:600; }
+.ca-path-flow { display:flex; align-items:center; gap:14px; min-height:60px; }
+.ca-path-node { padding:13px 16px; border:1px solid var(--line); font-size:22px; line-height:1.3; text-align:center; }
+.ca-path-node.cache { color:var(--accent); border-color:#76a99c; background:var(--tint); }
+.ca-path-node.database { color:var(--ca-miss); border-color:#cb918a; background:#fff3ef; }
+.ca-arrow { flex:none; color:var(--muted); font-size:29px; }
+.ca-path-copy { margin-top:14px; color:var(--muted); font-size:20px; line-height:1.45; }
+.ca-slide .ca-sequence { height:325px; flex:none; }
+.ca-sequence text { font-size:20px; }
+.ca-sequence .actor { font-size:23px; font-weight:600; }
+.ca-sequence .life { stroke:#b7b6b0; stroke-dasharray:5 6; }
+.ca-sequence .message { fill:none; stroke:#414b5a; stroke-width:2; marker-end:url(#ca-sequence-arrow); }
+.ca-slide .ca-table { font-size:21px; line-height:1.4; }
+.ca-slide .ca-table th,.ca-slide .ca-table td { padding:13px 15px; }
+.ca-table .ca-group { width:90px; color:var(--muted); font-size:18px; }
+.ca-table .ca-policy { width:295px; font-weight:600; }
+.ca-table .ca-write-start>* { border-top:2px solid #a9b6b1; }
+.ca-slide .ca-stale-table { font-size:21px; }
+.ca-slide .ca-stale-table th,.ca-slide .ca-stale-table td { padding:13px 12px; }
+.ca-stale-table tr>:first-child { width:30%; }
+.ca-definitions { display:grid; grid-template-columns:1fr 1fr; gap:34px; font-size:20px; line-height:1.45; }
+.ca-definitions strong { display:block; margin-bottom:5px; color:var(--accent); font-weight:600; }
+.ca-problems { display:grid; grid-template-columns:1fr 1fr; gap:35px; }
+.ca-problem+.ca-problem { border-left:1px solid var(--line); padding-left:35px; }
+.ca-problem h3 { color:var(--ca-miss); }
+.ca-problem svg { height:145px; margin:12px 0; }
+.ca-problem p { font-size:21px; line-height:1.45; }
+.ca-remedies { margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+.ca-remedies p+p { margin-top:10px; }
+.ca-remedies strong { color:var(--accent); font-weight:600; }
+.ca-slide .ca-jitter { height:245px; flex:none; }
+.ca-jitter text { font-size:21px; }
+.ca-jitter .chart-title { font-size:25px; font-weight:600; }
+.ca-jitter .expiry { fill:var(--ca-miss); }
+.ca-jitter .spread { fill:var(--accent); }
+.ca-formula { font-size:23px; line-height:1.5; }
+.ca-formula code { margin-left:12px; color:var(--accent); }
+.ca-slide .ca-demo-table { font-size:21px; }
+.ca-slide .ca-demo-table th,.ca-slide .ca-demo-table td { padding:15px 12px; }
+.ca-demo-facts { display:flex; justify-content:space-between; gap:25px; padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); font-size:19px; line-height:1.5; }
+.ca-demo-facts strong { color:var(--accent); font-weight:600; }
+.ca-slide .ca-video-slot { height:355px; }
+.ca-slide .ca-results { font-size:21px; }
+.ca-slide .ca-results th,.ca-slide .ca-results td { padding:11px 12px; }
+.ca-requests { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; margin-top:10px; }
+.ca-request { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:58px; border:1px solid #81aaa0; background:var(--tint); color:var(--accent); font-size:21px; font-weight:600; }
+.ca-request small { font-size:14px; font-weight:400; }
+.ca-request.miss { color:var(--ca-miss); background:#fff3ef; border-color:#cb918a; }
 /* Architecture and persistence: editable diagrams, no image dependencies. */
 .ar-slide { --accent:#2864a7; --tint:#edf4fc; --ar-rdb:#087f78; --ar-aof:#7850aa; --ar-ram:#a76508; }
 .ar-rdb { --accent:#087f78; --tint:#eaf7f4; }
@@ -819,17 +879,151 @@ th { font-weight:600; }
 <section class="slide section-slide" id="cache" data-section="3" aria-labelledby="cache-heading">
   <div class="content"><p class="section-label">03</p><div class="section-main"><h2 class="section-heading" id="cache-heading">Cache-Aside</h2></div></div>
 </section>
-<section class="slide content-slide" id="cache-1" data-section="3" aria-labelledby="cache-1-heading">
+<section class="slide content-slide ds-slide ar-slide ca-slide" id="cache-1" data-section="3" lang="vi" aria-labelledby="cache-1-heading">
   <div class="content">
-    <header class="content-heading"><span class="section-label">03</span><h2 id="cache-1-heading">Cache-Aside</h2></header>
-    <div class="blank-body"><!-- Full-width content goes here. --></div>
+    <header class="ds-header"><p class="ds-eyebrow">03 / Cache-Aside</p><h2 id="cache-1-heading">Cache Hit và Cache Miss</h2><p class="ds-subtitle">Cache giúp giảm truy vấn database khi dữ liệu cần đọc đã có sẵn.</p></header>
+    <div class="ds-body ca-body">
+      <div class="ca-path"><div class="ca-path-label ca-hit">HIT</div><div><div class="ca-path-flow"><span class="ca-path-node">Application</span><span class="ca-arrow" aria-hidden="true">→</span><span class="ca-path-node cache">Đọc Redis</span><span class="ca-arrow" aria-hidden="true">→</span><span class="ca-path-node">Trả dữ liệu cache</span></div><p class="ca-path-copy">Có dữ liệu hợp lệ trong cache. Không cần đọc database.</p></div></div>
+      <div class="ca-path"><div class="ca-path-label ca-miss">MISS</div><div><div class="ca-path-flow"><span class="ca-path-node">Application</span><span class="ca-arrow" aria-hidden="true">→</span><span class="ca-path-node cache">Redis thiếu key</span><span class="ca-arrow" aria-hidden="true">→</span><span class="ca-path-node database">Application đọc DB</span></div><p class="ca-path-copy">Sau khi đọc DB, ứng dụng điền cache và trả kết quả cho người dùng.</p></div></div>
+      <p class="ca-statement">HIT thường giảm độ trễ. MISS còn tốn bước đọc database và điền cache.</p>
+      <details class="ds-reveal popover"><summary>Key còn tồn tại có chắc dữ liệu còn mới?</summary><div class="ds-reveal-text">Redis không tự kiểm tra phiên bản dữ liệu trong database. Key còn TTL vẫn có thể chứa bản sao cũ nếu DB đã thay đổi.</div></details>
+    </div>
   </div>
+  <aside class="notes"><p><strong>0:40.</strong> Cache Hit là tìm thấy dữ liệu còn dùng được. Miss có thể do chưa nạp, hết hạn, bị xóa hoặc bị loại khỏi cache. Nếu ứng dụng nhận biết dữ liệu không còn hợp lệ thì cũng cần xử lý như một miss.</p><p>Ở nhánh MISS, chính Application gọi database. Sau đó ứng dụng lưu kết quả vào Redis để các lần đọc tiếp theo có thể HIT. Mũi tên biểu diễn thứ tự công việc, không biểu diễn độ trễ. Không suy ra một hệ số tăng tốc từ sơ đồ.</p><p>Nguồn: docs/theory/03-cache-aside.md, mục Cache Hit và Cache Miss. Chuyển ý: Ai điều phối toàn bộ các bước này?</p></aside>
 </section>
-<section class="slide content-slide" id="cache-2" data-section="3" aria-labelledby="cache-2-heading">
+
+<section class="slide content-slide ds-slide ar-slide ca-slide" id="cache-2" data-section="3" lang="vi" aria-labelledby="cache-2-heading">
   <div class="content">
-    <header class="content-heading"><span class="section-label">03</span><h2 id="cache-2-heading">Cache-Aside</h2></header>
-    <div class="blank-body two-columns"><div><!-- Left column. --></div><div><!-- Right column: image, chart or text. --></div></div>
+    <header class="ds-header"><p class="ds-eyebrow">03 / Cache-Aside</p><h2 id="cache-2-heading">Cache-Aside: ứng dụng điều phối việc đọc</h2><p class="ds-subtitle">Lazy Loading: dữ liệu được nạp vào cache khi có request cần đến.</p></header>
+    <div class="ds-body ca-body" data-choice-group data-interactive>
+      <div class="ar-toolbar"><div class="ar-buttons" role="group" aria-label="Chọn nhánh đọc dữ liệu"><button type="button" class="ar-button" data-choice="hit" aria-pressed="true">Cache Hit</button><button type="button" class="ar-button" data-choice="miss" aria-pressed="false">Cache Miss</button></div><p>Thứ tự thao tác</p></div>
+      <svg class="ar-svg ca-sequence" viewBox="0 0 1152 325" role="img" aria-label="Application GET Redis. Khi HIT, trả cache. Khi MISS, Application đọc database, lưu Redis kèm TTL rồi trả kết quả.">
+        <defs><marker id="ca-sequence-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#414b5a"/></marker></defs>
+        <text class="actor" x="80" y="25" text-anchor="middle">User</text><text class="actor" x="380" y="25" text-anchor="middle">Application</text><text class="actor" x="735" y="25" text-anchor="middle">Redis</text><text class="actor" x="1065" y="25" text-anchor="middle">Database</text>
+        <path class="life" d="M80 42V320 M380 42V320 M735 42V320 M1065 42V320" fill="none"/>
+        <path class="message" d="M80 70H380"/><text x="230" y="61" text-anchor="middle">Request</text><path class="message" d="M380 110H735"/><text x="557" y="101" text-anchor="middle">GET key</text>
+        <g data-choice-panel="hit"><path class="message" d="M735 155H380"/><text x="557" y="146" text-anchor="middle" style="fill:#08776f">HIT: cached value</text><path class="message" d="M380 220H80"/><text x="230" y="211" text-anchor="middle">Trả kết quả</text><text x="1065" y="190" text-anchor="middle" class="muted">Không đọc DB</text></g>
+        <g data-choice-panel="miss" hidden><path class="message" d="M735 150H380"/><text x="557" y="141" text-anchor="middle" style="fill:#b43b31">MISS</text><path class="message" d="M380 190H1065"/><text x="890" y="181" text-anchor="middle">Query DB</text><path class="message" d="M1065 230H380"/><text x="890" y="221" text-anchor="middle">Dữ liệu từ DB</text><path class="message" d="M380 270H735"/><text x="557" y="261" text-anchor="middle">Lưu value + TTL</text><path class="message" d="M380 310H80"/><text x="230" y="301" text-anchor="middle">Trả kết quả</text></g>
+      </svg>
+      <p class="ca-copy"><strong>Application</strong> chịu trách nhiệm đọc DB và điền cache khi MISS.</p>
+      <details class="ds-reveal popover"><summary>Vì sao gọi là “lazy”?</summary><div class="ds-reveal-text">Dữ liệu đi vào cache theo nhu cầu đọc. Ứng dụng không cần nạp toàn bộ database vào cache ngay từ đầu.</div></details>
+    </div>
   </div>
+  <aside class="notes"><p><strong>0:55.</strong> Bắt đầu ở Cache Hit, sau đó bấm Cache Miss. Chỉ ra bốn cột và lần theo các mũi tên. Redis cung cấp GET, SET và expiration. Mã ứng dụng quyết định query DB khi nào và đặt TTL bao lâu.</p><p>Ở nhánh miss, Database trả về Application, rồi Application lưu Redis. Không có đường Redis tự query DB trong Cache-Aside. Database là nguồn dữ liệu chính trong mô hình này. “Lazy” nghĩa là nạp theo nhu cầu, không bắt buộc preload tất cả key.</p><p>Nguồn: docs/theory/03-cache-aside.md, sequence diagram Cache Aside (Lazy Loading) Pattern. Sơ đồ thể hiện thứ tự, không có thang thời gian.</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide ca-slide" id="cache-3" data-section="3" lang="vi" aria-labelledby="cache-3-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">03 / Các chiến lược cache</p><h2 id="cache-3-heading">Cache-Aside và các chiến lược khác</h2><p class="ds-subtitle">Phân biệt nơi xử lý cache miss và thời điểm ghi database.</p></header>
+    <div class="ds-body ca-body">
+      <table class="ca-table"><thead><tr><th scope="col">Nhóm</th><th scope="col">Chiến lược</th><th scope="col">Cơ chế chính</th></tr></thead><tbody>
+        <tr><td class="ca-group">Đọc</td><th scope="row" class="ca-policy">Cache-Aside</th><td>Application đọc DB và điền cache khi MISS.</td></tr>
+        <tr><td class="ca-group">Đọc</td><th scope="row" class="ca-policy">Read-Through</th><td>Cache layer đọc DB và điền cache khi MISS.</td></tr>
+        <tr class="ca-write-start"><td class="ca-group">Ghi</td><th scope="row" class="ca-policy">Write-Through</th><td>Ghi qua cache layer, cập nhật DB đồng bộ trước khi hoàn tất.</td></tr>
+        <tr><td class="ca-group">Ghi</td><th scope="row" class="ca-policy">Write-Behind / Write-Back</th><td>Ghi cache trước, cập nhật DB bất đồng bộ sau.</td></tr>
+        <tr><td class="ca-group">Ghi</td><th scope="row" class="ca-policy">Write-Around</th><td>Ghi thẳng DB, bỏ qua bước điền cache khi ghi.</td></tr>
+      </tbody></table>
+      <p class="ca-copy">Chính sách đọc và chính sách ghi có thể kết hợp trong cùng hệ thống.</p>
+      <details class="ds-reveal popover"><summary>Điểm cần lưu ý trên đường ghi</summary><div class="ds-reveal-text"><p>Write-Behind cần xử lý các lần ghi chưa đẩy xuống DB, retry và nguy cơ mất dữ liệu chờ ghi.</p><p>Write-Around vẫn cần xóa hoặc làm mới bản sao cache đã tồn tại. Đây là các mô hình chung, không phải mọi tính năng Redis tự thực hiện.</p></div></details>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>0:50.</strong> Đọc hai dòng đầu để phân biệt trách nhiệm nạp dữ liệu khi miss: Application hoặc cache layer. Ba dòng còn lại nói về đường ghi, không phải năm lựa chọn hoàn toàn loại trừ nhau.</p><p>Write-Through chờ DB cập nhật đồng bộ. Write-Behind trả sớm hơn ở đường cache nhưng DB cập nhật sau, nên cần cơ chế độ bền, retry và consistency. Write-Around tránh điền cache khi ghi, nhưng bản sao cũ đã có trong cache vẫn cần invalidation.</p><p>Nguồn: bảng chiến lược trong docs/theory/03-cache-aside.md. Chuyển ý: Khi DB thay đổi, bản sao đang nằm trong Redis sẽ ra sao?</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide ca-slide" id="cache-4" data-section="3" lang="vi" aria-labelledby="cache-4-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">03 / Cache invalidation và TTL</p><h2 id="cache-4-heading">Dữ liệu cũ, invalidation và TTL</h2><p class="ds-subtitle">Database thay đổi trong khi bản sao ở cache có thể vẫn còn TTL.</p></header>
+    <div class="ds-body ca-body">
+      <table class="ca-stale-table"><thead><tr><th scope="col">Sự kiện</th><th scope="col">Database</th><th scope="col">Redis</th><th scope="col">Lần đọc tiếp theo</th></tr></thead><tbody>
+        <tr><th scope="row">DB cập nhật</th><td>v2</td><td><strong class="ca-miss">v1 còn TTL</strong></td><td>Có thể trả v1: stale data.</td></tr>
+        <tr><th scope="row">App xóa cache sau khi ghi DB</th><td>v2</td><td>Không có key</td><td>MISS, ứng dụng đọc DB.</td></tr>
+        <tr><th scope="row">App nạp lại sau MISS</th><td>v2</td><td><strong class="ca-hit">v2 + TTL mới</strong></td><td>HIT trả v2.</td></tr>
+      </tbody></table>
+      <div class="ca-definitions"><p><strong>Invalidation</strong>Xóa hoặc làm mới bản sao cache khi dữ liệu thay đổi.</p><p><strong>TTL</strong>Đặt hạn dùng. Sau khi hết hạn, lần đọc tiếp theo cần nạp lại dữ liệu.</p></div>
+      <p class="ca-copy"><strong>TTL giới hạn thời gian dùng bản sao cũ.</strong> Dữ liệu có thể chưa mới tức thì.</p>
+      <details class="ds-reveal popover"><summary>Vì sao cập nhật DB rồi mới xóa cache?</summary><div class="ds-reveal-text">Nếu xóa trước, một reader có thể nạp lại giá trị DB cũ khi writer chưa commit. Cập nhật DB rồi xóa cache vẫn cần xử lý lỗi invalidation và race giữa các reader/writer. Hai hệ thống không tự tạo thành một transaction chung.</div></details>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>0:55.</strong> v1/v2 là phiên bản minh họa, không phải output chạy thật. Nếu DB đã có v2 mà key vẫn còn v1, request có thể HIT nhưng nhận dữ liệu cũ. Redis không so sánh với DB trên mỗi GET.</p><p>TTL quyết định thời hạn của bản sao. Invalidation là quyết định xóa hoặc cập nhật bản sao khi dữ liệu đổi. Cách thường dùng với Cache-Aside là commit DB rồi DEL key tương ứng, để lần đọc sau nạp lại. Trình tự này chưa bảo đảm consistency mạnh khi có concurrency hoặc xóa cache thất bại.</p><p>Nguồn chính: docs/theory/03-cache-aside.md. Làm rõ giới hạn consistency theo Microsoft Learn Cache-Aside: https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside . TTL: https://redis.io/docs/latest/commands/expire/ .</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide ca-slide" id="cache-5" data-section="3" lang="vi" aria-labelledby="cache-5-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">03 / Những vấn đề thường gặp</p><h2 id="cache-5-heading">Penetration và Stampede</h2><p class="ds-subtitle">Cùng gây nhiều MISS, nhưng nguyên nhân và cách xử lý khác nhau.</p></header>
+    <div class="ds-body ca-body">
+      <div class="ca-problems">
+        <div class="ca-problem"><h3>Cache Penetration</h3><svg class="ar-svg" viewBox="0 0 550 145" role="img" aria-label="Request lặp lại cho dữ liệu không tồn tại, mỗi lần cache miss lại đọc database."><text x="0" y="28" font-size="21">Key không tồn tại</text><text x="0" y="68" font-size="21">Key không tồn tại</text><text x="0" y="108" font-size="21">Key không tồn tại</text><path d="M190 21H235V61H330 M190 61H330 M190 101H235V61" fill="none" stroke="#b43b31" stroke-width="2"/><path d="M320 55L332 61L320 67" fill="none" stroke="#b43b31" stroke-width="2"/><rect x="340" y="30" width="190" height="65" fill="#fff3ef" stroke="#cb918a"/><text x="435" y="59" font-size="22" text-anchor="middle">Database</text><text x="435" y="83" font-size="19" text-anchor="middle">Không có dữ liệu</text><text x="0" y="140" font-size="18" class="muted">MISS lặp lại, kể cả sau lần đọc DB trước.</text></svg><p>Dữ liệu không có trong cache lẫn DB. Request sau lại tiếp tục đọc DB.</p><div class="ca-remedies"><p><strong>Negative caching:</strong> lưu dấu “không tồn tại” với TTL ngắn.</p><p><strong>Rate limiter / Bloom filter:</strong> hạn chế hoặc lọc request.</p></div></div>
+        <div class="ca-problem"><h3>Cache Stampede</h3><svg class="ar-svg" viewBox="0 0 550 145" role="img" aria-label="Nhiều request cùng lúc đọc một key phổ biến vừa hết hạn và cùng query database."><text x="0" y="28" font-size="21">Request A</text><text x="0" y="68" font-size="21">Request B</text><text x="0" y="108" font-size="21">Request C</text><path d="M125 21H235V61H330 M125 61H330 M125 101H235V61" fill="none" stroke="#b43b31" stroke-width="2"/><path d="M320 55L332 61L320 67" fill="none" stroke="#b43b31" stroke-width="2"/><rect x="340" y="30" width="190" height="65" fill="#fff3ef" stroke="#cb918a"/><text x="435" y="59" font-size="22" text-anchor="middle">Database</text><text x="435" y="83" font-size="19" text-anchor="middle">Cùng một query</text><text x="0" y="140" font-size="18" class="muted">Một key phổ biến vừa hết hạn, nhiều MISS đồng thời.</text></svg><p>Một key được đọc nhiều vừa hết hạn. Nhiều request cùng truy vấn để nạp lại.</p><div class="ca-remedies"><p><strong>Lock / single-flight:</strong> một request nạp dữ liệu, các request khác chờ.</p><p><strong>Background refresh:</strong> làm mới key phổ biến chủ động.</p></div></div>
+      </div>
+      <details class="ds-reveal popover"><summary>Các biện pháp này cần lưu ý gì?</summary><div class="ds-reveal-text">Negative cache cần dấu riêng để phân biệt “không tồn tại” với MISS. Bloom filter có thể báo dương tính giả. Lock cần thời hạn, giải phóng đúng chủ sở hữu và xử lý loader thất bại.</div></details>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>1:00.</strong> Penetration là hỏi dữ liệu không tồn tại. Nếu chỉ cache kết quả thành công, câu trả lời không tồn tại không được ghi nhớ và DB phải xử lý lại. Có thể negative cache bằng sentinel với TTL ngắn. Bloom filter lọc được key chắc chắn không có, nhưng vẫn có false positive.</p><p>Stampede là một key có thật, phổ biến, vừa hết hạn và có nhiều request đồng thời. Một loader giúp tránh nhiều truy vấn giống nhau. Trong hệ nhiều instance, cần phối hợp ở phạm vi phù hợp. Worker refresh có thể nạp trước khi hết hạn. Lock phải có timeout và xử lý lỗi, không chỉ SET một cờ vĩnh viễn.</p><p>Nguồn: docs/theory/03-cache-aside.md, Một số vấn đề với cache. Sơ đồ chỉ thể hiện nguyên nhân dồn truy vấn, không mô tả một số đo tải.</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide ca-slide" id="cache-6" data-section="3" lang="vi" aria-labelledby="cache-6-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">03 / Những vấn đề thường gặp</p><h2 id="cache-6-heading">Avalanche và TTL Jitter</h2><p class="ds-subtitle">Nhiều key hết hạn cùng lúc có thể dồn tải xuống database.</p></header>
+    <div class="ds-body ca-body">
+      <svg class="ar-svg ca-jitter" viewBox="0 0 1152 245" role="img" aria-label="TTL cố định tạo các điểm hết hạn cùng lúc. TTL jitter tách các điểm hết hạn của nhiều key.">
+        <text class="chart-title" x="0" y="29">Cùng thời điểm hết hạn</text><text class="chart-title" x="620" y="29">Thêm TTL Jitter</text>
+        <path d="M94 225H520 M714 225H1140" stroke="#7e858a" fill="none"/>
+        <path d="M450 46V214" stroke="#b43b31" stroke-dasharray="5 5" fill="none"/>
+        <text x="0" y="78">Key A</text><text x="0" y="118">Key B</text><text x="0" y="158">Key C</text><text x="0" y="198">Key D</text>
+        <path d="M94 71H450 M94 111H450 M94 151H450 M94 191H450" stroke="#b0bab5" stroke-width="12" fill="none"/>
+        <circle class="expiry" cx="450" cy="71" r="8"/><circle class="expiry" cx="450" cy="111" r="8"/><circle class="expiry" cx="450" cy="151" r="8"/><circle class="expiry" cx="450" cy="191" r="8"/>
+        <text x="620" y="78">Key A</text><text x="620" y="118">Key B</text><text x="620" y="158">Key C</text><text x="620" y="198">Key D</text>
+        <path d="M714 71H950 M714 111H1090 M714 151H1000 M714 191H1050" stroke="#a5cfc0" stroke-width="12" fill="none"/>
+        <circle class="spread" cx="950" cy="71" r="8"/><circle class="spread" cx="1090" cy="111" r="8"/><circle class="spread" cx="1000" cy="151" r="8"/><circle class="spread" cx="1050" cy="191" r="8"/>
+      </svg>
+      <p class="ca-formula">Giãn các thời điểm hết hạn:<code>TTL = base TTL + random jitter</code></p>
+      <p class="ca-note">Thời điểm hết hạn minh họa, không phải dữ liệu đo.</p>
+      <p class="ca-statement"><strong class="ca-miss">Avalanche còn có thể do Redis gặp sự cố.</strong><br>Khi đó cần giới hạn tải xuống DB và chính sách fallback. Jitter chỉ xử lý việc hết hạn đồng loạt.</p>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>0:50.</strong> Avalanche khác stampede ở phạm vi nhiều key hoặc cả cache không truy cập được. Nạp nhiều key cùng lúc với cùng TTL có thể tạo một đợt hết hạn đồng loạt. Jitter thêm thành phần ngẫu nhiên để tách các thời điểm hết hạn.</p><p>Hình là sơ đồ thứ tự hết hạn, không có trục giây hoặc số liệu benchmark. Dấu chấm biểu diễn hết hạn. Thanh là thời gian key còn dùng được, không phải thời gian thực thi request.</p><p>Redis không khả dụng cũng có thể dồn request xuống DB. Jitter không giải quyết outage. Ứng dụng cần giới hạn concurrency/rate, circuit breaker hoặc fallback phù hợp với yêu cầu sản phẩm.</p><p>Nguồn: docs/theory/03-cache-aside.md, Cache avalanche và TTL Jitter. Kết thúc phần kiến thức chung, chuyển sang demo.</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide ca-slide" id="cache-7" data-section="3" lang="vi" aria-labelledby="cache-7-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">03 / Demo Cache-Aside</p><h2 id="cache-7-heading">Demo: bốn tình huống Cache-Aside</h2><p class="ds-subtitle">Cùng một key, so sánh đường đọc và quan sát thời gian từng request.</p></header>
+    <div class="ds-body ca-body" data-choice-group data-interactive>
+      <div class="ar-buttons" role="group" aria-label="Chọn nội dung demo Cache-Aside"><button type="button" class="ar-button" data-choice="procedure" aria-pressed="true">Quy trình</button><button type="button" class="ar-button" data-choice="video" aria-pressed="false">Video</button></div>
+      <div data-choice-panel="procedure">
+        <table class="ca-demo-table"><thead><tr><th scope="col">Tình huống</th><th scope="col">Chuẩn bị</th><th scope="col">Request được đo</th></tr></thead><tbody>
+          <tr><th scope="row">Without Cache</th><td>Bỏ qua Redis</td><td>Mọi request đọc DB giả lập.</td></tr>
+          <tr><th scope="row">With Cache</th><td>Xóa key trước</td><td>MISS đầu tiên, rồi HIT khi còn TTL.</td></tr>
+          <tr><th scope="row">After TTL Expiration</th><td>Seed key, chờ hết hạn</td><td>MISS rồi nạp lại cache.</td></tr>
+          <tr><th scope="row">After Cache Invalidation</th><td>Seed key, rồi DEL</td><td>MISS rồi nạp lại cache.</td></tr>
+        </tbody></table>
+        <div class="ca-demo-facts"><p><strong>Key</strong> <code>demo:user:1</code><br>Redis <code>:6384</code> · Web <code>127.0.0.1:8000</code></p><p><strong>Cấu hình trong ảnh chạy thực</strong><br>TTL 10 s · DB delay 500 ms · 5 request / case</p></div>
+        <p class="ca-note" style="margin-top:13px">DB được giả lập bằng độ trễ. Quan sát trạng thái từng request và event log.</p>
+      </div>
+      <div data-choice-panel="video" hidden>
+        <div class="ds-video-slot ca-video-slot"><div id="demo02-placeholder" class="ds-video-placeholder"><span class="play-symbol" aria-hidden="true">▶</span><strong>Demo 02 · Cache-Aside</strong><p>Link Drive sẽ được cập nhật sau</p></div></div>
+        <div class="ds-video-actions"><a id="demo02-drive" target="_blank" rel="noopener noreferrer" hidden>Mở video trên Drive</a><span id="demo02-status" class="ds-video-status" aria-live="polite">Video sẽ mở trên Drive khi có liên kết.</span></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>0:20 giới thiệu + video.</strong> Video hiện là placeholder chờ link Drive. Cập nhật driveUrl trong demo02-config khi có URL thật, sau đó bấm Video và Mở video trên Drive. Không có dữ liệu video nhúng trong HTML.</p><p>Ứng dụng dùng time.sleep để giả lập DB chậm rồi trả chuỗi Data for demo:user:1. Ảnh chạy thực do người trình bày cung cấp cho thấy TTL=10, DB delay=500 ms, cả bốn case đều 5 request. Đây là cấu hình dùng cho slide kết quả, thay cho mặc định trong app.py. Nguồn xác nhận số liệu là ảnh cung cấp, chưa đối chiếu toàn bộ video trên Drive.</p><p>Case With xóa key để bắt đầu cold. Case expiration seed và chờ đến khi key thực sự không tồn tại. Case invalidation seed rồi DEL. Cả ba case nạp lại ở MISS đầu tiên. Bước chuẩn bị và chờ TTL nằm ngoài thời gian trung bình. Mỗi lần chạy thay kết quả trên giao diện, không cộng dồn nhiều run.</p><p>Demo dùng request tuần tự, chưa thể hiện stampede, penetration hay avalanche. Invalidation minh họa xóa rồi nạp lại, không có thay đổi nội dung DB v1/v2. Nguồn cơ chế: demos/02-cache-aside/app.py, README.md và redis/redis-cache-aside.conf. Nguồn cấu hình thực: ảnh giao diện do người trình bày cung cấp. Không chạy lại demo tự động trong slides.</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide ca-slide" id="cache-8" data-section="3" lang="vi" aria-labelledby="cache-8-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">03 / Kết quả từ ảnh chạy thực</p><h2 id="cache-8-heading">Đọc kết quả demo</h2><p class="ds-subtitle">TTL 10 s, DB delay 500 ms. Mỗi tình huống gồm 5 request.</p></header>
+    <div class="ds-body ca-body">
+      <table class="ca-results"><thead><tr><th scope="col">Tình huống</th><th scope="col">Trạng thái ghi nhận</th><th scope="col">Hit rate</th><th scope="col">Trung bình</th></tr></thead><tbody>
+        <tr><th scope="row">Without Cache</th><td>NO CACHE × 5</td><td>Bỏ qua cache</td><td>500.24 ms</td></tr>
+        <tr><th scope="row">With Cache</th><td><span class="ca-miss">1 MISS</span> + <span class="ca-hit">4 HIT</span></td><td>80%</td><td>100.38 ms</td></tr>
+        <tr><th scope="row">After TTL Expiration</th><td><span class="ca-miss">1 MISS</span> + <span class="ca-hit">4 HIT</span></td><td>80%</td><td>100.64 ms</td></tr>
+        <tr><th scope="row">After Cache Invalidation</th><td><span class="ca-miss">1 MISS</span> + <span class="ca-hit">4 HIT</span></td><td>80%</td><td>100.39 ms</td></tr>
+      </tbody></table>
+      <div><p class="ca-note">With Cache: thứ tự 5 request thực tế, chiều rộng ô không biểu diễn độ trễ.</p><div class="ca-requests" role="img" aria-label="With Cache: MISS 501.18 ms, HIT 0.33 ms, HIT 0.20 ms, HIT 0.10 ms, HIT 0.10 ms."><span class="ca-request miss">MISS<small>501.18 ms</small></span><span class="ca-request">HIT<small>0.33 ms</small></span><span class="ca-request">HIT<small>0.20 ms</small></span><span class="ca-request">HIT<small>0.10 ms</small></span><span class="ca-request">HIT<small>0.10 ms</small></span></div></div>
+      <p class="ca-note">Trung bình chỉ tính request được đo, không gồm seed key hoặc chờ TTL.<br>Nguồn số liệu: ảnh kết quả chạy do người trình bày cung cấp.</p>
+      <details class="ds-reveal popover"><summary>Vì sao trung bình vẫn khoảng 100 ms dù HIT dưới 1 ms?</summary><div class="ds-reveal-text">Một MISS 501.18 ms chiếm phần lớn tổng thời gian của 5 request. Trung bình của case With Cache là (501.18 + 0.33 + 0.20 + 0.10 + 0.10) / 5 ≈ 100.38 ms. Đây là kết quả của lần chạy này với DB giả lập.</div></details>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>0:55.</strong> Nguồn số liệu: ba ảnh giao diện và output thực do người trình bày cung cấp. TTL=10 s, DB delay=500 ms, 5 request mỗi case. Không phải bảng dự đoán từ mặc định mã và không phải một lần agent tự chạy. Chưa đối chiếu toàn bộ video trên Drive.</p><p>Without Cache: 500.20, 500.23, 500.33, 500.23, 500.21 ms. Trung bình giao diện 500.24 ms. With Cache: MISS 501.18 ms, HIT 0.33, 0.20, 0.10, 0.10 ms. Trung bình 100.38 ms, 4/5 HIT = 80%.</p><p>After TTL Expiration: MISS 501.18 ms, HIT 0.53, 0.52, 0.49, 0.49 ms. Trung bình 100.64 ms, 80% HIT. After Cache Invalidation: MISS 500.82 ms, HIT 0.26, 0.34, 0.29, 0.25 ms. Trung bình 100.39 ms, 80% HIT. Giữ các giá trị trung bình mà giao diện hiển thị, không thay bằng trung bình tự tính từ số request đã làm tròn.</p><p>MISS có chi phí đọc DB giả lập và điền cache. Khi key được nạp lại, bốn request sau HIT. Hết TTL và DEL có cùng dạng kết quả nhưng khác nguyên nhân key vắng mặt. Từ trạng thái và mã get_data có thể suy ra lần gọi DB là 5 ở Without Cache, 1 ở mỗi case dùng cache. Đây là suy ra từ luồng mã, không phải bộ đếm DB độc lập trong ảnh.</p><p>get_data dùng perf_counter đo cả GET, query_database nếu cần, SETEX nếu cần. delay_ms=500 là sleep cấu hình, không phải tổng thời gian MISS. Seed, delete chuẩn bị và chờ TTL không nằm trong elapsed_times. Mỗi case lấy trung bình request của chính case đó. Kết quả này dành cho DB giả lập và workload tuần tự, không khái quát thành một hệ số tăng tốc cho mọi ứng dụng.</p><p>Chuyển phần: cache giúp giảm lượt đọc DB, nhưng RAM có giới hạn. Phần Memory and Eviction sẽ giải thích Redis xử lý bộ nhớ và lựa chọn key cần loại bỏ.</p></aside>
 </section>
 
 <!-- 04. MEMORY AND EVICTION -->
@@ -1043,6 +1237,9 @@ th { font-weight:600; }
      videoUrl: direct MP4/webm URL (or a relative file path if sending the media too).
      driveUrl: shared Google Drive page. It opens only when the presenter clicks. -->
 <script type="application/json" id="demo01-config">{"videoUrl":"","driveUrl":""}</script>
+<!-- Cache-Aside demo: paste the shared Drive URL below when available.
+     The deck contains a placeholder only, with no embedded video data. -->
+<script type="application/json" id="demo02-config">{"driveUrl":""}</script>
 <!-- Persistence demo: paste the shared Drive page into driveUrl when available.
      videoUrl accepts a directly playable video URL or a relative media path. -->
 <script type="application/json" id="demo04-config">{"videoUrl":"","driveUrl":""}</script>
@@ -1247,7 +1444,24 @@ th { font-weight:600; }
   });
   addEventListener('pagehide', () => { if (localVideoUrl) URL.revokeObjectURL(localVideoUrl); });
 
-  // Editable architecture diagrams. Only explicit clicks advance their state.
+  const cacheVideoStatus = document.getElementById('demo02-status');
+  const cacheVideoDrive = document.getElementById('demo02-drive');
+  try {
+    const cacheSettings = JSON.parse(document.getElementById('demo02-config').textContent);
+    if (typeof cacheSettings.driveUrl === 'string' && cacheSettings.driveUrl.trim()) {
+      const driveUrl = new URL(cacheSettings.driveUrl.trim());
+      if (driveUrl.protocol === 'https:' || driveUrl.protocol === 'http:') {
+        cacheVideoDrive.href = driveUrl.href;
+        cacheVideoDrive.hidden = false;
+        document.querySelector('#demo02-placeholder p').textContent = 'Video demo sẵn sàng trên Drive.';
+        cacheVideoStatus.textContent = 'Bấm “Mở video trên Drive” để xem.';
+      }
+    }
+  } catch (error) {
+    cacheVideoStatus.textContent = 'Kiểm tra lại URL Drive trong demo02-config.';
+  }
+
+  // Editable theory diagrams. Only explicit clicks advance their state.
   // The state changes illustrate the supplied mechanism and recorded dataset.
   document.querySelectorAll('[data-choice-group]').forEach(group => {
     group.querySelectorAll('[data-choice]').forEach(button => {
