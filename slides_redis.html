@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Redis In-Memory Data Store seminar for CSC11117, with an illustrated Data Structures and TTL section, VM screenshots, presenter notes, and a quiz.">
+<meta name="description" content="Redis In-Memory Data Store seminar for CSC11117, with Data Structures and TTL, Redis architecture, RDB/AOF persistence, interactive diagrams and presenter notes.">
 <title>Redis In-Memory Data Store | CSC11117</title>
 <style>
 :root {
   --paper:#fffefa;
-  --ink:#292826;
-  --muted:#6e6a65;
+  --ink:#20242b;
+  --muted:#414b5a;
   --line:#dedbd5;
   --red:#ce3329;
   --soft:#f3f0eb;
@@ -81,7 +81,7 @@ th { font-weight:600; }
 .ds-header { flex:none; margin-bottom:20px; }
 .ds-eyebrow { margin-bottom:6px; color:var(--accent); font-size:13px; line-height:18px; letter-spacing:1px; }
 .ds-header h2 { font-size:40px; font-weight:600; line-height:1.16; letter-spacing:-.9px; }
-.ds-subtitle { margin-top:7px; color:var(--muted); font-size:19px; line-height:1.4; }
+.ds-subtitle { margin-top:7px; color:var(--muted); font-size:19px; font-weight:500; line-height:1.4; }
 .ds-body { flex:1; min-height:0; }
 .ds-slide .footer { left:64px; right:64px; }
 .ds-slide code { font-family:Consolas,"Cascadia Mono",monospace; font-size:.93em; }
@@ -106,7 +106,7 @@ th { font-weight:600; }
 .ds-reveal.popover>.ds-reveal-text { position:absolute; left:-1px; right:-1px; bottom:calc(100% + 8px); z-index:5; padding:18px 20px; border:1px solid var(--accent); border-radius:7px; background:var(--paper); box-shadow:0 8px 24px #29282618; }
 .ds-terminal { overflow:hidden; border:1px solid #d5d2cd; border-radius:8px; background:#fff; }
 .ds-terminal-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; border-bottom:1px solid #d5d2cd; background:#f1efeb; color:#59544e; font-family:Consolas,"Cascadia Mono",monospace; font-size:14px; line-height:18px; }
-.ds-terminal-bar span:last-child { font-family:"Segoe UI",Arial,sans-serif; font-size:12px; color:#77716a; }
+.ds-terminal-bar span:last-child { font-family:"Segoe UI",Arial,sans-serif; font-size:12px; color:var(--muted); }
 .ds-shot-button { display:block; width:100%; border:0; background:#0c0c0c; cursor:zoom-in; }
 .ds-shot-button img { display:block; width:100%; height:var(--shot-height,250px); object-fit:contain; }
 .ds-shot-caption { margin-top:7px; color:var(--muted); font-size:13px; line-height:1.4; }
@@ -115,7 +115,7 @@ th { font-weight:600; }
 .ds-terminal-code { margin:0; padding:14px 16px; border-radius:0; background:#faf9f6; font-size:15px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
 .ds-challenge { display:grid; grid-template-columns:minmax(0,1fr) 420px; gap:25px; align-items:center; padding:17px 21px; border-left:3px solid var(--red); background:#f7f3ed; }
 .ds-challenge h3 { margin-bottom:5px; font-size:22px; font-weight:600; }
-.ds-challenge p { color:#625d56; font-size:18px; line-height:1.4; }
+.ds-challenge p { color:var(--muted); font-size:18px; line-height:1.4; }
 .ds-challenge code { display:block; padding:13px 14px; border:1px solid var(--line); background:var(--paper); font-size:18px; line-height:1.4; }
 .ds-map { display:grid; grid-template-columns:110px 64px minmax(0,1fr); align-items:center; height:204px; margin-top:16px; }
 .ds-map-key { padding:16px 10px; border:1px solid #a9a39a; text-align:center; font-family:Consolas,monospace; font-size:25px; }
@@ -123,7 +123,7 @@ th { font-weight:600; }
 .ds-map-types { display:grid; gap:8px; }
 .ds-map-row { display:grid; grid-template-columns:143px minmax(0,1fr); gap:16px; align-items:center; min-height:43px; padding:8px 15px; border-left:3px solid var(--accent); background:var(--tint); font-size:19px; }
 .ds-map-row strong { color:var(--accent); font-size:19px; font-weight:600; }
-.ds-map-row small { margin-left:12px; color:#6e6a65; font-size:16px; }
+.ds-map-row small { margin-left:12px; color:var(--muted); font-size:16px; }
 .ds-principles { display:grid; grid-template-columns:repeat(3,1fr); gap:17px; margin-top:15px; }
 .ds-principles .ds-reveal { margin-top:0; }
 .ds-principles .ds-reveal-text { font-size:17px; }
@@ -180,7 +180,7 @@ th { font-weight:600; }
 .ds-timeline>code { display:block; margin-top:5px; font-size:16px; }
 .ds-ticks { display:flex; align-items:center; gap:16px; margin-top:10px; padding-bottom:12px; font-family:Consolas,monospace; font-size:28px; }
 .ds-ticks b { color:var(--accent); font-weight:600; }
-.ds-ticks span { color:#9a948c; font-size:18px; }
+.ds-ticks span { color:#526078; font-size:18px; }
 .ds-ttl .ds-terminal-bar { padding:7px 12px; }
 .ds-ttl .ds-shot-button img { height:153px; }
 .ds-warning { margin-top:12px; padding:12px 15px; border-left:3px solid var(--accent); background:var(--tint); }
@@ -228,6 +228,143 @@ th { font-weight:600; }
 .ds-quiz-feedback { min-height:65px; margin-top:13px; color:var(--muted); font-size:16px; line-height:1.4; }
 .ds-quiz-feedback.is-correct { color:#286247; }
 .ds-quiz-feedback.is-wrong { color:#a43a30; }
+/* Architecture and persistence: editable diagrams, no image dependencies. */
+.ar-slide { --accent:#2864a7; --tint:#edf4fc; --ar-rdb:#087f78; --ar-aof:#7850aa; --ar-ram:#a76508; }
+.ar-rdb { --accent:#087f78; --tint:#eaf7f4; }
+.ar-aof { --accent:#7850aa; --tint:#f4effc; }
+.ar-sync { --accent:#b44136; --tint:#fff1ec; }
+.ar-slide .ds-header { margin-bottom:18px; }
+.ar-slide.ar-long-title .ds-header h2 { font-size:36px; line-height:1.16; }
+.ar-slide .ar-body { display:flex; flex-direction:column; gap:16px; }
+.ar-slide h3 { font-size:21px; line-height:1.3; font-weight:600; }
+.ar-slide button { font-family:inherit; }
+.ar-slide .ds-reveal { margin-top:0; }
+.ar-slide .ds-reveal summary { font-size:17px; padding:10px 14px; }
+.ar-slide .ds-reveal-text { font-size:18px; }
+.ar-reveals { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:auto; }
+.ar-toolbar { display:flex; align-items:center; justify-content:space-between; gap:18px; flex:none; }
+.ar-toolbar>p { color:var(--muted); font-size:16px; }
+.ar-buttons { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.ar-button { padding:8px 13px; border:1px solid var(--line); border-radius:4px; background:var(--paper); color:var(--ink); font-size:16px; line-height:1.25; text-decoration:none; cursor:pointer; }
+.ar-button[aria-pressed="true"] { border-color:var(--accent); color:var(--accent); background:var(--tint); }
+.ar-button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.ar-muted { color:var(--muted); }
+.ar-mono { font-family:Consolas,"Cascadia Mono",monospace; }
+.ar-svg { display:block; width:100%; overflow:visible; font-family:"Segoe UI",Arial,sans-serif; }
+.ar-svg text { fill:var(--ink); }
+.ar-svg .muted { fill:var(--muted); }
+.ar-svg .blue { fill:#2864a7; }
+.ar-svg .teal { fill:#087f78; }
+.ar-svg .violet { fill:#7850aa; }
+.ar-svg [data-request-node] rect { transition:stroke .2s,fill .2s; }
+.ar-svg [data-request-node].is-lit>rect { stroke:#2864a7; stroke-width:2.5; fill:#e3efff; }
+.ar-request-diagram { height:295px; flex:none; }
+.ar-caption { color:var(--muted); font-size:16px; line-height:1.45; }
+.ar-remark { padding:13px 17px; border-left:3px solid var(--accent); background:var(--tint); font-size:21px; line-height:1.4; }
+.ar-background { display:flex; align-items:center; justify-content:space-between; gap:18px; padding-top:12px; border-top:1px solid var(--line); color:var(--muted); font-size:17px; }
+.ar-background strong { color:var(--ink); font-weight:500; }
+.ar-performance { display:grid; grid-template-columns:460px minmax(0,1fr); gap:36px; flex:1; min-height:0; }
+.ar-reasons { display:grid; gap:12px; align-content:start; }
+.ar-reason { display:grid; grid-template-columns:35px 1fr; gap:13px; padding-bottom:11px; border-bottom:1px solid var(--line); }
+.ar-reason>.ar-mono { padding-top:2px; color:var(--accent); font-size:17px; }
+.ar-reason h3 { margin-bottom:3px; font-size:21px; }
+.ar-reason p { color:var(--muted); font-size:17px; line-height:1.4; }
+.ar-execution { padding-top:1px; }
+.ar-execution h3 { margin-bottom:16px; }
+.ar-execution .ar-buttons { margin-bottom:20px; }
+.ar-jobline { display:flex; gap:8px; align-items:stretch; margin-top:14px; }
+.ar-job { display:flex; align-items:center; justify-content:center; min-height:70px; flex:1; padding:12px; border:1px solid #b5c9e3; background:#edf4fc; color:#245b99; font-family:Consolas,monospace; font-size:21px; }
+.ar-job.heavy { flex:3; border-color:#c8867f; background:#fff0ec; color:#b44136; }
+.ar-job.waiting { background:#f4f1eb; border-style:dashed; border-color:#c7c0b7; color:var(--muted); }
+.ar-execution-copy { min-height:85px; margin-top:15px; font-size:19px; line-height:1.5; }
+.ar-execution-copy strong { color:var(--accent); }
+.ar-rdb .ar-body { gap:10px; }
+.ar-rdb-timeline { height:118px; flex:none; }
+.ar-cow-row { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:38px; align-items:center; }
+.ar-cow-row svg { height:128px; }
+.ar-cow-copy { font-size:21px; line-height:1.5; }
+.ar-cow-copy strong { color:var(--accent); font-weight:600; }
+.ar-rdb .ar-remark { padding:0; border:0; background:transparent; font-size:19px; }
+.ar-aof-manifest { width:360px; margin:0 auto; padding:12px 22px; border:1px solid #c4b3d9; border-radius:5px; background:#f4effc; text-align:center; }
+.ar-aof-manifest strong { display:block; color:#7850aa; font-size:24px; font-weight:600; }
+.ar-aof-manifest span { font-size:16px; color:var(--muted); }
+.ar-aof-connector { height:31px; color:#635074; font-size:29px; line-height:31px; text-align:center; }
+.ar-aof-chain { display:grid; grid-template-columns:1fr 46px 1.15fr 46px 1fr; align-items:center; }
+.ar-node { position:relative; padding:19px 17px; border:1px solid var(--line); border-radius:5px; background:#fffefa; text-align:center; }
+.ar-node strong { display:block; font-size:23px; font-weight:600; }
+.ar-node span { display:block; margin-top:7px; font-size:17px; line-height:1.4; color:var(--muted); }
+.ar-node.aof-node { border-color:#c4b3d9; background:#f7f3fc; }
+.ar-node.ram-node { border-color:#d7bb89; background:#fff7e9; }
+.ar-chain-arrow { color:#635074; font-size:30px; text-align:center; }
+.ar-rewrite { display:grid; grid-template-columns:180px minmax(0,1fr); gap:25px; align-items:center; margin-top:17px; padding-top:17px; border-top:1px solid var(--line); }
+.ar-rewrite h3 { color:var(--accent); }
+.ar-rewrite .ar-buttons { margin-top:10px; }
+.ar-counter-history { display:flex; gap:16px; align-items:center; font-size:27px; }
+.ar-counter-history code { padding:10px 17px; border-bottom:2px solid #c4b3d9; font-size:24px; }
+.ar-rewrite-copy { margin-top:9px; color:var(--muted); font-size:17px; }
+.ar-sync-figure { display:grid; grid-template-columns:1fr 65px 1fr 140px .9fr; gap:8px; align-items:center; }
+.ar-sync-figure .ar-node { min-height:120px; display:flex; flex-direction:column; justify-content:center; padding:15px 12px; }
+.ar-sync-arrow { text-align:center; color:var(--muted); font-size:24px; }
+.ar-sync-arrow small { display:block; margin-bottom:6px; font-family:Consolas,monospace; font-size:15px; }
+.ar-crash-label { min-height:18px; margin-bottom:5px; color:#b44136; font-family:Consolas,monospace; font-size:15px; }
+.ar-sync-figure[data-fault="process"] .ar-redis-process { border-color:#b44136; background:#fff0ec; }
+.ar-sync-figure[data-fault="power"] .ar-redis-process,.ar-sync-figure[data-fault="power"] .ar-page-cache { border:2px dashed #b44136; background:#fff0ec; }
+.ar-sync-table th,.ar-sync-table td { padding:8px 12px; font-size:18px; }
+.ar-sync-table th:first-child { width:150px; }
+.ar-sync-message { color:var(--accent); font-size:21px; font-weight:500; }
+.ar-compare-table { margin-top:5px; }
+.ar-compare-table th,.ar-compare-table td { padding:16px 17px; font-size:21px; line-height:1.35; }
+.ar-compare-table th:first-child { width:22%; }
+.ar-compare-table th:nth-child(2) { color:var(--ar-rdb); }
+.ar-compare-table th:nth-child(3) { color:var(--ar-aof); }
+.ar-choice-notes { display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:5px; }
+.ar-choice-notes p { font-size:21px; line-height:1.45; }
+.ar-choice-notes strong { color:var(--accent); font-weight:600; }
+.ar-demo-procedure { min-height:390px; }
+.ar-demo-steps { display:flex; align-items:center; gap:9px; margin:5px 0 23px; }
+.ar-demo-lanes { display:grid; gap:22px; }
+.ar-demo-lane { display:grid; grid-template-columns:132px 1fr 35px 1fr 35px 1fr; gap:9px; align-items:center; }
+.ar-demo-mode { font-size:25px; font-weight:600; }
+.ar-demo-mode small { display:block; margin-top:4px; color:var(--muted); font-family:Consolas,monospace; font-size:15px; font-weight:400; }
+.ar-demo-mode.rdb { color:var(--ar-rdb); }
+.ar-demo-mode.aof { color:var(--ar-aof); }
+.ar-demo-milestone { padding:16px 10px; border:1px solid var(--line); text-align:center; font-size:19px; line-height:1.35; }
+.ar-demo-milestone strong { display:block; font-size:24px; font-weight:600; }
+.ar-demo-milestone span { display:block; margin-top:5px; color:var(--muted); font-size:16px; }
+.ar-demo-lane [data-demo-node].is-lit { border-color:var(--accent); background:var(--tint); }
+.ar-demo-caption { min-height:62px; margin-top:22px; padding:13px 17px; border-left:3px solid var(--accent); background:var(--tint); font-size:19px; line-height:1.5; }
+.ar-demo-proof { display:flex; justify-content:space-between; gap:20px; margin-top:17px; color:var(--muted); font-size:16px; }
+.ar-slide .ar-video-slot { height:355px; }
+.ar-video-panel .ar-caption { margin-top:12px; }
+.ar-results { display:grid; grid-template-columns:minmax(0,1.12fr) minmax(0,1fr); gap:33px; }
+.ar-recovery-title { display:flex; align-items:baseline; justify-content:space-between; gap:15px; margin-bottom:16px; }
+.ar-recovery-title span { color:var(--muted); font-size:16px; }
+.ar-chart-axis { display:flex; justify-content:space-between; margin:0 0 10px 87px; color:var(--muted); font-family:Consolas,monospace; font-size:14px; }
+.ar-chart-axis span:last-child { text-align:right; }
+.ar-chart-axis span:nth-child(2),.ar-chart-axis span:nth-child(3) { text-align:center; }
+.ar-chart-row { display:grid; grid-template-columns:70px minmax(0,1fr); gap:17px; align-items:center; margin:14px 0 8px; }
+.ar-chart-label { font-size:21px; font-weight:600; }
+.ar-bar-track { height:51px; border:1px dashed #a79d91; display:flex; align-items:center; position:relative; background:#f6f3ed; }
+.ar-bar-fill { display:flex; align-items:center; justify-content:flex-end; height:100%; padding:0 13px; color:#fff; font-size:23px; font-weight:600; transition:width .3s ease; }
+.ar-bar-fill.rdb { background:#087f78; width:66.666667%; }
+.ar-bar-fill.aof { background:#7850aa; width:100%; }
+.ar-chart-hint { margin-left:87px; min-height:25px; color:var(--muted); font-size:16px; line-height:1.4; }
+.ar-chart-annotation { margin-top:12px; font-size:16px; line-height:1.45; color:var(--muted); }
+.ar-result-states { margin-top:14px; }
+.ar-fsync-table { margin-top:12px; }
+.ar-fsync-table th,.ar-fsync-table td { padding:10px; font-size:18px; }
+.ar-fsync-table button { min-width:48px; padding:5px 10px; border:1px solid var(--line); border-radius:3px; background:var(--paper); color:var(--ink); font:inherit; font-size:17px; cursor:pointer; }
+.ar-fsync-table button[aria-pressed="true"] { border-color:var(--accent); color:var(--accent); background:var(--tint); }
+.ar-confirmed { color:#28694d; }
+.ar-unconfirmed { color:#a76508; }
+.ar-fsync-explanation { min-height:95px; margin-top:13px; padding:12px 14px; background:#f5f2ed; font-size:17px; line-height:1.45; }
+.ar-conclusion { margin-top:auto; padding-top:16px; border-top:1px solid var(--line); font-size:24px; font-weight:500; line-height:1.35; }
+.ar-slide .ar-result-reveals { margin-top:0; }
+#notesPanel table { font-size:15px; }
+#notesPanel th,#notesPanel td { padding:6px 10px; }
+@media (prefers-reduced-motion:reduce) {
+  .ar-bar-fill,.ar-svg [data-request-node] rect { transition:none; }
+}
 #imageDialog { width:min(1220px,96vw); max-width:none; max-height:95vh; margin:auto; padding:16px; border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink); }
 #imageDialog::backdrop { background:#292826b3; }
 .image-dialog-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:12px; }
@@ -303,8 +440,9 @@ th { font-weight:600; }
 </section>
 
 <!-- AUTHORING GUIDE
-  Section 02 contains eight content slides based on presentation-notes-01.md.
-  The other sections still have one title and two empty content samples.
+  Sections 02 and 05 each contain eight content slides, based respectively on
+  presentation-notes-01.md and presentation-notes-04.md. Other sections retain
+  one title and two empty content samples.
   Add theory slides first, then demo slides, within the same section.
   Allow at most 10 CONTENT slides per section (the title slide is separate).
   Duplicate a content-slide block and use unique id and aria-labelledby values.
@@ -715,17 +853,169 @@ th { font-weight:600; }
 <section class="slide section-slide" id="architecture" data-section="5" aria-labelledby="architecture-heading">
   <div class="content"><p class="section-label">05</p><div class="section-main"><h2 class="section-heading" id="architecture-heading">Redis Architecture<span class="second-line">and Persistence</span></h2></div></div>
 </section>
-<section class="slide content-slide" id="architecture-1" data-section="5" aria-labelledby="architecture-1-heading">
+<section class="slide content-slide ds-slide ar-slide" id="architecture-1" data-section="5" lang="vi" aria-labelledby="architecture-1-heading">
   <div class="content">
-    <header class="content-heading"><span class="section-label">05</span><h2 id="architecture-1-heading">Redis Architecture and Persistence</h2></header>
-    <div class="blank-body"><!-- Full-width content goes here. --></div>
+    <header class="ds-header"><p class="ds-eyebrow">05 / Kiến trúc Redis</p><h2 id="architecture-1-heading">Redis xử lý nhiều client như thế nào?</h2><p class="ds-subtitle">Nhiều kết nối cùng tồn tại; phần lớn logic lệnh dữ liệu được xử lý tuần tự.</p></header>
+    <div class="ds-body ar-body" data-request-diagram data-interactive>
+      <div class="ar-toolbar"><div class="ar-buttons" role="group" aria-label="Theo đường đi của request"><button type="button" class="ar-button" data-request-step="0" aria-pressed="true">1. Socket</button><button type="button" class="ar-button" data-request-step="1" aria-pressed="false">2. Điều phối</button><button type="button" class="ar-button" data-request-step="2" aria-pressed="false">3. Thực thi</button><button type="button" class="ar-button" data-request-step="3" aria-pressed="false">4. Phản hồi</button></div><p>Theo một request</p></div>
+      <svg class="ar-svg ar-request-diagram" viewBox="0 0 1120 285" role="img" aria-labelledby="ar-request-title ar-request-desc">
+        <title id="ar-request-title">Đường đi request và response trong Redis</title><desc id="ar-request-desc">Ba client kết nối đến sockets. I/O multiplexing báo sẵn sàng cho event loop. Main thread thực thi lệnh trên dataset RAM rồi trả phản hồi.</desc>
+        <defs><marker id="ar1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#8d867c" stroke-width="1.5"/></marker></defs>
+        <g fill="#fffefa" stroke="#c4beb4" stroke-width="1.3"><rect x="1" y="35" width="125" height="46" rx="5"/><rect x="1" y="103" width="125" height="46" rx="5"/><rect x="1" y="171" width="125" height="46" rx="5"/></g>
+        <g text-anchor="middle" font-size="21"><text x="63" y="65">Client A</text><text x="63" y="133">Client B</text><text x="63" y="201">Client C</text></g>
+        <g fill="none" stroke="#8d867c" stroke-width="1.5" marker-end="url(#ar1-arrow)"><path d="M126 58 H150 V126 H175"/><path d="M126 126 H175"/><path d="M126 194 H150 V126 H175"/><path d="M320 126 H369"/><path d="M561 126 H593 V87 H628"/><path d="M755 113 V145"/><path d="M882 174 H930 V126 H970"/><path d="M1042 168 V245 H64 V218"/></g>
+        <g data-request-node="socket" class="is-lit"><rect x="175" y="85" width="145" height="83" rx="5" fill="#fffefa" stroke="#c4beb4"/><text x="247" y="121" text-anchor="middle" font-size="22">TCP sockets</text><text x="247" y="147" text-anchor="middle" font-size="16" class="muted">nhiều kết nối</text></g>
+        <g data-request-node="multiplex"><rect x="369" y="85" width="192" height="83" rx="5" fill="#fffefa" stroke="#c4beb4"/><text x="465" y="121" text-anchor="middle" font-size="22">I/O multiplexing</text><text x="465" y="147" text-anchor="middle" font-size="16" class="muted">socket sẵn sàng</text></g>
+        <rect x="610" y="18" width="290" height="195" rx="6" fill="#edf4fc" stroke="#b5c9e3"/><text x="630" y="44" font-size="17" class="blue">MAIN THREAD</text>
+        <g data-request-node="event"><rect x="629" y="62" width="253" height="51" rx="4" fill="#fffefa" stroke="#b5c9e3"/><text x="755" y="94" text-anchor="middle" font-size="23">Event loop</text></g>
+        <g data-request-node="execute"><rect x="629" y="145" width="253" height="51" rx="4" fill="#fffefa" stroke="#b5c9e3"/><text x="755" y="177" text-anchor="middle" font-size="23">Thực thi lệnh</text></g>
+        <g data-request-node="ram"><rect x="970" y="85" width="145" height="83" rx="5" fill="#fff7e9" stroke="#d7bb89"/><text x="1042" y="121" text-anchor="middle" font-size="22">Dataset</text><text x="1042" y="148" text-anchor="middle" font-size="20">RAM</text></g>
+        <text x="532" y="274" text-anchor="middle" font-size="19" class="muted">Phản hồi về client tương ứng</text>
+      </svg>
+      <p class="ar-caption" data-request-feedback aria-live="polite">Redis theo dõi nhiều socket; socket chưa sẵn sàng không giữ Redis đứng chờ riêng client đó.</p>
+      <div class="ar-background"><strong>Tác vụ ngoài đường chính</strong><span>I/O threads (tùy cấu hình)</span><span>RDB child</span><span>AOF rewrite child</span></div>
+      <div class="ar-reveals"><details class="ds-reveal popover"><summary>Atomic có nghĩa là gì?</summary><div class="ds-reveal-text">Một lệnh dữ liệu thông thường không bị lệnh khác chen vào giữa quá trình thực thi. Chuỗi <code>GET → sửa ở app → SET</code> không tự trở thành giao dịch nguyên tử.</div></details><details class="ds-reveal popover"><summary>Redis có thread/process khác không?</summary><div class="ds-reveal-text">Có. I/O threads phụ thuộc phiên bản và cấu hình. Snapshot và rewrite có thể dùng process con; điều đó không biến mọi lệnh dữ liệu thành xử lý song song.</div></details></div>
+    </div>
   </div>
+  <aside class="notes"><p><strong>0:55.</strong> Phần này giải thích cách Redis phục vụ nhiều client và dựng lại dữ liệu sau một lần khởi động lại. Dataset đang hoạt động chủ yếu nằm trong RAM. Redis dùng I/O multiplexing để theo dõi nhiều socket; khi hệ điều hành báo sẵn sàng, event loop điều phối nhận request, thực thi và phản hồi. Một client chưa gửi dữ liệu không khiến Redis phải đứng chờ riêng nó.</p><p>Phần lớn logic lệnh dữ liệu chạy tuần tự trên main thread. Redis vẫn có thread hoặc process nền. Một lệnh thường có tính atomic đối với lệnh khác, còn GET rồi SET của ứng dụng có thể bị cập nhật xen giữa. Sơ đồ được lược bỏ các nhánh tối ưu; không gán thời gian đo cho các bước.</p><p>Nguồn: presentation-notes-04.md, docs/theory/04-redis_architecture_persistence.md mục 1–3.</p></aside>
 </section>
-<section class="slide content-slide" id="architecture-2" data-section="5" aria-labelledby="architecture-2-heading">
+<section class="slide content-slide ds-slide ar-slide ar-long-title" id="architecture-2" data-section="5" lang="vi" aria-labelledby="architecture-2-heading">
   <div class="content">
-    <header class="content-heading"><span class="section-label">05</span><h2 id="architecture-2-heading">Redis Architecture and Persistence</h2></header>
-    <div class="blank-body two-columns"><div><!-- Left column. --></div><div><!-- Right column: image, chart or text. --></div></div>
+    <header class="ds-header"><p class="ds-eyebrow">05 / Hiệu năng và đơn luồng</p><h2 id="architecture-2-heading">Vì sao Redis đơn luồng (Single-threaded)<br>vẫn đạt hiệu năng cao?</h2><p class="ds-subtitle">RAM, thao tác gọn, I/O multiplexing và ít tranh chấp lock phối hợp với nhau.</p></header>
+    <div class="ds-body ar-body">
+      <div class="ar-performance">
+        <div class="ar-reasons">
+          <div class="ar-reason"><span class="ar-mono">01</span><div><h3>Dữ liệu chủ yếu trong RAM</h3><p>Không đọc ngẫu nhiên từ đĩa cho từng lệnh thông thường.</p></div></div>
+          <div class="ar-reason"><span class="ar-mono">02</span><div><h3>Cấu trúc phù hợp, thao tác nhỏ</h3><p><code>GET</code>: O(1). <code>ZADD</code> một member: O(log N).</p></div></div>
+          <div class="ar-reason"><span class="ar-mono">03</span><div><h3>I/O multiplexing và event loop</h3><p>Theo dõi nhiều socket, phục vụ kết nối sẵn sàng.</p></div></div>
+          <div class="ar-reason"><span class="ar-mono">04</span><div><h3>Giảm tranh chấp lock</h3><p>Ít overhead đồng bộ dữ liệu dùng chung trên đường thực thi chủ đạo.</p></div></div>
+        </div>
+        <div class="ar-execution" data-choice-group data-interactive>
+          <h3>Thực thi tuần tự cần lệnh gọn</h3>
+          <div class="ar-buttons" role="group" aria-label="Minh họa lệnh ngắn và lệnh nặng"><button type="button" class="ar-button" data-choice="short" aria-pressed="true">Lệnh ngắn</button><button type="button" class="ar-button" data-choice="heavy" aria-pressed="false">Có lệnh nặng</button></div>
+          <div data-choice-panel="short"><div class="ar-jobline" role="img" aria-label="Các lệnh GET, INCR, GET đều ngắn"><div class="ar-job">GET</div><div class="ar-job">INCR</div><div class="ar-job">GET</div></div><p class="ar-execution-copy">Mỗi thao tác hoàn tất nhanh, đường xử lý sớm đến lượt lệnh tiếp theo.</p></div>
+          <div data-choice-panel="heavy" hidden><div class="ar-jobline" role="img" aria-label="KEYS nặng giữ main thread, GET và INCR phải chờ"><div class="ar-job heavy">KEYS *</div><div class="ar-job waiting">GET</div><div class="ar-job waiting">INCR</div></div><p class="ar-execution-copy"><strong>Lệnh nặng giữ đường xử lý.</strong> Client khác phải chờ dù dữ liệu nằm trong RAM.</p></div>
+          <p class="ar-caption">Lệnh phía sau chỉ được thực thi khi lệnh trước hoàn tất.</p>
+          <p class="ar-remark" style="margin-top:20px;font-size:19px"><code>SCAN</code> chia lượt duyệt.<br><code>SLOWLOG</code> giúp tìm lệnh thực thi lâu.</p>
+        </div>
+      </div>
+      <div class="ar-reveals"><details class="ds-reveal popover"><summary>SCAN có tạo snapshot nhất quán?</summary><div class="ds-reveal-text">Không. SCAN chia nhỏ công việc, có thể gặp phần tử trùng khi duyệt dataset thay đổi. COUNT là hint, không bảo đảm số phần tử trả về.</div></details><details class="ds-reveal popover"><summary>SLOWLOG có đo cả mạng?</summary><div class="ds-reveal-text">SLOWLOG chủ yếu đo thực thi lệnh tại server. Latency từ client còn có network RTT, hàng đợi, response lớn và các chi phí khác.</div></details></div>
+    </div>
   </div>
+  <aside class="notes"><p><strong>0:40.</strong> Redis nhanh nhờ kết hợp RAM, cấu trúc dữ liệu phù hợp và thao tác nhỏ. Đường thực thi tuần tự giảm tranh chấp lock và overhead đồng bộ dữ liệu dùng chung. I/O multiplexing giúp quản lý nhiều kết nối mà không phải chờ riêng từng socket.</p><p>Đơn luồng không tự làm mọi workload nhanh: KEYS trên tập lớn hay Lua chạy lâu có thể khiến client khác chờ. Dùng SCAN để chia lượt và SLOWLOG để tìm lệnh lâu. Độ phức tạp lệnh khác latency đầu-cuối. Chiều rộng các khối chỉ phân biệt công việc ngắn và nặng, không biểu diễn số mili giây đã đo. Chuyển ý: RAM phục vụ trạng thái đang chạy; persistence quyết định dựng lại được trạng thái nào sau sự cố.</p><p>Nguồn: presentation-notes-04.md slide 2; lý thuyết mục 4–5; <a href="https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/latency/" target="_blank" rel="noopener noreferrer">Redis latency</a>.</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide ar-rdb" id="architecture-3" data-section="5" lang="vi" aria-labelledby="architecture-3-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">05 / RDB</p><h2 id="architecture-3-heading">RDB: snapshot giữ trạng thái ở mốc nào?</h2><p class="ds-subtitle">Tại mốc fork, không phải mọi thay đổi đến lúc child ghi file xong.</p></header>
+    <div class="ds-body ar-body" data-choice-group data-interactive>
+      <svg class="ar-svg ar-rdb-timeline" viewBox="0 0 1120 110" role="img" aria-labelledby="ar-rdb-timeline-title"><title id="ar-rdb-timeline-title">Mốc fork, parent tiếp tục ghi, child hoàn tất và crash. Snapshot phản ánh mốc fork.</title><path d="M45 50 H1080" fill="none" stroke="#c7c0b7" stroke-width="2"/><g fill="#087f78"><circle cx="65" cy="50" r="7"/><circle cx="650" cy="50" r="7"/></g><circle cx="1080" cy="50" r="7" fill="#b44136"/><g text-anchor="middle" font-size="21"><text x="65" y="25" class="teal">Fork</text><text x="355" y="25">Parent tiếp tục ghi</text><text x="650" y="25" class="teal">Child ghi xong</text><text x="1080" y="25" fill="#b44136">Crash</text></g><path d="M65 65 V82 H650 V65" fill="none" stroke="#087f78" stroke-width="1.5"/><text x="355" y="106" text-anchor="middle" font-size="18" class="teal">Snapshot giữ góc nhìn ở mốc fork</text><text x="860" y="82" text-anchor="middle" font-size="17" class="muted">Không có snapshot mới hơn</text></svg>
+      <div class="ar-toolbar"><h3>Copy-on-Write</h3><div class="ar-buttons" role="group" aria-label="Trước và sau khi parent sửa trang nhớ"><button type="button" class="ar-button" data-choice="shared" aria-pressed="true">Trước khi sửa</button><button type="button" class="ar-button" data-choice="changed" aria-pressed="false">Parent sửa một trang</button></div></div>
+      <div class="ar-cow-row">
+        <svg class="ar-svg" viewBox="0 0 590 128" role="img" aria-labelledby="ar-cow-title"><title id="ar-cow-title">Parent và child chia sẻ Page A; sau khi parent sửa, parent dùng A mới còn child giữ A cũ.</title><defs><marker id="ar3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#8d867c" stroke-width="1.5"/></marker></defs><text x="38" y="41" font-size="24">Parent</text><text x="38" y="110" font-size="24">Child</text><g data-choice-panel="shared"><path d="M145 34 H290 V70 H386 M145 103 H290 V70" fill="none" stroke="#8d867c" stroke-width="1.5" marker-end="url(#ar3-arrow)"/><rect x="390" y="41" width="170" height="59" rx="5" fill="#fff7e9" stroke="#d7bb89"/><text x="475" y="68" text-anchor="middle" font-size="24">Page A</text><text x="475" y="91" text-anchor="middle" font-size="17" class="muted">chia sẻ</text></g><g data-choice-panel="changed" hidden><path d="M145 34 H386 M145 103 H386" fill="none" stroke="#8d867c" stroke-width="1.5" marker-end="url(#ar3-arrow)"/><rect x="390" y="6" width="170" height="52" rx="5" fill="#eaf7f4" stroke="#087f78"/><rect x="390" y="75" width="170" height="52" rx="5" fill="#fff7e9" stroke="#d7bb89"/><text x="475" y="29" text-anchor="middle" font-size="23">Page A′</text><text x="475" y="50" text-anchor="middle" font-size="16" class="teal">bản mới</text><text x="475" y="98" text-anchor="middle" font-size="23">Page A</text><text x="475" y="119" text-anchor="middle" font-size="16" class="muted">góc nhìn cũ</text></g></svg>
+        <div class="ar-cow-copy"><p data-choice-panel="shared">Ban đầu parent và child <strong>chia sẻ trang nhớ</strong>. Child dùng góc nhìn này để tạo snapshot.</p><p data-choice-panel="changed" hidden>Chỉ trang liên quan được copy khi có ghi. Child vẫn thấy <strong>trạng thái cũ</strong>; CoW có thể tăng RAM.</p></div>
+      </div>
+      <p class="ar-remark">Chỉ khôi phục bằng snapshot này: có thể mất các thay đổi sau checkpoint.</p>
+      <div class="ar-reveals"><details class="ds-reveal popover"><summary>Ghi nền có hoàn toàn miễn phí?</summary><div class="ds-reveal-text">Fork có thể gây pause; CoW tăng RAM khi nhiều trang bị sửa. Child vẫn cạnh tranh CPU và I/O. Không cần copy ngay toàn bộ dataset, nhưng persistence vẫn có chi phí.</div></details><details class="ds-reveal popover"><summary>BGSAVE trả lời là snapshot đã xong?</summary><div class="ds-reveal-text">Phản hồi bắt đầu ghi nền chỉ xác nhận đã nhận yêu cầu. Cần chờ tiến trình ghi kết thúc, kiểm tra trạng thái thành công và snapshot tương ứng.</div></details></div>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>0:55.</strong> RDB lưu dataset tại một mốc. BGSAVE fork process con ghi snapshot trong khi cha tiếp tục phục vụ. Ban đầu chia sẻ trang; parent sửa thì CoW tạo bản sao trang liên quan để child giữ góc nhìn cũ. Snapshot phản ánh mốc fork, không phản ánh mọi thay đổi tới lúc ghi file xong.</p><p>Snapshot thuận tiện backup theo mốc. Fork, CoW và I/O có chi phí. Câu mất thay đổi giả định chỉ khôi phục bằng snapshot đó, chưa có snapshot mới hơn và không dùng AOF. Sơ đồ không phải số đo RAM; không khẳng định RAM luôn tăng gấp đôi.</p><p>Nguồn: presentation-notes-04.md slide 3; lý thuyết mục 7; <a href="https://redis.io/docs/latest/commands/bgsave/" target="_blank" rel="noopener noreferrer">BGSAVE</a>.</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide ar-aof" id="architecture-4" data-section="5" lang="vi" aria-labelledby="architecture-4-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">05 / AOF</p><h2 id="architecture-4-heading">AOF: dựng lại dữ liệu từ thay đổi</h2><p class="ds-subtitle">Redis 7+ dùng multi-part AOF: base, incremental và manifest.</p></header>
+    <div class="ds-body ar-body" data-choice-group data-interactive>
+      <div><div class="ar-aof-manifest"><strong>Manifest</strong><span>Xác định bộ file và thứ tự nạp</span></div><div class="ar-aof-connector" aria-hidden="true">↓</div><div class="ar-aof-chain" role="img" aria-label="Theo manifest, nạp base rồi replay incremental để dựng dataset RAM"><div class="ar-node aof-node"><strong>1. Nạp base</strong><span>Trạng thái nền<br>có thể là RDB hoặc AOF</span></div><span class="ar-chain-arrow" aria-hidden="true">→</span><div class="ar-node aof-node"><strong>2. Replay incremental</strong><span>Những thay đổi tiếp theo</span></div><span class="ar-chain-arrow" aria-hidden="true">→</span><div class="ar-node ram-node"><strong>Dataset RAM</strong><span>Trạng thái được dựng lại</span></div></div></div>
+      <div class="ar-rewrite"><div><h3>Rewrite</h3><div class="ar-buttons" role="group" aria-label="Minh họa trước và sau AOF rewrite"><button type="button" class="ar-button" data-choice="history" aria-pressed="true">Trước</button><button type="button" class="ar-button" data-choice="compact" aria-pressed="false">Sau</button></div></div><div><div data-choice-panel="history"><div class="ar-counter-history"><span class="ar-mono">counter</span><code>10</code><span>→</span><code>20</code><span>→</span><code>40</code></div><p class="ar-rewrite-copy">Nhiều lần cập nhật cùng một key.</p></div><div data-choice-panel="compact" hidden><div class="ar-counter-history"><span class="ar-mono">counter =</span><code>40</code><span style="font-size:20px">Trạng thái cuối tương đương</span></div><p class="ar-rewrite-copy">Biểu diễn gọn hơn; parent tiếp tục nhận ghi vào incremental mới.</p></div></div></div>
+      <p class="ar-caption">Rewrite tạo bộ biểu diễn mới, không xóa tùy tiện log đang được ghi.</p>
+      <div class="ar-reveals"><details class="ds-reveal popover"><summary>Base RDB có phải RDB-only?</summary><div class="ds-reveal-text">Không. File base định dạng RDB thuộc bộ AOF, khác dump.rdb của instance RDB độc lập. Có .base.rdb không đồng nghĩa đang bật snapshot RDB độc lập.</div></details><details class="ds-reveal popover"><summary>Backup một file AOF là đủ?</summary><div class="ds-reveal-text">Với multi-part AOF, cần bộ base, incremental và manifest nhất quán. Rewrite vẫn có chi phí fork và I/O; nó khác mục tiêu đồng bộ của fsync.</div></details></div>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>0:50.</strong> AOF lưu những thay đổi cần thiết để dựng lại trạng thái. Multi-part AOF có base, incremental và manifest. Redis nạp base rồi replay incremental. Base có thể là RDB nhưng thuộc bộ AOF.</p><p>Một counter đi từ 10 tới 20 rồi 40 không đòi hỏi giữ mọi trạng thái trung gian để phục hồi trạng thái cuối. Rewrite tạo biểu diễn gọn hơn, parent tiếp tục ghi incremental mới. Đây là minh họa trạng thái tương đương, không khẳng định file mới chứa đúng một dòng SET counter 40 hoặc sửa trực tiếp log đang ghi. Backup cần giữ bộ file nhất quán.</p><p>Nguồn: presentation-notes-04.md slide 4; lý thuyết mục 8.1 và 8.4–8.5; <a href="https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/" target="_blank" rel="noopener noreferrer">Redis persistence</a>.</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide ar-sync" id="architecture-5" data-section="5" lang="vi" aria-labelledby="architecture-5-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">05 / Độ bền dữ liệu</p><h2 id="architecture-5-heading">write khác fsync như thế nào?</h2><p class="ds-subtitle">Đọc lại được dữ liệu và xác nhận đồng bộ file là hai quan sát khác nhau.</p></header>
+    <div class="ds-body ar-body" data-fault-model data-interactive style="gap:12px">
+      <div class="ar-toolbar"><div class="ar-buttons" role="group" aria-label="Phạm vi sự cố"><button type="button" class="ar-button" data-fault="process" aria-pressed="true">Process crash</button><button type="button" class="ar-button" data-fault="power" aria-pressed="false">Mất nguồn</button></div><p>Sơ đồ các giai đoạn logic</p></div>
+      <div class="ar-sync-figure" data-fault="process"><div class="ar-node ar-redis-process"><div class="ar-crash-label" data-process-fault-label>SIGKILL</div><strong>Redis process</strong><span>Dataset / AOF buffer</span></div><div class="ar-sync-arrow"><small>write</small>→</div><div class="ar-node ram-node ar-page-cache"><strong>OS page cache</strong><span>RAM của hệ điều hành</span></div><div class="ar-sync-arrow"><small>fsync / fdatasync</small>→</div><div class="ar-node"><strong>Storage</strong><span>Đồng bộ theo policy</span></div></div>
+      <p class="ar-caption" data-fault-feedback aria-live="polite">SIGKILL kết thúc Redis; OS và page cache vẫn còn. Instance mới có thể đọc lại byte đã write.</p>
+      <table class="ar-sync-table" aria-label="Các chính sách appendfsync"><thead><tr><th>appendfsync</th><th>Cách đồng bộ</th><th>Đánh đổi chính</th></tr></thead><tbody><tr><td><code>always</code></td><td>Trước xác nhận nhóm ghi</td><td>Chi phí đồng bộ cao hơn</td></tr><tr><td><code>everysec</code></td><td>Nền, khoảng mỗi giây</td><td>Cân bằng hiệu năng / độ bền</td></tr><tr><td><code>no</code></td><td>Để OS quyết định flush</td><td>Phụ thuộc OS và storage</td></tr></tbody></table>
+      <p class="ar-sync-message">Process crash giữ page cache. Mất nguồn là loại sự cố khác.</p>
+      <div class="ar-reveals"><details class="ds-reveal popover"><summary>everysec là mỗi giây mới ghi AOF?</summary><div class="ds-reveal-text">Không. write có thể chuyển byte vào page cache trước lần sync tiếp theo. everysec nói về lịch đồng bộ nền, không cam kết mỗi crash luôn mất đúng một giây dữ liệu.</div></details><details class="ds-reveal popover"><summary>always là mỗi SET một fsync?</summary><div class="ds-reveal-text">Redis có thể gộp nhiều lệnh trong một nhóm append/sync. Đồng bộ thành công là xác nhận theo giao diện OS, không bảo đảm tuyệt đối trước mọi lỗi thiết bị.</div></details></div>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>1:00.</strong> write chuyển byte sang hệ điều hành, thường vào page cache. fsync/fdatasync yêu cầu đồng bộ file và đợi OS xác nhận. Với always, Redis đồng bộ trước phản hồi nhóm ghi; everysec sync nền khoảng mỗi giây, no để OS quyết định.</p><p>Everysec không phải nhịp ghi AOF và không phải mỗi lần crash chắc chắn mất đúng một giây. Kill Redis không giết kernel hoặc page cache. Mất nguồn/crash OS khác process crash. Sơ đồ là các giai đoạn logic, không xác định cùng vị trí ACK cho mọi policy. Khi mất nguồn, dữ liệu chưa đồng bộ trong RAM/page cache có nguy cơ mất; khả năng phục hồi phụ thuộc dữ liệu đã được lưu bền vững và đặc tính hệ thống lưu trữ.</p><p>Nguồn: presentation-notes-04.md slide 5; lý thuyết mục 6, 8.2–8.3.</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide" id="architecture-6" data-section="5" lang="vi" aria-labelledby="architecture-6-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">05 / Lựa chọn persistence</p><h2 id="architecture-6-heading">Chọn RDB, AOF hay kết hợp?</h2><p class="ds-subtitle">Chọn theo lượng cập nhật có thể mất, chi phí tài nguyên và cách phục hồi.</p></header>
+    <div class="ds-body ar-body">
+      <table class="ar-compare-table" aria-label="So sánh RDB với AOF"><thead><tr><th>Tiêu chí</th><th>RDB</th><th>AOF</th></tr></thead><tbody><tr><td>Bản chất</td><td>Trạng thái theo mốc</td><td>Trạng thái nền + thay đổi</td></tr><tr><td>Dữ liệu gần sự cố</td><td>Phụ thuộc snapshot mới nhất</td><td>Phụ thuộc ghi và chính sách sync</td></tr><tr><td>Chi phí nổi bật</td><td>Fork, CoW, I/O snapshot</td><td>Append, sync, rewrite</td></tr><tr><td>Phù hợp</td><td>Backup theo mốc, chấp nhận khoảng mất cập nhật</td><td>Muốn giảm mất cập nhật, chọn mức đồng bộ</td></tr></tbody></table>
+      <div class="ar-choice-notes"><p><strong>Bật cả hai:</strong> Redis ưu tiên nạp AOF khi AOF được bật và có dữ liệu hợp lệ.</p><p><strong>Persistence</strong> cần đi cùng backup độc lập.</p></div>
+      <div class="ar-reveals"><details class="ds-reveal popover"><summary>Cache có thể không bật persistence?</summary><div class="ds-reveal-text">Có, nếu dữ liệu có thể tái tạo và chấp nhận mất trạng thái instance sau restart. Cần tính cả tải dồn về nguồn dữ liệu khi làm nóng lại cache.</div></details><details class="ds-reveal popover"><summary>RDB luôn nhỏ hơn, nạp nhanh hơn?</summary><div class="ds-reveal-text">Phụ thuộc dataset, storage, rewrite và lượng incremental cần replay. So sánh hiệu năng cần dùng cùng dữ liệu và điều kiện đo.</div></details></div>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>0:50.</strong> RDB giữ trạng thái theo mốc, thuận tiện backup và chấp nhận khoảng cập nhật ngoài checkpoint. AOF ghi cập nhật thường xuyên hơn nhưng có chi phí append, sync và rewrite. Chọn theo mức mất cập nhật có thể chấp nhận, I/O/latency và yêu cầu khôi phục.</p><p>Cache có thể tái tạo có thể không dùng persistence. Khi bật cả hai, Redis ưu tiên AOF khi startup trong cấu hình hợp lệ. RDB vẫn hữu ích backup theo mốc. Persistence không thay thế backup độc lập. Chuyển sang video: kiểm tra cơ chế vừa học bằng hai run riêng.</p><p>Nguồn: presentation-notes-04.md slide 6; lý thuyết mục 9.</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide" id="architecture-7" data-section="5" lang="vi" aria-labelledby="architecture-7-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">05 / Demo 04</p><h2 id="architecture-7-heading">Demo: từ checkpoint đến process crash</h2><p class="ds-subtitle">Hai run riêng, cùng 2.000 baseline + 1.000 delta. Run 2 quan sát thêm fsync.</p></header>
+    <div class="ds-body ar-body" data-choice-group data-interactive>
+      <div class="ar-toolbar"><div class="ar-buttons" role="group" aria-label="Quy trình hoặc video demo"><button type="button" class="ar-button" data-choice="procedure" aria-pressed="true">Quy trình</button><button type="button" class="ar-button" data-choice="video" aria-pressed="false">Video</button></div><p>Redis 7.0.15 / redis-py 5.3.1</p></div>
+      <div class="ar-demo-procedure" data-choice-panel="procedure" data-demo-procedure>
+        <div class="ar-demo-steps" role="group" aria-label="Các giai đoạn demo"><button type="button" class="ar-button" data-demo-step="baseline" aria-pressed="true">1. Baseline</button><button type="button" class="ar-button" data-demo-step="delta" aria-pressed="false">2. Delta và crash</button><button type="button" class="ar-button" data-demo-step="recovery" aria-pressed="false">3. Restart</button></div>
+        <div class="ar-demo-lanes">
+          <div class="ar-demo-lane"><div class="ar-demo-mode rdb">RDB<small>127.0.0.1:6380</small></div><div class="ar-demo-milestone is-lit" data-demo-node="baseline"><strong>2.000 baseline</strong><span>BGSAVE đã hoàn tất</span></div><span class="ar-chain-arrow" aria-hidden="true">→</span><div class="ar-demo-milestone" data-demo-node="delta"><strong>+1.000 delta</strong><span>ACK, rồi SIGKILL</span></div><span class="ar-chain-arrow" aria-hidden="true">→</span><div class="ar-demo-milestone" data-demo-node="recovery"><strong>2.000 Correct</strong><span>Thiếu 1.000 delta</span></div></div>
+          <div class="ar-demo-lane"><div class="ar-demo-mode aof">AOF<small>127.0.0.1:6381</small></div><div class="ar-demo-milestone is-lit" data-demo-node="baseline"><strong>2.000 baseline</strong><span>everysec, không rewrite</span></div><span class="ar-chain-arrow" aria-hidden="true">→</span><div class="ar-demo-milestone" data-demo-node="delta"><strong>+1.000 delta</strong><span>ACK, rồi SIGKILL</span></div><span class="ar-chain-arrow" aria-hidden="true">→</span><div class="ar-demo-milestone" data-demo-node="recovery"><strong>3.000 Correct</strong><span>Không thiếu key</span></div></div>
+        </div>
+        <p class="ar-demo-caption" data-demo-feedback aria-live="polite">Mốc pause: DBSIZE của cả hai là 2.000. Chỉ RDB đã tạo checkpoint; delta chưa được ghi.</p>
+        <div class="ar-demo-proof"><span><code>rdb_saves:1</code>, save <code>ok</code>, đang save <code>0</code></span><span>AOF: <code>aof_enabled:1</code>, <code>appendfsync:everysec</code></span></div>
+      </div>
+      <div class="ar-video-panel" data-choice-panel="video" hidden>
+        <div class="ds-video-slot ar-video-slot"><div id="demo04-placeholder" class="ds-video-placeholder"><span class="play-symbol" aria-hidden="true">▶</span><strong>Demo 04 · Redis Persistence</strong><p>Link Drive sẽ được cập nhật sau</p></div><video id="demo04-video" controls preload="none" playsinline aria-label="Video demo Redis RDB và AOF" hidden></video></div>
+        <div class="ds-video-actions"><button type="button" id="demo04-choose">Chọn video từ máy</button><input type="file" id="demo04-file" accept="video/*,.mp4,.webm" hidden><a id="demo04-drive" target="_blank" rel="noopener noreferrer" hidden>Mở video trên Drive</a><span class="ds-video-status" id="demo04-status" aria-live="polite">Run 1: không tracing / Run 2: có tracing</span></div>
+        <p class="ar-caption">SIGKILL là process crash; OS và page cache vẫn tồn tại.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes"><p><strong>2:45: giới thiệu 15 giây + video khoảng 2:30.</strong> Video có hai run cùng 3.000 key: run đầu kiểm tra phục hồi, run sau theo dõi thêm fsync. Hai instance bắt đầu với 2.000 key; chỉ RDB tạo checkpoint. Sau đó script thêm 1.000 key, gây process crash rồi restart và kiểm tra.</p><p>Trong video: nếu đã có narration thì không đọc chồng. Lúc terminal 2 kiểm tra, script pause sau checkpoint trước delta. DBSIZE là 2.000, không phải 3.000 sau ACK. RDB rdb_saves=1, save ok, không đang save; AOF rdb_saves=0 và appendfsync=everysec. Trạng thái ok đơn lẻ không chứng minh AOF đã tạo RDB snapshot.</p><p>Run 1 không tracing: Correct RDB 2.000, Missing 1.000; AOF đủ 3.000, Corrupt 0. Run 2 cùng 2.000+1.000, bật tracing; AOF Fsync lần lượt Not confirmed, Confirmed, Confirmed ở delay 0/0,2/1,5. Không có bộ 130 key trong video này. Script kill AOF trước rồi RDB; không coi hai nhánh sơ đồ là kill đồng thời.</p><p>Video chưa có link. Cập nhật videoUrl/driveUrl ở demo04-config hoặc chọn file local lúc trình chiếu. Video local dùng object URL, không tự lưu vào HTML; mở lại cần chọn lại. Nếu không phát được, dùng sơ đồ và biểu đồ slide 8 thay thế, không chạy lại demo trên sân khấu.</p><p>Nguồn: presentation-notes-04.md phần C; transcript của người trình bày; demos/04-persistence-crash/scripts/run_trials.py. Run ID không tracing: run-20261021-145636Z-7ngih21c; tracing: run-20261021-150053Z-mkfhwdbo.</p></aside>
+</section>
+
+<section class="slide content-slide ds-slide ar-slide" id="architecture-8" data-section="5" lang="vi" aria-labelledby="architecture-8-heading">
+  <div class="content">
+    <header class="ds-header"><p class="ds-eyebrow">05 / Kết quả demo</p><h2 id="architecture-8-heading">Sau restart, dữ liệu nào còn lại?</h2><p class="ds-subtitle">RDB khôi phục checkpoint; AOF phục hồi đủ key trong demo. Fsync cần bằng chứng riêng.</p></header>
+    <div class="ds-body ar-body" style="gap:12px">
+      <div class="ar-results">
+        <div data-recovery-chart data-interactive>
+          <div class="ar-recovery-title"><h3 data-chart-heading>Correct sau restart</h3><span>Expected: 3.000 key</span></div>
+          <div class="ar-chart-axis" aria-hidden="true"><span>0</span><span>1.000</span><span>2.000</span><span>3.000</span></div>
+          <div class="ar-chart-row"><div class="ar-chart-label" style="color:#087f78">RDB</div><div class="ar-bar-track" role="img" aria-label="RDB khôi phục 2.000 key trên tổng 3.000 expected" data-bar-accessible="rdb"><div class="ar-bar-fill rdb" data-recovery-bar="rdb">2.000</div></div></div><p class="ar-chart-hint" data-recovery-hint="rdb">2.000 baseline còn, 1.000 delta thiếu.</p>
+          <div class="ar-chart-row"><div class="ar-chart-label" style="color:#7850aa">AOF</div><div class="ar-bar-track" role="img" aria-label="AOF khôi phục đủ 3.000 key" data-bar-accessible="aof"><div class="ar-bar-fill aof" data-recovery-bar="aof">3.000</div></div></div><p class="ar-chart-hint" data-recovery-hint="aof">Phục hồi đủ, không có key thiếu.</p>
+          <p class="ar-chart-annotation" data-recovery-caption aria-live="polite">Corrupt = 0 ở cả hai mode. Kết quả phục hồi giống nhau trong cả ba trial của hai run.</p>
+          <div class="ar-buttons ar-result-states" role="group" aria-label="Trước crash và sau restart"><button type="button" class="ar-button" data-chart-state="before" aria-pressed="false">Trước crash (ACK)</button><button type="button" class="ar-button" data-chart-state="after" aria-pressed="true">Sau restart</button></div>
+        </div>
+        <div data-fsync-observation data-interactive>
+          <h3>Run 2: có tracing</h3><p class="ar-caption" style="margin-top:5px">Cùng 3.000 expected key, AOF phục hồi đủ.</p>
+          <table class="ar-fsync-table" aria-label="Quan sát fsync từ run có tracing"><thead><tr><th>Delay (s)</th><th>Correct</th><th>Fsync</th></tr></thead><tbody><tr><td><button type="button" data-fsync-trial="0" aria-pressed="true" aria-label="Giải thích trial delay 0 giây">0</button></td><td>3.000</td><td class="ar-unconfirmed">Not confirmed</td></tr><tr><td><button type="button" data-fsync-trial="1" aria-pressed="false" aria-label="Giải thích trial delay 0,2 giây">0.2</button></td><td>3.000</td><td class="ar-confirmed">Confirmed</td></tr><tr><td><button type="button" data-fsync-trial="2" aria-pressed="false" aria-label="Giải thích trial delay 1,5 giây">1.5</button></td><td>3.000</td><td class="ar-confirmed">Confirmed</td></tr></tbody></table>
+          <p class="ar-fsync-explanation" data-fsync-feedback aria-live="polite">Delay 0: đủ 3.000 key nhưng Not confirmed. Phục hồi đủ không tự chứng minh delta đã sync trước kill.</p>
+        </div>
+      </div>
+      <p class="ar-conclusion">Khôi phục đủ ≠ xác nhận fsync ≠ kiểm chứng chịu mất nguồn</p>
+      <div class="ar-reveals ar-result-reveals"><details class="ds-reveal popover"><summary>Vì sao AOF còn đủ key?</summary><div class="ds-reveal-text">write có thể đã đưa byte vào OS page cache. SIGKILL kết thúc Redis nhưng page cache còn; instance mới có thể đọc lại. Đây không phải phép thử cắt nguồn.</div></details><details class="ds-reveal popover"><summary>Not confirmed khác Unknown?</summary><div class="ds-reveal-text">Not confirmed: chưa có sync đáp ứng đầy đủ điều kiện xác nhận thận trọng. Unknown: trace hoặc thời gian/nội dung chưa đủ rõ để kết luận. Không có Unknown trong các hàng log lần này.</div></details></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><strong>1:15.</strong> RDB phục hồi 2.000 baseline, thiếu 1.000 delta vì checkpoint có trước delta. Không suy ra RDB luôn mất một phần ba dữ liệu. AOF đủ 3.000 ở cả ba delay; phù hợp với việc page cache còn sau process crash. Ở run tracing, delay 0 đủ key nhưng Not confirmed; 0,2 và 1,5 giây là Confirmed.</p><p>Lịch everysec không bắt đầu lại từ ACK từng SET; 0,2 giây có thể gặp lần sync đến lịch. Đây là giải thích cơ chế có thể xảy ra, không phải suy ra timestamp syscall chính xác từ log. Confirmed là output của bộ quan sát ở giao diện OS. Tracing có overhead; mỗi delay chỉ một trial trong mỗi run. Chuyển sang cảm ơn/Q&A sau kết luận.</p>
+    <h3>Log mới: run không tracing</h3><table><thead><tr><th>Delay(s)</th><th>Mode</th><th>Expected</th><th>Correct</th><th>Missing</th><th>Corrupt</th><th>ACK(ms)</th></tr></thead><tbody><tr><td>0</td><td>RDB</td><td>3000</td><td>2000</td><td>1000</td><td>0</td><td>16.250</td></tr><tr><td>0</td><td>AOF</td><td>3000</td><td>3000</td><td>0</td><td>0</td><td>1.576</td></tr><tr><td>0.2</td><td>RDB</td><td>3000</td><td>2000</td><td>1000</td><td>0</td><td>207.419</td></tr><tr><td>0.2</td><td>AOF</td><td>3000</td><td>3000</td><td>0</td><td>0</td><td>204.933</td></tr><tr><td>1.5</td><td>RDB</td><td>3000</td><td>2000</td><td>1000</td><td>0</td><td>1515.678</td></tr><tr><td>1.5</td><td>AOF</td><td>3000</td><td>3000</td><td>0</td><td>0</td><td>1501.109</td></tr></tbody></table>
+    <h3>Log mới: run có tracing</h3><table><thead><tr><th>Delay(s)</th><th>Mode</th><th>Expected</th><th>Correct</th><th>Missing</th><th>Corrupt</th><th>ACK(ms)</th><th>Fsync</th></tr></thead><tbody><tr><td>0</td><td>RDB</td><td>3000</td><td>2000</td><td>1000</td><td>0</td><td>11.778</td><td>N/A</td></tr><tr><td>0</td><td>AOF</td><td>3000</td><td>3000</td><td>0</td><td>0</td><td>0.468</td><td>Not confirmed</td></tr><tr><td>0.2</td><td>RDB</td><td>3000</td><td>2000</td><td>1000</td><td>0</td><td>229.126</td><td>N/A</td></tr><tr><td>0.2</td><td>AOF</td><td>3000</td><td>3000</td><td>0</td><td>0</td><td>201.590</td><td>Confirmed</td></tr><tr><td>1.5</td><td>RDB</td><td>3000</td><td>2000</td><td>1000</td><td>0</td><td>1537.370</td><td>N/A</td></tr><tr><td>1.5</td><td>AOF</td><td>3000</td><td>3000</td><td>0</td><td>0</td><td>1502.981</td><td>Confirmed</td></tr></tbody></table>
+    <h3>Đọc INFO ở mốc baseline</h3><p>Terminal 2: DBSIZE cả hai là 2000, trước delta. RDB rdb_saves=1, last_bgsave_status=ok, bgsave_in_progress=0, changes_since_last_save=0. AOF enabled=1, rdb_saves=0, changes_since_last_save=2000, appendfsync=everysec. Status ok một mình không chứng minh đã có snapshot. Current CoW=0 không phủ nhận lần CoW trước; rdb_last_cow_size=311296 là byte, không phải số key.</p><p>AOF current_size=108023 là kích thước được INFO báo, không phải byte đã fsync; base_size=0 không phải số key hoặc bằng chứng file base không tồn tại. Buffer_length=0 và pending_bio_fsync=0 là trạng thái lúc đọc, không xác nhận fsync delta. Delayed_fsync=0 không phải số lần sync. Last_write_status=ok không cam kết chịu mất nguồn.</p>
+    <h3>Câu hỏi dự phòng</h3><p>Expected dựa trên SET đã ACK. Correct kiểm tra cả value; Corrupt là value sai, không tự kết luận file hỏng. ACK(ms) đo ACK→kill, không phải thời lượng fsync. N/A của RDB là không thuộc phép xác nhận AOF. Confirmed đòi hỏi sync đúng file, sau các ghi đối chiếu, hoàn tất trước mốc kill; chưa chứng minh toàn bộ thiết bị chịu mất nguồn.</p><p>Nguồn số liệu: presentation-notes-04.md phần C, log người trình bày. Định nghĩa INFO: <a href="https://redis.io/docs/latest/commands/info/" target="_blank" rel="noopener noreferrer">Redis INFO</a>. Phương pháp: demos/04-persistence-crash/scripts/fsync_trace.py.</p>
+  </aside>
 </section>
 
 <section class="slide closing" id="qa" aria-labelledby="qa-heading">
@@ -753,6 +1043,9 @@ th { font-weight:600; }
      videoUrl: direct MP4/webm URL (or a relative file path if sending the media too).
      driveUrl: shared Google Drive page. It opens only when the presenter clicks. -->
 <script type="application/json" id="demo01-config">{"videoUrl":"","driveUrl":""}</script>
+<!-- Persistence demo: paste the shared Drive page into driveUrl when available.
+     videoUrl accepts a directly playable video URL or a relative media path. -->
+<script type="application/json" id="demo04-config">{"videoUrl":"","driveUrl":""}</script>
 <script>
 (() => {
   'use strict';
@@ -820,7 +1113,8 @@ th { font-weight:600; }
   }
   document.addEventListener('keydown', event => {
     if (imageDialog.open || event.altKey || event.ctrlKey || event.metaKey) return;
-    if (event.target.closest('button,a,summary,input,textarea,select,video,[contenteditable="true"],[data-interactive]')) return;
+    if (event.target.closest('input,textarea,select,video,[contenteditable="true"]')) return;
+    if (['Enter',' '].includes(event.key) && event.target.closest('button,a,summary')) return;
     if (['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(event.key)) {
       event.preventDefault(); show(index + 1);
     } else if (['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(event.key)) {
@@ -952,6 +1246,142 @@ th { font-weight:600; }
     videoStatus.textContent = 'Không mở được video. Hãy chọn file MP4 khác hoặc mở từ Drive.';
   });
   addEventListener('pagehide', () => { if (localVideoUrl) URL.revokeObjectURL(localVideoUrl); });
+
+  // Editable architecture diagrams. Only explicit clicks advance their state.
+  // The state changes illustrate the supplied mechanism and recorded dataset.
+  document.querySelectorAll('[data-choice-group]').forEach(group => {
+    group.querySelectorAll('[data-choice]').forEach(button => {
+      if (button.closest('[data-choice-group]') !== group) return;
+      button.addEventListener('click', () => {
+        group.querySelectorAll('[data-choice-panel]').forEach(part => {
+          if (part.closest('[data-choice-group]') === group) part.toggleAttribute('hidden', part.dataset.choicePanel !== button.dataset.choice);
+        });
+        group.querySelectorAll('[data-choice]').forEach(control => {
+          if (control.closest('[data-choice-group]') === group) control.setAttribute('aria-pressed', String(control === button));
+        });
+        group.querySelectorAll('video').forEach(media => media.pause());
+      });
+    });
+  });
+  document.querySelectorAll('[data-request-diagram]').forEach(diagram => {
+    const stages = [
+      {nodes:['socket'], text:'Redis theo dõi nhiều socket; socket chưa sẵn sàng không giữ Redis đứng chờ riêng client đó.'},
+      {nodes:['multiplex','event'], text:'Hệ điều hành báo socket sẵn sàng. Event loop điều phối nhận request và các sự kiện.'},
+      {nodes:['execute','ram'], text:'Main thread thực thi lệnh dữ liệu trên RAM. Phần lớn logic lệnh được xử lý tuần tự.'},
+      {nodes:['event','ram'], text:'Redis dựng phản hồi và gửi về đúng client. Nhiều kết nối vẫn cùng tồn tại.'}
+    ];
+    diagram.querySelectorAll('[data-request-step]').forEach(button => {
+      button.addEventListener('click', () => {
+        const stage = stages[Number(button.dataset.requestStep)];
+        diagram.querySelectorAll('[data-request-node]').forEach(node => node.classList.toggle('is-lit', stage.nodes.includes(node.dataset.requestNode)));
+        diagram.querySelectorAll('[data-request-step]').forEach(control => control.setAttribute('aria-pressed', String(control === button)));
+        diagram.querySelector('[data-request-feedback]').textContent = stage.text;
+      });
+    });
+  });
+  document.querySelectorAll('[data-fault-model]').forEach(model => {
+    model.querySelectorAll('button[data-fault]').forEach(button => {
+      button.addEventListener('click', () => {
+        const power = button.dataset.fault === 'power';
+        model.querySelector('.ar-sync-figure').dataset.fault = button.dataset.fault;
+        model.querySelector('[data-process-fault-label]').textContent = power ? 'MÔ HÌNH MẤT NGUỒN' : 'SIGKILL';
+        model.querySelector('[data-fault-feedback]').textContent = power
+          ? 'Khi máy mất nguồn, dữ liệu chưa đồng bộ trong RAM/page cache có nguy cơ mất. Khả năng phục hồi phụ thuộc dữ liệu đã lưu bền vững.'
+          : 'SIGKILL kết thúc Redis; OS và page cache vẫn còn. Instance mới có thể đọc lại byte đã write.';
+        model.querySelectorAll('button[data-fault]').forEach(control => control.setAttribute('aria-pressed', String(control === button)));
+      });
+    });
+  });
+  document.querySelectorAll('[data-demo-procedure]').forEach(procedure => {
+    const explanations = {
+      baseline:'Mốc pause: DBSIZE của cả hai là 2.000. Chỉ RDB đã tạo checkpoint; delta chưa được ghi.',
+      delta:'Sau 1.000 delta đã ACK: Expected = 3.000. Chờ 0 / 0,2 / 1,5 giây rồi SIGKILL. Không đo DBSIZE sau delta trong log này.',
+      recovery:'Restart đúng config/data rồi đối chiếu key và value. RDB Correct 2.000, AOF Correct 3.000; Corrupt = 0.'
+    };
+    procedure.querySelectorAll('[data-demo-step]').forEach(button => {
+      button.addEventListener('click', () => {
+        procedure.querySelectorAll('[data-demo-node]').forEach(node => node.classList.toggle('is-lit', node.dataset.demoNode === button.dataset.demoStep));
+        procedure.querySelectorAll('[data-demo-step]').forEach(control => control.setAttribute('aria-pressed', String(control === button)));
+        procedure.querySelector('[data-demo-feedback]').textContent = explanations[button.dataset.demoStep];
+      });
+    });
+  });
+  document.querySelectorAll('[data-recovery-chart]').forEach(chart => {
+    chart.querySelectorAll('[data-chart-state]').forEach(button => {
+      button.addEventListener('click', () => {
+        const before = button.dataset.chartState === 'before';
+        chart.querySelector('[data-recovery-bar="rdb"]').style.width = before ? '100%' : '66.666667%';
+        chart.querySelector('[data-recovery-bar="rdb"]').textContent = before ? '3.000' : '2.000';
+        chart.querySelector('[data-chart-heading]').textContent = before ? 'Expected trước crash' : 'Correct sau restart';
+        chart.querySelector('[data-recovery-hint="rdb"]').textContent = before ? 'Expected: baseline + delta đã ACK.' : '2.000 baseline còn, 1.000 delta thiếu.';
+        chart.querySelector('[data-recovery-hint="aof"]').textContent = before ? 'Expected: baseline + delta đã ACK.' : 'Phục hồi đủ, không có key thiếu.';
+        chart.querySelector('[data-bar-accessible="rdb"]').setAttribute('aria-label', before ? 'RDB có 3.000 Expected từ số SET đã ACK, không phải DBSIZE đo trực tiếp' : 'RDB khôi phục 2.000 key trên tổng 3.000 Expected');
+        chart.querySelector('[data-bar-accessible="aof"]').setAttribute('aria-label', before ? 'AOF có 3.000 Expected từ số SET đã ACK' : 'AOF khôi phục đủ 3.000 key');
+        chart.querySelector('[data-recovery-caption]').textContent = before
+          ? 'Expected từ SET đã ACK. DBSIZE ở terminal 2 chỉ được đo trước delta, khi có 2.000 key.'
+          : 'Corrupt = 0 ở cả hai mode. Kết quả phục hồi giống nhau trong cả ba trial của hai run.';
+        chart.querySelectorAll('[data-chart-state]').forEach(control => control.setAttribute('aria-pressed', String(control === button)));
+      });
+    });
+  });
+  document.querySelectorAll('[data-fsync-observation]').forEach(observation => {
+    const explanations = [
+      'Delay 0: đủ 3.000 key nhưng Not confirmed. Phục hồi đủ không tự chứng minh delta đã sync trước kill.',
+      'Delay 0,2: Confirmed. Lịch sync nền không bắt đầu lại từ ACK; một lần sync có thể đến trong khoảng chờ này.',
+      'Delay 1,5: Confirmed trong trial này, ở giao diện OS. Đây chưa phải kiểm chứng toàn bộ storage trước mất nguồn.'
+    ];
+    observation.querySelectorAll('[data-fsync-trial]').forEach(button => {
+      button.addEventListener('click', () => {
+        observation.querySelector('[data-fsync-feedback]').textContent = explanations[Number(button.dataset.fsyncTrial)];
+        observation.querySelectorAll('[data-fsync-trial]').forEach(control => control.setAttribute('aria-pressed', String(control === button)));
+      });
+    });
+  });
+
+  // Demo 04 remains offline and request-free until a source is configured/chosen.
+  const persistenceVideo = document.getElementById('demo04-video');
+  const persistencePlaceholder = document.getElementById('demo04-placeholder');
+  const persistenceStatus = document.getElementById('demo04-status');
+  const persistenceFile = document.getElementById('demo04-file');
+  let persistenceLocalUrl = null;
+  let persistenceSettings = {};
+  try { persistenceSettings = JSON.parse(document.getElementById('demo04-config').textContent); }
+  catch { persistenceStatus.textContent = 'Chọn video từ máy để trình chiếu.'; }
+  function setPersistenceVideo(source, label) {
+    persistenceVideo.pause();
+    if (persistenceLocalUrl && persistenceLocalUrl !== source) { URL.revokeObjectURL(persistenceLocalUrl); persistenceLocalUrl = null; }
+    persistenceVideo.src = source;
+    persistenceVideo.hidden = false;
+    persistencePlaceholder.hidden = true;
+    persistenceStatus.textContent = label;
+    persistenceVideo.load();
+  }
+  if (persistenceSettings.videoUrl) setPersistenceVideo(persistenceSettings.videoUrl, 'Demo 04 / Redis Persistence');
+  if (typeof persistenceSettings.driveUrl === 'string' && /^https?:\/\//i.test(persistenceSettings.driveUrl)) {
+    const drive = document.getElementById('demo04-drive');
+    drive.href = persistenceSettings.driveUrl;
+    drive.hidden = false;
+  }
+  document.getElementById('demo04-choose').addEventListener('click', () => persistenceFile.click());
+  persistenceFile.addEventListener('change', () => {
+    const file = persistenceFile.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('video/') && !/\.(mp4|webm|mov|m4v|ogv)$/i.test(file.name)) {
+      persistenceStatus.textContent = 'Vui lòng chọn một file video.';
+      persistenceFile.value = '';
+      return;
+    }
+    const source = URL.createObjectURL(file);
+    setPersistenceVideo(source, file.name);
+    persistenceLocalUrl = source;
+    persistenceFile.value = '';
+  });
+  persistenceVideo.addEventListener('error', () => {
+    persistenceVideo.hidden = true;
+    persistencePlaceholder.hidden = false;
+    persistenceStatus.textContent = 'Không mở được video. Hãy chọn file MP4 khác hoặc mở từ Drive.';
+  });
+  addEventListener('pagehide', () => { if (persistenceLocalUrl) URL.revokeObjectURL(persistenceLocalUrl); });
   addEventListener('resize', fit);
   addEventListener('hashchange', () => show(hashIndex(), false));
   setTimeout(() => controls.classList.remove('visible'), 4000);
