@@ -69,7 +69,7 @@ Ví dụ `--trials 5 --delays 0,1.5` chọn lần lượt 0; 1,5; 0; 1,5; 0 giâ
 
 ### 3.3. Vì sao đoạn sau ACK phải ngắn?
 
-Cửa sổ mặc định là: delta hoàn tất ACK của hai bên, delay yêu cầu, gửi tín hiệu AOF rồi RDB. Không chèn `INFO`, ghi JSON hoặc kiểm tra qua mạng vào đoạn này. Nếu chèn, AOF có thêm cơ hội fsync và phép đo “delay 0” dễ bị hiểu sai.
+Cửa sổ mặc định là: delta hoàn tất ACK của hai bên, delay yêu cầu, gửi tín hiệu AOF rồi RDB. Không chèn `INFO`, ghi JSON hoặc kiểm tra qua mạng vào đoạn này. Nếu chèn, AOF có thêm cơ hội fsync và phép đo "delay 0" dễ bị hiểu sai.
 
 `write_both()` hoàn tất khi hai worker đều trả kết quả; mỗi bên có timestamp ACK riêng. Vì vậy `ack_to_kill_seconds` tính riêng cho từng instance, không lấy delay nhập vào làm số đo. Timestamp được lấy sau khi `write_range()` đã đọc đủ ACK và đóng kết nối ghi, nên đây là mốc quan sát phía client, không phải thời điểm nội bộ Redis thực thi `SET` cuối.
 
@@ -137,7 +137,7 @@ Quan hệ cần giải thích:
 
 `checkpoint_rdb()` ghi nhận bộ đếm save trước, gọi BGSAVE, polling tối đa 60 giây, kiểm tra không còn save đang chạy, trạng thái `ok`, bộ đếm tăng nếu có trường đó, và `dump.rdb` tồn tại.
 
-Phản hồi “Background saving started” được redis-py chuyển thành `True`, chỉ xác nhận đã nhận yêu cầu. Trạng thái `ok` đơn lẻ có thể thuộc lần save trước. Các kiểm tra kết hợp với bộ đếm và cờ tiến độ dạng số tránh cho delta bắt đầu khi snapshot chưa hoàn tất hoặc không tạo được snapshot mới.
+Phản hồi "Background saving started" được redis-py chuyển thành `True`, chỉ xác nhận đã nhận yêu cầu. Trạng thái `ok` đơn lẻ có thể thuộc lần save trước. Các kiểm tra kết hợp với bộ đếm và cờ tiến độ dạng số tránh cho delta bắt đầu khi snapshot chưa hoàn tất hoặc không tạo được snapshot mới.
 
 ### 5.3. Danh tính tiến trình và kill
 

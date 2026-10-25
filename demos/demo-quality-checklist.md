@@ -1,6 +1,6 @@
 # Checklist phần môi trường và chất lượng demo
 
-Checklist dùng khi bàn giao từng demo và chạy tích hợp cả nhóm. Kết quả từng lần kiểm tra nằm trong [environment-verification.md](environment-verification.md); lệnh vận hành nằm trong [linux/commands.md](../linux/commands.md).
+Checklist dùng khi bàn giao từng demo và chạy tích hợp cả nhóm.
 
 ## Môi trường dùng chung
 
@@ -11,8 +11,6 @@ Checklist dùng khi bàn giao từng demo và chạy tích hợp cả nhóm. K�
 - [ ] Khi tích hợp, service 6379 và đủ năm instance 6380–6384 hoạt động; `bash linux/check.sh` trả `PASS`.
 - [ ] Bốn workload cuối chạy được trên VM 512 MB; ghi rõ swap và điều kiện đo.
 - [ ] Có hướng dẫn stop/start/reset và khôi phục thư mục sau reboot.
-
-Đây là checklist dùng lại cho mỗi lần review, không phải nhật ký hoàn thành. Minh chứng hạ tầng đã có trong [lần chạy VMware](screenshots/00-environment-setup/vmware-2026-10-20/README.md); các workload được kiểm tra riêng khi chủ phần bàn giao.
 
 ## Bàn giao tối thiểu từ mỗi chủ demo
 
@@ -65,14 +63,7 @@ Checklist dùng khi bàn giao từng demo và chạy tích hợp cả nhóm. K�
 
 ## Duyệt chung trước nộp
 
-- [ ] Bốn demo có người sở hữu và kết quả review rõ ràng.
-- [ ] Phần tổng quan và môi trường gói trong khoảng 5 phút, gồm video khoảng 90 giây; chỉ giới thiệu các nội dung sẽ được đào sâu ở từng demo.
+- [ ] Bốn demo có kết quả review rõ ràng.
 - [ ] Cùng thuật ngữ, port và phiên bản trên code, slides, video.
-- [ ] Chạy thử cả nhóm trong 30–45 phút, thống nhất thời gian Q&A với giảng viên/nhóm.
+- [ ] Chạy thử cả nhóm trong 30-45 phút, thống nhất thời gian Q&A với giảng viên/nhóm.
 - [ ] Slide không chứa số liệu dự đoán được trình bày như kết quả đo.
-- [ ] Video playback hoạt động trên máy trình chiếu, có bản offline dự phòng.
-- [ ] Chốt ai nộp slides và định dạng Moodle chấp nhận; kiểm tra upload cuối.
-
-## Nội dung PR của phần môi trường
-
-Nêu thay đổi, cách chạy, kết quả kiểm tra và mục còn lại. Link minh chứng cần thiết; không đưa nhật ký thao tác hoặc đường dẫn máy cá nhân vào hướng dẫn dùng chung. Người review phải chạy lại được từ repo.
